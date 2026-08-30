@@ -113,7 +113,10 @@ HalSerialStatus_t HalSerial_WriteAsync(HalSerialPort_t port,
 HalSerialStatus_t HalSerial_AbortWrite(HalSerialPort_t port);
 bool HalSerial_IsWriteBusy(HalSerialPort_t port);
 
-/* Called by the product-owned USART ISR/DMA completion glue. */
+/*
+ * L01 MCU Driver Adapter calls these notification functions from its
+ * ISR/DMA completion glue. L02 and L03 never include vendor SDK headers.
+ */
 void HalSerial_NotifyReceiveFromIsr(HalSerialPort_t port,
                                     const uint8_t *data,
                                     size_t length);
