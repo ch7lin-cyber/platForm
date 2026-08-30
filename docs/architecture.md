@@ -4,7 +4,7 @@
 
 ```text
 L05 Application                         product repository
-    -> L04 Function Block               reusable module
+    -> L04 Function Block               this repository
     -> L03 System Platform              this repository
     -> L02 BSP                          product repository
     -> L02 Platform HAL                 this repository
@@ -27,7 +27,7 @@ purposes.
 | L02 Platform HAL API and core | `platForm` | No |
 | L02 BSP mapping | product repository | Normally no; change only for a different board/product mapping |
 | L03 System Platform | `platForm` | No |
-| L04 Function Blocks | module repository | No |
+| L04 Function Blocks | `platForm` | No |
 | L05 Application | product repository | No |
 
 ## L01 to L02 contract
@@ -78,7 +78,7 @@ error state unless a peripheral was intentionally excluded from the Wizard.
 ## Boundary rules
 
 1. Only product-owned L01 files may include MCU vendor headers.
-2. L02 Platform HAL and L03 System Platform must not include `fsl_*`, STM32 HAL,
+2. L02 Platform HAL, L03 System Platform, and L04 Function Block must not include `fsl_*`, STM32 HAL,
    Renesas FSP, TI DriverLib, or other vendor headers.
 3. L03 depends only on L02 interfaces; it must not call L01 directly.
 4. L01 implements and registers the contracts declared by L02.
@@ -86,3 +86,5 @@ error state unless a peripheral was intentionally excluded from the Wizard.
    belong to BSP mapping, not to the generic HAL.
 6. Dependency arrows always point downward; vendor code never calls L03–L05
    directly. ISR notifications enter through explicit L02 callback APIs.
+7. L04 receives process data and services through L03 contracts. L04 never
+   accesses L01, MCU instances, ISR glue, or vendor registers directly.

@@ -6,6 +6,7 @@ option(PLATFORM_BUILD_TESTS "Build platform unit tests" OFF)
 
 add_subdirectory(L02_PlatformHAL)
 add_subdirectory(L03_SystemPlatform)
+add_subdirectory(L04_FunctionBlock)
 
 if(PLATFORM_BUILD_TESTS)
     enable_testing()
