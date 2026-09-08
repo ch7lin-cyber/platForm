@@ -3,6 +3,7 @@
 
 #include "ModbusFunction06.h"
 #include "ModbusRegisterAdapter.h"
+#include "EventService.h"
 
 int main(void)
 {
@@ -21,6 +22,7 @@ int main(void)
         MODBUS_SERIAL_BAUD_115200,
         9U
     };
+    SerialConfigurationChangedEvent_t event;
 
     assert(ModbusRegisterAdapter_GetSerialAddress(
         0U, MODBUS_SERIAL_REGISTER_BAUD_CODE, &address));
@@ -71,6 +73,7 @@ int main(void)
     SerialConfiguration_SetRtuDefault(&active.serial,
                                       SERIAL_ROLE_MODBUS_SLAVE);
     active.unit_id = 4U;
+    assert(EventService_Initialize(EVENT_ACK_SERIAL_REQUIRED_DEFAULT));
     assert(ModbusRegisterAdapter_InitializeSerialPort(0U, &active));
 
     request[0] = MODBUS_FUNCTION_WRITE_SINGLE_REGISTER;
@@ -110,6 +113,18 @@ int main(void)
     assert(ModbusRegisterAdapter_ReadSerialRegister(0x120AU, &baud_code) ==
            MODBUS_EXCEPTION_NONE);
     assert(baud_code == 1U);
+    assert(EventService_GetSerialConfigurationChanged(0U, &event));
+    assert(event.type == EVENT_TYPE_SERIAL_CONFIGURATION_CHANGED);
+    assert(event.configuration_revision == 1U);
+    assert(event.old_configuration.serial.line.baud_rate == 115200UL);
+    assert(event.new_configuration.serial.line.baud_rate == 38400UL);
+    assert(event.completed_ack_mask == EVENT_ACK_COMMUNICATION);
+    assert(EventService_Acknowledge(event.event_id, EVENT_ACK_NVM));
+    assert(EventService_Acknowledge(event.event_id, EVENT_ACK_HMI));
+    assert(EventService_IsSerialConfigurationChangedPending(0U));
+    assert(EventService_Acknowledge(event.event_id, EVENT_ACK_DIAGNOSTICS));
+    assert(!EventService_IsSerialConfigurationChangedPending(0U));
+    assert(!EventService_Acknowledge(event.event_id, EVENT_ACK_NVM));
 
     assert(ModbusRegisterAdapter_WriteMultipleRegisters(
         NULL, 0x1200U, invalid_multiple, 2U) ==

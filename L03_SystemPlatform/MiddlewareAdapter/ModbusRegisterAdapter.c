@@ -2,6 +2,8 @@
 
 #include <stddef.h>
 
+#include "EventService.h"
+
 typedef struct
 {
     ModbusSerialRegisterOffset_t field;
@@ -487,6 +489,9 @@ bool ModbusRegisterAdapter_BeginApply(
 bool ModbusRegisterAdapter_CompleteApply(uint8_t port, bool successful)
 {
     SerialConfigurationInstance_t *instance;
+    EventSerialConfiguration_t old_configuration;
+    EventSerialConfiguration_t new_configuration;
+    uint32_t event_id;
 
     if (port >= MODBUS_SERIAL_REGISTER_PORT_COUNT)
     {
@@ -502,9 +507,22 @@ bool ModbusRegisterAdapter_CompleteApply(uint8_t port, bool successful)
     instance->apply_requested = false;
     if (successful)
     {
+        old_configuration.serial = instance->active.serial;
+        old_configuration.unit_id = instance->active.unit_id;
         instance->active = instance->pending;
         instance->revision++;
         instance->status = MODBUS_SERIAL_STATUS_ACTIVE;
+
+        new_configuration.serial = instance->active.serial;
+        new_configuration.unit_id = instance->active.unit_id;
+        if (EventService_RaiseSerialConfigurationChanged(
+                port, instance->revision,
+                &old_configuration, &new_configuration, &event_id))
+        {
+            /* Successful hardware completion is Communication's ACK. */
+            (void)EventService_Acknowledge(event_id,
+                                           EVENT_ACK_COMMUNICATION);
+        }
     }
     else
     {

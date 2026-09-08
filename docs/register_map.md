@@ -48,3 +48,17 @@ by the following integration step.
 
 Read/write configuration registers show Pending values. Revision changes only
 after a successful hardware apply.
+
+### Configuration-changed event
+
+After `CompleteApply(true)`, `EventService` publishes one
+`SERIAL_CONFIGURATION_CHANGED` event containing the port, new revision, old
+configuration and new configuration. The hardware completion records the
+Communication ACK immediately. NVM, HMI and Diagnostics must each acknowledge
+the same event ID. `EventService` clears the event only after every required
+ACK is present.
+
+If the same port changes again before all consumers acknowledge the previous
+revision, the port's event slot is replaced with the newest revision and its
+ACK mask is reset. Consumers must therefore converge to the configuration in
+the newest event rather than depend on every intermediate configuration.
