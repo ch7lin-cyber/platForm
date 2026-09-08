@@ -2,6 +2,9 @@ add_library(PlatformL03Serial STATIC
     Communication/SerialService/SerialConfiguration.c
     Communication/SerialService/SerialRingBuffer.c
     Communication/SerialService/SerialService.c
+    Communication/ModbusCore/ModbusPdu.c
+    Communication/ModbusCore/ModbusFunction06.c
+    Communication/ModbusCore/ModbusFunction10.c
 )
 
 add_library(Platform::L03Serial ALIAS PlatformL03Serial)
@@ -9,6 +12,7 @@ add_library(Platform::L03Serial ALIAS PlatformL03Serial)
 target_include_directories(PlatformL03Serial
     PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}/Communication/SerialService
+        ${CMAKE_CURRENT_LIST_DIR}/Communication/ModbusCore
 )
 
 target_link_libraries(PlatformL03Serial PUBLIC Platform::L02Hal)
