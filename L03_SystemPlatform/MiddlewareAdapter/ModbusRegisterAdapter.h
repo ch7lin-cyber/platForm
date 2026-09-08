@@ -118,6 +118,7 @@ bool ModbusRegisterAdapter_BeginApply(
     uint8_t port,
     ModbusSerialPortConfiguration_t *configuration);
 bool ModbusRegisterAdapter_CompleteApply(uint8_t port, bool successful);
+bool ModbusRegisterAdapter_CancelApply(uint8_t port);
 bool ModbusRegisterAdapter_DiscardPending(uint8_t port);
 
 #ifdef __cplusplus

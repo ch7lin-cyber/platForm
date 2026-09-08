@@ -7,6 +7,7 @@ add_library(PlatformL03Serial STATIC
     Communication/ModbusCore/ModbusFunction10.c
     MiddlewareAdapter/ModbusRegisterAdapter.c
     SystemService/EventService/EventService.c
+    SystemService/SerialConfigurationApplyService/SerialConfigurationApplyService.c
 )
 
 add_library(Platform::L03Serial ALIAS PlatformL03Serial)
@@ -17,6 +18,7 @@ target_include_directories(PlatformL03Serial
         ${CMAKE_CURRENT_LIST_DIR}/Communication/ModbusCore
         ${CMAKE_CURRENT_LIST_DIR}/MiddlewareAdapter
         ${CMAKE_CURRENT_LIST_DIR}/SystemService/EventService
+        ${CMAKE_CURRENT_LIST_DIR}/SystemService/SerialConfigurationApplyService
 )
 
 target_link_libraries(PlatformL03Serial PUBLIC Platform::L02Hal)

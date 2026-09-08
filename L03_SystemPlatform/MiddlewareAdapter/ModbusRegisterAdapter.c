@@ -531,6 +531,26 @@ bool ModbusRegisterAdapter_CompleteApply(uint8_t port, bool successful)
     return true;
 }
 
+bool ModbusRegisterAdapter_CancelApply(uint8_t port)
+{
+    SerialConfigurationInstance_t *instance;
+
+    if (port >= MODBUS_SERIAL_REGISTER_PORT_COUNT)
+    {
+        return false;
+    }
+    instance = &g_serial_configuration[port];
+    if ((!instance->initialized) ||
+        (instance->status != MODBUS_SERIAL_STATUS_WAITING_TX_COMPLETE))
+    {
+        return false;
+    }
+
+    instance->apply_requested = false;
+    instance->status = MODBUS_SERIAL_STATUS_ERROR;
+    return true;
+}
+
 bool ModbusRegisterAdapter_DiscardPending(uint8_t port)
 {
     SerialConfigurationInstance_t *instance;
