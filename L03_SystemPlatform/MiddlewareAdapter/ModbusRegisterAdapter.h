@@ -4,6 +4,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "ModbusPdu.h"
+#include "SerialConfiguration.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -67,6 +70,12 @@ typedef struct
     ModbusRegisterAccess_t access;
 } ModbusSerialRegisterInfo_t;
 
+typedef struct
+{
+    SerialConfiguration_t serial;
+    uint16_t unit_id;
+} ModbusSerialPortConfiguration_t;
+
 bool ModbusRegisterAdapter_GetSerialAddress(
     uint8_t port,
     ModbusSerialRegisterOffset_t field,
@@ -83,6 +92,33 @@ bool ModbusRegisterAdapter_BaudCodeToRate(
 bool ModbusRegisterAdapter_BaudRateToCode(
     uint32_t baud_rate,
     uint16_t *baud_code);
+bool ModbusRegisterAdapter_InitializeSerialPort(
+    uint8_t port,
+    const ModbusSerialPortConfiguration_t *configuration);
+bool ModbusRegisterAdapter_GetActiveSerialConfiguration(
+    uint8_t port,
+    ModbusSerialPortConfiguration_t *configuration);
+bool ModbusRegisterAdapter_GetPendingSerialConfiguration(
+    uint8_t port,
+    ModbusSerialPortConfiguration_t *configuration);
+ModbusExceptionCode_t ModbusRegisterAdapter_ReadSerialRegister(
+    uint16_t address,
+    uint16_t *value);
+ModbusExceptionCode_t ModbusRegisterAdapter_WriteSingleRegister(
+    void *context,
+    uint16_t address,
+    uint16_t value);
+ModbusExceptionCode_t ModbusRegisterAdapter_WriteMultipleRegisters(
+    void *context,
+    uint16_t starting_address,
+    const uint16_t *values,
+    uint16_t quantity);
+bool ModbusRegisterAdapter_IsApplyRequested(uint8_t port);
+bool ModbusRegisterAdapter_BeginApply(
+    uint8_t port,
+    ModbusSerialPortConfiguration_t *configuration);
+bool ModbusRegisterAdapter_CompleteApply(uint8_t port, bool successful);
+bool ModbusRegisterAdapter_DiscardPending(uint8_t port);
 
 #ifdef __cplusplus
 }

@@ -30,3 +30,21 @@ Example: serial port 0 baud code is `0x1200`; serial port 1 baud code is
 Writes update a pending configuration. They do not immediately reconfigure
 the UART. The apply state machine and old-baud response timing are implemented
 by the following integration step.
+
+### Pending and apply behavior
+
+1. Function `0x06` updates one pending field.
+2. Function `0x10` validates the complete request before changing any pending
+   field; a failed request therefore cannot leave a partial configuration.
+3. Writing `0xA5A5` to Apply validates the complete pending configuration and
+   changes Status to `Waiting TX`.
+4. New configuration writes return Modbus exception `0x06` (device busy) while
+   Status is `Waiting TX` or `Applying`.
+5. The communication task calls `BeginApply()` only after the old-setting
+   Modbus response has finished transmitting.
+6. A successful `CompleteApply()` makes Pending active and increments Revision.
+   A failed completion preserves the previous Active configuration and changes
+   Status to `Error`.
+
+Read/write configuration registers show Pending values. Revision changes only
+after a successful hardware apply.
