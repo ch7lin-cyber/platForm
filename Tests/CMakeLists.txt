@@ -12,6 +12,12 @@ add_executable(test_modbus_write_functions
 target_link_libraries(test_modbus_write_functions PRIVATE Platform::L03Serial)
 add_test(NAME modbus_write_functions COMMAND test_modbus_write_functions)
 
+add_executable(test_modbus_rtu_slave
+    Unit/ModbusCore/test_modbus_rtu_slave.c
+)
+target_link_libraries(test_modbus_rtu_slave PRIVATE Platform::L03Serial)
+add_test(NAME modbus_rtu_slave COMMAND test_modbus_rtu_slave)
+
 add_executable(test_modbus_register_adapter
     Unit/ModbusRegisterAdapter/test_modbus_register_adapter.c
 )

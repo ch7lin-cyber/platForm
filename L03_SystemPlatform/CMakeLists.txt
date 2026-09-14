@@ -3,8 +3,13 @@ add_library(PlatformL03Serial STATIC
     Communication/SerialService/SerialRingBuffer.c
     Communication/SerialService/SerialService.c
     Communication/ModbusCore/ModbusPdu.c
+    Communication/ModbusCore/ModbusCrc16.c
+    Communication/ModbusCore/ModbusRtuFramer.c
+    Communication/ModbusCore/ModbusFunction03.c
+    Communication/ModbusCore/ModbusFunction04.c
     Communication/ModbusCore/ModbusFunction06.c
     Communication/ModbusCore/ModbusFunction10.c
+    Communication/ModbusSlave/ModbusSlave.c
     MiddlewareAdapter/ModbusRegisterAdapter.c
     SystemService/EventService/EventService.c
     SystemService/SerialConfigurationApplyService/SerialConfigurationApplyService.c
@@ -16,6 +21,7 @@ target_include_directories(PlatformL03Serial
     PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}/Communication/SerialService
         ${CMAKE_CURRENT_LIST_DIR}/Communication/ModbusCore
+        ${CMAKE_CURRENT_LIST_DIR}/Communication/ModbusSlave
         ${CMAKE_CURRENT_LIST_DIR}/MiddlewareAdapter
         ${CMAKE_CURRENT_LIST_DIR}/SystemService/EventService
         ${CMAKE_CURRENT_LIST_DIR}/SystemService/SerialConfigurationApplyService
