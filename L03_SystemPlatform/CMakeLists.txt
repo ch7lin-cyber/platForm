@@ -4,7 +4,9 @@ add_library(PlatformL03Serial STATIC
     Communication/SerialService/SerialService.c
     Communication/ModbusCore/ModbusPdu.c
     Communication/ModbusCore/ModbusCrc16.c
+    Communication/ModbusCore/ModbusLrc.c
     Communication/ModbusCore/ModbusRtuFramer.c
+    Communication/ModbusCore/ModbusAsciiFramer.c
     Communication/ModbusCore/ModbusFunction03.c
     Communication/ModbusCore/ModbusFunction04.c
     Communication/ModbusCore/ModbusFunction06.c

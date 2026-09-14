@@ -22,6 +22,7 @@ typedef enum
     MODBUS_SLAVE_RESULT_PROCESSED_NO_RESPONSE,
     MODBUS_SLAVE_RESULT_IGNORED,
     MODBUS_SLAVE_RESULT_CRC_ERROR,
+    MODBUS_SLAVE_RESULT_LRC_ERROR,
     MODBUS_SLAVE_RESULT_INVALID_ARGUMENT,
     MODBUS_SLAVE_RESULT_RESPONSE_TOO_SMALL
 } ModbusSlaveResult_t;
@@ -42,6 +43,14 @@ typedef struct
 } ModbusSlaveConfig_t;
 
 ModbusSlaveResult_t ModbusSlave_ProcessRtuRequest(
+    const ModbusSlaveConfig_t *config,
+    const uint8_t *request_adu,
+    size_t request_length,
+    uint8_t *response_adu,
+    size_t response_capacity,
+    size_t *response_length);
+
+ModbusSlaveResult_t ModbusSlave_ProcessAsciiRequest(
     const ModbusSlaveConfig_t *config,
     const uint8_t *request_adu,
     size_t request_length,
