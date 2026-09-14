@@ -53,7 +53,8 @@ bool ModbusCrc16_Append(uint8_t *frame, size_t payload_length, size_t capacity)
 {
     uint16_t crc;
 
-    if ((frame == NULL) || (payload_length > (capacity - ((capacity >= 2U) ? 2U : capacity))))
+    if ((frame == NULL) || (capacity < 2U) ||
+        (payload_length > (capacity - 2U)))
     {
         return false;
     }
