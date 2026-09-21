@@ -8,6 +8,8 @@ add_library(PlatformL03Serial STATIC
     MiddlewareAdapter/ModbusRegisterAdapter.c
     SystemService/EventService/EventService.c
     SystemService/PwmOutputService/PwmOutputService.c
+    SystemService/NvmService/NvmService.c
+    SystemService/NvmService/NvmConfigurationEventConsumer.c
 )
 
 add_library(Platform::L03Serial ALIAS PlatformL03Serial)
@@ -19,6 +21,7 @@ target_include_directories(PlatformL03Serial
         ${CMAKE_CURRENT_LIST_DIR}/MiddlewareAdapter
         ${CMAKE_CURRENT_LIST_DIR}/SystemService/EventService
         ${CMAKE_CURRENT_LIST_DIR}/SystemService/PwmOutputService
+        ${CMAKE_CURRENT_LIST_DIR}/SystemService/NvmService
 )
 
 target_link_libraries(PlatformL03Serial PUBLIC Platform::L02Hal)

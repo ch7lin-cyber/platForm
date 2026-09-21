@@ -77,3 +77,8 @@ add_executable(test_pwm_output_service
 )
 target_link_libraries(test_pwm_output_service PRIVATE Platform::L03Serial)
 add_test(NAME pwm_output_service COMMAND test_pwm_output_service)
+add_executable(test_nvm_service
+    Unit/L03_SystemPlatform/test_nvm_service.c
+)
+target_link_libraries(test_nvm_service PRIVATE Platform::L03Serial)
+add_test(NAME nvm_service COMMAND test_nvm_service)
