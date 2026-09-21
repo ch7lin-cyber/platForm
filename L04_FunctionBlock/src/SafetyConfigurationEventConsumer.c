@@ -95,5 +95,6 @@ bool SafetyConfigurationEventConsumer_GetRange(
 bool SafetyConfigurationEventConsumer_IsOutputInhibited(uint8_t channel)
 {
     return (channel >= EVENT_SERVICE_TEMPERATURE_INPUT_COUNT) ||
+           (g_range_resolver == NULL) ||
            g_safety_ranges[channel].output_inhibit;
 }

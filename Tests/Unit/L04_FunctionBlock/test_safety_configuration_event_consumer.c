@@ -43,6 +43,7 @@ static void TestEnabledSensorUpdatesSafetyRange(void)
         {0.5F, 95U, 48U};
     SafetyConfigurationRange_t range;
 
+    assert(SafetyConfigurationEventConsumer_IsOutputInhibited(0U));
     assert(EventService_Initialize(EVENT_ACK_SERIAL_REQUIRED_DEFAULT));
     assert(EventService_ConfigureTemperatureInputRequiredAckMask(
         EVENT_ACK_SAFETY));
