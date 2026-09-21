@@ -49,3 +49,8 @@ target_link_libraries(test_function_block_lifecycle
 )
 
 add_test(NAME function_block_lifecycle COMMAND test_function_block_lifecycle)
+add_executable(test_event_service
+    Unit/L03_SystemPlatform/test_event_service.c
+)
+target_link_libraries(test_event_service PRIVATE Platform::L03Serial)
+add_test(NAME event_service COMMAND test_event_service)
