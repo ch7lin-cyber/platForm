@@ -18,6 +18,7 @@ add_library(PlatformL03Serial STATIC
     SystemService/NvmService/NvmService.c
     SystemService/NvmService/NvmConfigurationEventConsumer.c
     SystemService/FaultService/FaultService.c
+    SystemService/AnalogInputService/AnalogInputService.c
     SystemService/SerialConfigurationApplyService/SerialConfigurationApplyService.c
 )
 
@@ -33,6 +34,7 @@ target_include_directories(PlatformL03Serial
         ${CMAKE_CURRENT_LIST_DIR}/SystemService/PwmOutputService
         ${CMAKE_CURRENT_LIST_DIR}/SystemService/NvmService
         ${CMAKE_CURRENT_LIST_DIR}/SystemService/FaultService
+        ${CMAKE_CURRENT_LIST_DIR}/SystemService/AnalogInputService
         ${CMAKE_CURRENT_LIST_DIR}/SystemService/SerialConfigurationApplyService
 )
 

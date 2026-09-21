@@ -82,3 +82,8 @@ add_executable(test_nvm_service
 )
 target_link_libraries(test_nvm_service PRIVATE Platform::L03Serial)
 add_test(NAME nvm_service COMMAND test_nvm_service)
+add_executable(test_analog_input_service
+    Unit/L03_SystemPlatform/test_analog_input_service.c
+)
+target_link_libraries(test_analog_input_service PRIVATE Platform::L03Serial)
+add_test(NAME analog_input_service COMMAND test_analog_input_service)

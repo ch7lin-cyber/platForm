@@ -2,6 +2,7 @@ add_library(PlatformL02Hal STATIC
     src/HalSerial.c
     src/HalPwm.c
     src/HalNvm.c
+    src/HalAdc.c
 )
 
 add_library(Platform::L02Hal ALIAS PlatformL02Hal)
