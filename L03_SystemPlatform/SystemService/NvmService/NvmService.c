@@ -22,8 +22,16 @@ static uint32_t g_sequence;
 static uint8_t g_active_slot;
 static uint8_t g_target_slot;
 static bool g_loaded_valid;
-static uint8_t g_data_page[HAL_NVM_PAGE_SIZE];
-static uint8_t g_commit_page[HAL_NVM_PAGE_SIZE];
+typedef union
+{
+    uint32_t alignment;
+    uint8_t bytes[HAL_NVM_PAGE_SIZE];
+} NvmPageBuffer_t;
+
+static NvmPageBuffer_t g_data_page_buffer;
+static NvmPageBuffer_t g_commit_page_buffer;
+#define g_data_page   (g_data_page_buffer.bytes)
+#define g_commit_page (g_commit_page_buffer.bytes)
 
 static void PutU16(uint8_t *data, uint16_t value)
 {
