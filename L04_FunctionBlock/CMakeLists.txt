@@ -1,6 +1,6 @@
 add_library(PlatformL04FunctionBlock STATIC
     src/FunctionBlockLifecycle.c
-    Alarm/AlarmConfigurationEventConsumer.c
+    src/AlarmConfigurationEventConsumer.c
 )
 
 add_library(Platform::L04FunctionBlock ALIAS PlatformL04FunctionBlock)
