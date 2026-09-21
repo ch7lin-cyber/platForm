@@ -1,6 +1,7 @@
 add_library(PlatformL04FunctionBlock STATIC
     src/FunctionBlockLifecycle.c
     src/AlarmConfigurationEventConsumer.c
+    src/SafetyConfigurationEventConsumer.c
 )
 
 add_library(Platform::L04FunctionBlock ALIAS PlatformL04FunctionBlock)
@@ -9,6 +10,7 @@ target_include_directories(PlatformL04FunctionBlock
     PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}/include
         ${CMAKE_CURRENT_LIST_DIR}/Alarm
+        ${CMAKE_CURRENT_LIST_DIR}/Safety
 )
 
 target_link_libraries(PlatformL04FunctionBlock PUBLIC Platform::L03Serial)

@@ -63,3 +63,12 @@ target_link_libraries(test_alarm_configuration_event_consumer
 add_test(NAME alarm_configuration_event_consumer
     COMMAND test_alarm_configuration_event_consumer
 )
+add_executable(test_safety_configuration_event_consumer
+    Unit/L04_FunctionBlock/test_safety_configuration_event_consumer.c
+)
+target_link_libraries(test_safety_configuration_event_consumer
+    PRIVATE Platform::L04FunctionBlock
+)
+add_test(NAME safety_configuration_event_consumer
+    COMMAND test_safety_configuration_event_consumer
+)
