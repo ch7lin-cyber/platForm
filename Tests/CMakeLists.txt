@@ -72,3 +72,8 @@ target_link_libraries(test_safety_configuration_event_consumer
 add_test(NAME safety_configuration_event_consumer
     COMMAND test_safety_configuration_event_consumer
 )
+add_executable(test_pwm_output_service
+    Unit/L03_SystemPlatform/test_pwm_output_service.c
+)
+target_link_libraries(test_pwm_output_service PRIVATE Platform::L03Serial)
+add_test(NAME pwm_output_service COMMAND test_pwm_output_service)
