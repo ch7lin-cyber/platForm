@@ -81,6 +81,8 @@ typedef struct
 } TemperatureInputConfigurationChangedEvent_t;
 
 bool EventService_Initialize(uint32_t serial_required_ack_mask);
+bool EventService_ConfigureTemperatureInputRequiredAckMask(
+    uint32_t required_ack_mask);
 bool EventService_RaiseSerialConfigurationChanged(
     uint8_t port,
     uint16_t configuration_revision,

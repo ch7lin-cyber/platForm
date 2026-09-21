@@ -19,6 +19,7 @@ static SerialEventSlot_t g_serial_events[EVENT_SERVICE_SERIAL_PORT_COUNT];
 static TemperatureInputEventSlot_t
     g_temperature_input_events[EVENT_SERVICE_TEMPERATURE_INPUT_COUNT];
 static uint32_t g_serial_required_ack_mask;
+static uint32_t g_temperature_input_required_ack_mask;
 static uint32_t g_next_event_id;
 static bool g_event_service_initialized;
 
@@ -41,8 +42,38 @@ bool EventService_Initialize(uint32_t serial_required_ack_mask)
     (void)memset(g_temperature_input_events, 0,
                  sizeof(g_temperature_input_events));
     g_serial_required_ack_mask = serial_required_ack_mask;
+    g_temperature_input_required_ack_mask =
+        EVENT_ACK_TEMPERATURE_INPUT_REQUIRED_DEFAULT;
     g_next_event_id = 0U;
     g_event_service_initialized = true;
+    return true;
+}
+
+bool EventService_ConfigureTemperatureInputRequiredAckMask(
+    uint32_t required_ack_mask)
+{
+    uint8_t channel;
+    const uint32_t supported_mask =
+        EVENT_ACK_TEMPERATURE_INPUT_REQUIRED_DEFAULT;
+
+    EnsureInitialized();
+    if ((required_ack_mask == 0U) ||
+        ((required_ack_mask & ~supported_mask) != 0U))
+    {
+        return false;
+    }
+
+    for (channel = 0U;
+         channel < EVENT_SERVICE_TEMPERATURE_INPUT_COUNT;
+         channel++)
+    {
+        if (g_temperature_input_events[channel].active)
+        {
+            return false;
+        }
+    }
+
+    g_temperature_input_required_ack_mask = required_ack_mask;
     return true;
 }
 
@@ -145,7 +176,7 @@ bool EventService_RaiseTemperatureInputConfigurationChanged(
     slot->event.old_configuration = *old_configuration;
     slot->event.new_configuration = *new_configuration;
     slot->event.required_ack_mask =
-        EVENT_ACK_TEMPERATURE_INPUT_REQUIRED_DEFAULT;
+        g_temperature_input_required_ack_mask;
     slot->event.completed_ack_mask = 0U;
     slot->active = true;
 

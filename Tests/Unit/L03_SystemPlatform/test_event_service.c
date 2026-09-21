@@ -13,6 +13,9 @@ static void TestTemperatureInputEventLifecycle(void)
     uint32_t event_id;
 
     assert(EventService_Initialize(EVENT_ACK_SERIAL_REQUIRED_DEFAULT));
+    assert(!EventService_ConfigureTemperatureInputRequiredAckMask(0U));
+    assert(!EventService_ConfigureTemperatureInputRequiredAckMask(
+        EVENT_ACK_DIAGNOSTICS));
     assert(EventService_RaiseTemperatureInputConfigurationChanged(
         0U, 1U, EVENT_TEMPERATURE_INPUT_CHANGE_ALL,
         &old_configuration, &new_configuration, &event_id));
@@ -32,6 +35,8 @@ static void TestTemperatureInputEventLifecycle(void)
     assert(!EventService_RaiseTemperatureInputConfigurationChanged(
         0U, 2U, EVENT_TEMPERATURE_INPUT_CHANGE_SENSOR_TYPE,
         &new_configuration, &old_configuration, NULL));
+    assert(!EventService_ConfigureTemperatureInputRequiredAckMask(
+        EVENT_ACK_ALARM));
     assert(!EventService_Acknowledge(event_id, EVENT_ACK_DIAGNOSTICS));
 
     assert(EventService_Acknowledge(event_id, EVENT_ACK_ALARM));
@@ -43,6 +48,8 @@ static void TestTemperatureInputEventLifecycle(void)
     assert(EventService_Acknowledge(event_id, EVENT_ACK_NVM));
     assert(!EventService_IsTemperatureInputConfigurationChangedPending(0U));
     assert(!EventService_GetTemperatureInputConfigurationChanged(0U, &event));
+    assert(EventService_ConfigureTemperatureInputRequiredAckMask(
+        EVENT_ACK_ALARM));
 }
 
 static void TestTemperatureInputEventValidation(void)
