@@ -5,12 +5,14 @@
 #include <string.h>
 
 #include "EventService.h"
+#include "FaultService.h"
 #include "HalNvm.h"
 #include "NvmConfigurationEventConsumer.h"
 #include "NvmService.h"
 
 #define MOCK_SLOT_SIZE (32768U)
 static uint8_t g_storage[HAL_NVM_SLOT_COUNT][MOCK_SLOT_SIZE];
+static bool g_fail_erase;
 
 static HalNvmStatus_t MockInitialize(void *context)
 {
@@ -33,6 +35,10 @@ static HalNvmStatus_t MockRead(void *context, uint8_t slot, uint32_t offset,
 static HalNvmStatus_t MockErase(void *context, uint8_t slot)
 {
     (void)context;
+    if (g_fail_erase)
+    {
+        return HAL_NVM_STATUS_IO_ERROR;
+    }
     (void)memset(g_storage[slot], 0xFF, MOCK_SLOT_SIZE);
     return HAL_NVM_STATUS_OK;
 }
@@ -115,6 +121,7 @@ static void TestEventAcknowledgedAfterVerifiedWrite(void)
     uint8_t step;
 
     assert(EventService_Initialize(EVENT_ACK_SERIAL_REQUIRED_DEFAULT));
+    FaultService_Initialize();
     assert(EventService_ConfigureTemperatureInputRequiredAckMask(EVENT_ACK_NVM));
     assert(NvmConfigurationEventConsumer_Initialize());
     assert(EventService_RaiseTemperatureInputConfigurationChanged(
@@ -129,9 +136,52 @@ static void TestEventAcknowledgedAfterVerifiedWrite(void)
     assert(!EventService_IsTemperatureInputConfigurationChangedPending(0U));
 }
 
+static void TestEraseFailureRaisesFaultAndExplicitClearRetries(void)
+{
+    EventTemperatureInputConfiguration_t old_configuration =
+        {2.0F, 62U, 46U};
+    EventTemperatureInputConfiguration_t new_configuration =
+        {2.0F, 95U, 48U};
+    TemperatureInputConfigurationChangedEvent_t event;
+    FaultRecord_t fault;
+    uint8_t step;
+
+    assert(EventService_Initialize(EVENT_ACK_SERIAL_REQUIRED_DEFAULT));
+    assert(EventService_ConfigureTemperatureInputRequiredAckMask(EVENT_ACK_NVM));
+    FaultService_Initialize();
+    assert(NvmConfigurationEventConsumer_Initialize());
+    assert(EventService_RaiseTemperatureInputConfigurationChanged(
+        0U, 4U, EVENT_TEMPERATURE_INPUT_CHANGE_SENSOR_TYPE,
+        &old_configuration, &new_configuration, NULL));
+    assert(EventService_GetTemperatureInputConfigurationChanged(0U, &event));
+
+    g_fail_erase = true;
+    assert(!NvmConfigurationEventConsumer_Process(0U));
+    assert(FaultService_IsActive(FAULT_CODE_NVM_ERASE_FAILED));
+    assert(FaultService_Get(FAULT_CODE_NVM_ERASE_FAILED, &fault));
+    assert(fault.first_configuration_revision == 4U);
+    assert(fault.first_event_id == event.event_id);
+    assert(fault.occurrence_count == 1U);
+    assert(!NvmConfigurationEventConsumer_Process(0U));
+    assert(FaultService_Get(FAULT_CODE_NVM_ERASE_FAILED, &fault));
+    assert(fault.occurrence_count == 1U);
+    assert(EventService_IsTemperatureInputConfigurationChangedPending(0U));
+
+    g_fail_erase = false;
+    assert(FaultService_Clear(FAULT_CODE_NVM_ERASE_FAILED));
+    assert(!NvmConfigurationEventConsumer_Process(0U));
+    for (step = 0U; step < 4U; step++)
+    {
+        assert(NvmConfigurationEventConsumer_Process(0U));
+    }
+    assert(!EventService_IsTemperatureInputConfigurationChangedPending(0U));
+    assert(!FaultService_IsActive(FAULT_CODE_NVM_ERASE_FAILED));
+}
+
 int main(void)
 {
     TestDualSlotAndPowerLoss();
     TestEventAcknowledgedAfterVerifiedWrite();
+    TestEraseFailureRaisesFaultAndExplicitClearRetries();
     return 0;
 }

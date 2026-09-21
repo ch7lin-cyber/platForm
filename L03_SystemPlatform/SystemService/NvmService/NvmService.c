@@ -13,6 +13,7 @@
 #define NVM_COMMIT_CRC_OFFSET   (8U)
 
 static NvmServiceState_t g_state;
+static NvmServiceError_t g_last_error;
 static EventTemperatureInputConfiguration_t g_configuration;
 static EventTemperatureInputConfiguration_t g_loaded_configuration;
 static uint16_t g_revision;
@@ -148,6 +149,7 @@ bool NvmService_Initialize(void)
 
     if (HalNvm_Initialize() != HAL_NVM_STATUS_OK)
     {
+        g_last_error = NVM_SERVICE_ERROR_INITIALIZE;
         g_state = NVM_SERVICE_STATE_ERROR;
         return false;
     }
@@ -167,6 +169,7 @@ bool NvmService_Initialize(void)
         }
     }
     g_completed_revision = 0U;
+    g_last_error = NVM_SERVICE_ERROR_NONE;
     g_state = NVM_SERVICE_STATE_IDLE;
     return true;
 }
@@ -202,18 +205,39 @@ void NvmService_Process(void)
     switch (g_state)
     {
         case NVM_SERVICE_STATE_ERASE:
-            g_state = (HalNvm_EraseSlot(g_target_slot) == HAL_NVM_STATUS_OK) ?
-                NVM_SERVICE_STATE_WRITE_DATA : NVM_SERVICE_STATE_ERROR;
+            if (HalNvm_EraseSlot(g_target_slot) == HAL_NVM_STATUS_OK)
+            {
+                g_state = NVM_SERVICE_STATE_WRITE_DATA;
+            }
+            else
+            {
+                g_last_error = NVM_SERVICE_ERROR_ERASE;
+                g_state = NVM_SERVICE_STATE_ERROR;
+            }
             break;
         case NVM_SERVICE_STATE_WRITE_DATA:
-            g_state = (HalNvm_ProgramPage(g_target_slot, 0U, g_data_page) ==
-                       HAL_NVM_STATUS_OK) ? NVM_SERVICE_STATE_WRITE_COMMIT :
-                       NVM_SERVICE_STATE_ERROR;
+            if (HalNvm_ProgramPage(g_target_slot, 0U, g_data_page) ==
+                HAL_NVM_STATUS_OK)
+            {
+                g_state = NVM_SERVICE_STATE_WRITE_COMMIT;
+            }
+            else
+            {
+                g_last_error = NVM_SERVICE_ERROR_WRITE_DATA;
+                g_state = NVM_SERVICE_STATE_ERROR;
+            }
             break;
         case NVM_SERVICE_STATE_WRITE_COMMIT:
-            g_state = (HalNvm_ProgramPage(g_target_slot, 1U, g_commit_page) ==
-                       HAL_NVM_STATUS_OK) ? NVM_SERVICE_STATE_VERIFY :
-                       NVM_SERVICE_STATE_ERROR;
+            if (HalNvm_ProgramPage(g_target_slot, 1U, g_commit_page) ==
+                HAL_NVM_STATUS_OK)
+            {
+                g_state = NVM_SERVICE_STATE_VERIFY;
+            }
+            else
+            {
+                g_last_error = NVM_SERVICE_ERROR_WRITE_COMMIT;
+                g_state = NVM_SERVICE_STATE_ERROR;
+            }
             break;
         case NVM_SERVICE_STATE_VERIFY:
             if (ReadValidSlot(g_target_slot, &sequence, &revision,
@@ -231,6 +255,7 @@ void NvmService_Process(void)
             }
             else
             {
+                g_last_error = NVM_SERVICE_ERROR_VERIFY;
                 g_state = NVM_SERVICE_STATE_ERROR;
             }
             break;
@@ -240,6 +265,17 @@ void NvmService_Process(void)
 }
 
 NvmServiceState_t NvmService_GetState(void) { return g_state; }
+
+NvmServiceError_t NvmService_GetLastError(void) { return g_last_error; }
+
+void NvmService_ResetError(void)
+{
+    if (g_state == NVM_SERVICE_STATE_ERROR)
+    {
+        g_last_error = NVM_SERVICE_ERROR_NONE;
+        g_state = NVM_SERVICE_STATE_IDLE;
+    }
+}
 
 bool NvmService_GetLoadedTemperatureInputConfiguration(
     uint16_t *configuration_revision,

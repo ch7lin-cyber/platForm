@@ -22,12 +22,24 @@ typedef enum
     NVM_SERVICE_STATE_ERROR
 } NvmServiceState_t;
 
+typedef enum
+{
+    NVM_SERVICE_ERROR_NONE = 0,
+    NVM_SERVICE_ERROR_INITIALIZE,
+    NVM_SERVICE_ERROR_ERASE,
+    NVM_SERVICE_ERROR_WRITE_DATA,
+    NVM_SERVICE_ERROR_WRITE_COMMIT,
+    NVM_SERVICE_ERROR_VERIFY
+} NvmServiceError_t;
+
 bool NvmService_Initialize(void);
 bool NvmService_QueueTemperatureInputConfiguration(
     uint16_t configuration_revision,
     const EventTemperatureInputConfiguration_t *configuration);
 void NvmService_Process(void);
 NvmServiceState_t NvmService_GetState(void);
+NvmServiceError_t NvmService_GetLastError(void);
+void NvmService_ResetError(void);
 bool NvmService_GetLoadedTemperatureInputConfiguration(
     uint16_t *configuration_revision,
     EventTemperatureInputConfiguration_t *configuration);
