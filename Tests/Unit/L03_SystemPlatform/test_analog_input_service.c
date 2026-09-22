@@ -38,6 +38,7 @@ static HalAdcStatus_t MockTryRead(void *context, HalAdcSample_t *sample)
     if (driver->read_status == HAL_ADC_STATUS_OK)
     {
         sample->raw_code = driver->raw_code;
+        sample->microvolts = (int32_t)driver->raw_code;
         sample->channel = driver->channel;
     }
     return driver->read_status;

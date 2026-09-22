@@ -22,6 +22,7 @@ typedef enum
 typedef struct
 {
     uint32_t raw_code;
+    int32_t microvolts;
     uint32_t sequence;
     uint8_t channel;
     bool valid;

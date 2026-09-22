@@ -83,6 +83,7 @@ typedef struct
 typedef struct
 {
     uint32_t raw_code;
+    int32_t microvolts;
     uint8_t channel;
 } HalAdcSample_t;
 

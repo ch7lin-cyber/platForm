@@ -87,3 +87,8 @@ add_executable(test_analog_input_service
 )
 target_link_libraries(test_analog_input_service PRIVATE Platform::L03Serial)
 add_test(NAME analog_input_service COMMAND test_analog_input_service)
+add_executable(test_sensor_conversion_service
+    Unit/L03_SystemPlatform/test_sensor_conversion_service.c
+)
+target_link_libraries(test_sensor_conversion_service PRIVATE Platform::L03Serial)
+add_test(NAME sensor_conversion_service COMMAND test_sensor_conversion_service)

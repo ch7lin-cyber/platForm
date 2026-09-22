@@ -155,6 +155,7 @@ AnalogInputStatus_t AnalogInputService_Process(void)
 
     latest = &g_latest[device];
     latest->raw_code = hal_sample.raw_code;
+    latest->microvolts = hal_sample.microvolts;
     latest->channel = hal_sample.channel;
     latest->sequence++;
     latest->valid = true;
@@ -169,6 +170,7 @@ AnalogInputStatus_t AnalogInputService_Process(void)
                 AnalogInputSample_t *input =
                     &g_input_latest[g_routes[route_index].logical_input];
                 input->raw_code = hal_sample.raw_code;
+                input->microvolts = hal_sample.microvolts;
                 input->channel = hal_sample.channel;
                 input->sequence++;
                 input->valid = true;
