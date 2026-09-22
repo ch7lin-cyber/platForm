@@ -22,6 +22,24 @@ add_library(PlatformL03Serial STATIC
     SystemService/AnalogInputService/AnalogInputService.c
     SystemService/AnalogInputService/PiecewiseLinearTable.c
     SystemService/AnalogInputService/SensorConversionService.c
+    SystemService/AnalogInputService/SensorTables/tc_b_table.c
+    SystemService/AnalogInputService/SensorTables/tc_c_table.c
+    SystemService/AnalogInputService/SensorTables/tc_d_table.c
+    SystemService/AnalogInputService/SensorTables/tc_e_table.c
+    SystemService/AnalogInputService/SensorTables/tc_j_table.c
+    SystemService/AnalogInputService/SensorTables/tc_k_table.c
+    SystemService/AnalogInputService/SensorTables/tc_l_table.c
+    SystemService/AnalogInputService/SensorTables/tc_n_table.c
+    SystemService/AnalogInputService/SensorTables/tc_r_table.c
+    SystemService/AnalogInputService/SensorTables/tc_s_table.c
+    SystemService/AnalogInputService/SensorTables/tc_t_table.c
+    SystemService/AnalogInputService/SensorTables/tc_txk_table.c
+    SystemService/AnalogInputService/SensorTables/tc_u_table.c
+    SystemService/AnalogInputService/SensorTables/rtd_cu50_table.c
+    SystemService/AnalogInputService/SensorTables/rtd_jpt100_table.c
+    SystemService/AnalogInputService/SensorTables/rtd_ni120_table.c
+    SystemService/AnalogInputService/SensorTables/rtd_pt100_table.c
+    SystemService/AnalogInputService/SensorTables/rtd_pt1000_table.c
     SystemService/FactoryCalibrationService/FactoryCalibrationService.c
     SystemService/SerialConfigurationApplyService/SerialConfigurationApplyService.c
 )
@@ -40,6 +58,7 @@ target_include_directories(PlatformL03Serial
         ${CMAKE_CURRENT_LIST_DIR}/SystemService/NvmService
         ${CMAKE_CURRENT_LIST_DIR}/SystemService/FaultService
         ${CMAKE_CURRENT_LIST_DIR}/SystemService/AnalogInputService
+        ${CMAKE_CURRENT_LIST_DIR}/SystemService/AnalogInputService/SensorTables
         ${CMAKE_CURRENT_LIST_DIR}/SystemService/FactoryCalibrationService
         ${CMAKE_CURRENT_LIST_DIR}/SystemService/SerialConfigurationApplyService
 )

@@ -98,3 +98,8 @@ add_executable(test_sensor_conversion_service
 )
 target_link_libraries(test_sensor_conversion_service PRIVATE Platform::L03Serial)
 add_test(NAME sensor_conversion_service COMMAND test_sensor_conversion_service)
+add_executable(test_sensor_tables
+    Unit/L03_SystemPlatform/test_sensor_tables.c
+)
+target_link_libraries(test_sensor_tables PRIVATE Platform::L03Serial)
+add_test(NAME sensor_tables COMMAND test_sensor_tables)

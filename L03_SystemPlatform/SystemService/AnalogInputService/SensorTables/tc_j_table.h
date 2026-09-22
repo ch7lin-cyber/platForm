@@ -1,0 +1,37 @@
+#ifndef TC_J_TABLE_H
+#define TC_J_TABLE_H
+
+#include "PiecewiseLinearTable.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#define TC_J_TABLE_COMPLETE (1U)
+
+#define TC_J_MIN_MILLICELSIUS   (-200000L)
+#define TC_J_MAX_MILLICELSIUS   (1200000L)
+#define TC_J_EXTENDED_MARGIN_MC (20000L)
+
+#define TC_J_MEASUREMENT_SEGMENT_COUNT (70U)
+#define TC_J_MEASUREMENT_BOUNDARY_COUNT (TC_J_MEASUREMENT_SEGMENT_COUNT + 1U)
+#define TC_J_INPUT_SHIFT_UV (7900L)
+#define TC_J_MEASUREMENT_COEFFICIENT_SCALE (100UL)
+
+#define TC_J_CJC_MIN_MILLICELSIUS (-20000L)
+#define TC_J_CJC_MAX_MILLICELSIUS (109000L)
+#define TC_J_CJC_INTERVAL_MC (10000L)
+#define TC_J_CJC_SEGMENT_COUNT (13U)
+#define TC_J_CJC_INPUT_SHIFT_DECICELSIUS (200L)
+#define TC_J_CJC_COEFFICIENT_SCALE (1000UL)
+
+const PiecewiseLinearTable_t *TcJTable_GetMeasurementTable(void);
+const PiecewiseLinearTable_t *TcJTable_GetCjcTable(void);
+bool TcJTable_IsReady(void);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* TC_J_TABLE_H */
+
