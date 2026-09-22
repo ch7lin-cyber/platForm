@@ -52,7 +52,10 @@ int main(void)
     assert(ModbusRegisterAdapter_BaudCodeToRate(
         MODBUS_SERIAL_BAUD_115200, &baud_rate));
     assert(baud_rate == 115200UL);
-    assert(!ModbusRegisterAdapter_BaudCodeToRate(6U, &baud_rate));
+    assert(ModbusRegisterAdapter_BaudCodeToRate(
+        MODBUS_SERIAL_BAUD_230400, &baud_rate));
+    assert(baud_rate == 230400UL);
+    assert(!ModbusRegisterAdapter_BaudCodeToRate(7U, &baud_rate));
     assert(ModbusRegisterAdapter_BaudRateToCode(38400UL, &baud_code));
     assert(baud_code == MODBUS_SERIAL_BAUD_38400);
     assert(!ModbusRegisterAdapter_BaudRateToCode(12345UL, &baud_code));

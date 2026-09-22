@@ -137,6 +137,24 @@ int main(void)
     assert(SerialConfigurationApplyService_InitializePort(
         HAL_SERIAL_PORT_1, &configuration, 3U,
         OnForwardedEvent, NULL) == SERIAL_SERVICE_STATUS_OK);
+
+    /* Port 0 is the control/slave port; its response commits Port 1 too. */
+    assert(ModbusRegisterAdapter_WriteSingleRegister(
+        NULL, 0x1210U, MODBUS_SERIAL_BAUD_230400) ==
+           MODBUS_EXCEPTION_NONE);
+    assert(ModbusRegisterAdapter_WriteSingleRegister(
+        NULL, 0x1218U, MODBUS_SERIAL_APPLY_KEY) ==
+           MODBUS_EXCEPTION_NONE);
+    assert(SerialConfigurationApplyService_WriteResponse(
+        HAL_SERIAL_PORT_0, response, sizeof(response)) ==
+           SERIAL_SERVICE_STATUS_OK);
+    drivers[0].busy = false;
+    HalSerial_NotifyTransmitCompleteFromIsr(HAL_SERIAL_PORT_0);
+    SerialConfigurationApplyService_Process();
+    assert(drivers[1].configuration.baud_rate == 230400UL);
+    assert(ModbusRegisterAdapter_GetActiveSerialConfiguration(1U, &active));
+    assert(active.serial.line.baud_rate == 230400UL);
+
     assert(ModbusRegisterAdapter_WriteSingleRegister(
         NULL, 0x1210U, MODBUS_SERIAL_BAUD_9600) ==
            MODBUS_EXCEPTION_NONE);
@@ -152,7 +170,7 @@ int main(void)
            MODBUS_EXCEPTION_NONE);
     assert(status == MODBUS_SERIAL_STATUS_ERROR);
     assert(ModbusRegisterAdapter_GetActiveSerialConfiguration(1U, &active));
-    assert(active.serial.line.baud_rate == 115200UL);
+    assert(active.serial.line.baud_rate == 230400UL);
 
     return 0;
 }

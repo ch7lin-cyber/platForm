@@ -11,7 +11,7 @@ extern "C" {
 
 #define HAL_SERIAL_PORT_COUNT        (2U)
 #define HAL_SERIAL_BAUD_RATE_MIN     (4800UL)
-#define HAL_SERIAL_BAUD_RATE_MAX     (115200UL)
+#define HAL_SERIAL_BAUD_RATE_MAX     (230400UL)
 
 typedef enum
 {

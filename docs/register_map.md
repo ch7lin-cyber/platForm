@@ -12,7 +12,7 @@ The serial configuration occupies `0x1200-0x121A`. Each serial port owns a
 
 | Offset | Field | Access | Encoding / valid range |
 |---:|---|---|---|
-| `0x00` | Baud code | R/W | `0=4800`, `1=9600`, `2=19200`, `3=38400`, `4=57600`, `5=115200` |
+| `0x00` | Baud code | R/W | `0=4800`, `1=9600`, `2=19200`, `3=38400`, `4=57600`, `5=115200`, `6=230400` |
 | `0x01` | Data bits | R/W | `7` or `8` |
 | `0x02` | Parity | R/W | `0=None`, `1=Even`, `2=Odd` |
 | `0x03` | Stop bits | R/W | `1` or `2` |
@@ -45,6 +45,12 @@ by the following integration step.
 6. A successful `CompleteApply()` makes Pending active and increments Revision.
    A failed completion preserves the previous Active configuration and changes
    Status to `Error`.
+
+The Platform service can apply pending configurations on multiple ports after
+the control-port response completes. A Product adapter may use this to mirror
+shared line-format fields across two physical ports while keeping board roles
+fixed. Product-specific role, register-access and mirroring rules do not belong
+in Platform HAL or the generic register adapter.
 
 Read/write configuration registers show Pending values. Revision changes only
 after a successful hardware apply.

@@ -10,6 +10,7 @@ typedef struct
     void *callback_context;
     uint32_t apply_response_timeout_ms;
     uint32_t waiting_time_ms;
+    bool commit_after_tx_complete;
     bool initialized;
 } SerialApplyInstance_t;
 
@@ -24,9 +25,20 @@ static void CancelWaitingApply(HalSerialPort_t port)
         (void)ModbusRegisterAdapter_CancelApply((uint8_t)port);
     }
     instance->waiting_time_ms = 0U;
+    instance->commit_after_tx_complete = false;
 }
 
-static void ApplyAfterTransmitComplete(HalSerialPort_t port)
+static void CancelAllWaitingApply(void)
+{
+    uint32_t index;
+
+    for (index = 0U; index < HAL_SERIAL_PORT_COUNT; index++)
+    {
+        CancelWaitingApply((HalSerialPort_t)index);
+    }
+}
+
+static void ApplyOneRequestedPort(HalSerialPort_t port)
 {
     SerialApplyInstance_t *instance = &g_serial_apply[(uint32_t)port];
     ModbusSerialPortConfiguration_t configuration;
@@ -49,6 +61,16 @@ static void ApplyAfterTransmitComplete(HalSerialPort_t port)
     instance->waiting_time_ms = 0U;
 }
 
+static void ApplyAllRequestedPorts(void)
+{
+    uint32_t index;
+
+    for (index = 0U; index < HAL_SERIAL_PORT_COUNT; index++)
+    {
+        ApplyOneRequestedPort((HalSerialPort_t)index);
+    }
+}
+
 static void OnSerialEvent(
     HalSerialPort_t port,
     uint32_t event_mask,
@@ -59,11 +81,27 @@ static void OnSerialEvent(
 
     if ((event_mask & SERIAL_SERVICE_EVENT_LINE_ERROR) != 0U)
     {
-        CancelWaitingApply(port);
+        if (instance->commit_after_tx_complete)
+        {
+            CancelAllWaitingApply();
+        }
+        else
+        {
+            CancelWaitingApply(port);
+        }
     }
     else if ((event_mask & SERIAL_SERVICE_EVENT_TX_COMPLETE) != 0U)
     {
-        ApplyAfterTransmitComplete(port);
+        if (instance->commit_after_tx_complete)
+        {
+            instance->commit_after_tx_complete = false;
+            /*
+             * A configuration request can target another port.  Commit every
+             * requested port only after the control-port Modbus response has
+             * physically left the UART.
+             */
+            ApplyAllRequestedPorts();
+        }
     }
 
     if (instance->event_callback != NULL)
@@ -115,6 +153,8 @@ SerialServiceStatus_t SerialConfigurationApplyService_WriteResponse(
     size_t response_length)
 {
     SerialServiceStatus_t status;
+    bool has_apply_request = false;
+    uint32_t index;
 
     if (((uint32_t)port >= HAL_SERIAL_PORT_COUNT) ||
         (!g_serial_apply[(uint32_t)port].initialized))
@@ -122,11 +162,25 @@ SerialServiceStatus_t SerialConfigurationApplyService_WriteResponse(
         return SERIAL_SERVICE_STATUS_NOT_INITIALIZED;
     }
 
+    for (index = 0U; index < HAL_SERIAL_PORT_COUNT; index++)
+    {
+        if (ModbusRegisterAdapter_IsApplyRequested((uint8_t)index))
+        {
+            has_apply_request = true;
+            break;
+        }
+    }
+
     status = SerialService_Write(port, response, response_length);
+    if (status == SERIAL_SERVICE_STATUS_OK)
+    {
+        g_serial_apply[(uint32_t)port].commit_after_tx_complete =
+            has_apply_request;
+    }
     if ((status != SERIAL_SERVICE_STATUS_OK) &&
         (status != SERIAL_SERVICE_STATUS_BUSY))
     {
-        CancelWaitingApply(port);
+        CancelAllWaitingApply();
     }
     return status;
 }

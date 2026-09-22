@@ -12,6 +12,7 @@ add_library(PlatformL03Serial STATIC
     Communication/ModbusCore/ModbusFunction06.c
     Communication/ModbusCore/ModbusFunction10.c
     Communication/ModbusSlave/ModbusSlave.c
+    Communication/ModbusMaster/ModbusMaster.c
     MiddlewareAdapter/ModbusRegisterAdapter.c
     SystemService/EventService/EventService.c
     SystemService/PwmOutputService/PwmOutputService.c
@@ -32,6 +33,7 @@ target_include_directories(PlatformL03Serial
         ${CMAKE_CURRENT_LIST_DIR}/Communication/SerialService
         ${CMAKE_CURRENT_LIST_DIR}/Communication/ModbusCore
         ${CMAKE_CURRENT_LIST_DIR}/Communication/ModbusSlave
+        ${CMAKE_CURRENT_LIST_DIR}/Communication/ModbusMaster
         ${CMAKE_CURRENT_LIST_DIR}/MiddlewareAdapter
         ${CMAKE_CURRENT_LIST_DIR}/SystemService/EventService
         ${CMAKE_CURRENT_LIST_DIR}/SystemService/PwmOutputService

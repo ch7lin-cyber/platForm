@@ -24,12 +24,22 @@ L02 owns stable serial types, driver registration, callbacks, and port dispatch.
 L03 owns buffering, RTU/ASCII framing timing, Modbus behavior, diagnostics, and
 communication policy.
 
+For an MCU implementation that promises DMA transport, both receive and
+transmit completion are produced by the L01 DMA/USART implementation. L02 and
+L03 remain independent of the selected DMA controller and vendor SDK types.
+
 ## Port and board mapping
 
 `HAL_SERIAL_PORT_0` and `HAL_SERIAL_PORT_1` identify stable platform ports. The
 product BSP/configuration decides whether a port is used for RS485, debug, HMI,
 or another board function. L03 must not contain names such as `FLEXCOMM3`,
 `USART0`, GPIO pin numbers, or NXP SDK types.
+
+A product may, for example, map port 0 to a boot/maintenance debug console and
+external Modbus Slave, and port 1 to a Modbus Master. Once port 0 enters Modbus
+operation, unsolicited console text must stop so it cannot corrupt protocol
+frames. Whether the two ports share baud/format/protocol is also Product policy;
+Platform provides the Pending/Apply mechanism without hard-coding that policy.
 
 ## Integration sequence
 

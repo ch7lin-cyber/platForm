@@ -24,6 +24,12 @@ add_executable(test_modbus_ascii_slave
 target_link_libraries(test_modbus_ascii_slave PRIVATE Platform::L03Serial)
 add_test(NAME modbus_ascii_slave COMMAND test_modbus_ascii_slave)
 
+add_executable(test_modbus_master
+    Unit/ModbusMaster/test_modbus_master.c
+)
+target_link_libraries(test_modbus_master PRIVATE Platform::L03Serial)
+add_test(NAME modbus_master COMMAND test_modbus_master)
+
 add_executable(test_modbus_register_adapter
     Unit/ModbusRegisterAdapter/test_modbus_register_adapter.c
 )
