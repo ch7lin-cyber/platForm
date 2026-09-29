@@ -58,9 +58,55 @@ PwmOutputStatus_t PwmOutputService_Initialize(
             g_initialized = false;
             return PWM_OUTPUT_STATUS_DRIVER_ERROR;
         }
+        if (HalPwm_SetPeriodMs(
+                channel, PWM_OUTPUT_PERIOD_DEFAULT_MS,
+                HAL_PWM_PERIOD_UPDATE_IMMEDIATE) != HAL_PWM_STATUS_OK)
+        {
+            g_initialized = false;
+            return PWM_OUTPUT_STATUS_DRIVER_ERROR;
+        }
+        g_pwm_output_state[channel].requested_period_ms =
+            PWM_OUTPUT_PERIOD_DEFAULT_MS;
+        g_pwm_output_state[channel].period_update_mode =
+            PWM_OUTPUT_PERIOD_UPDATE_IMMEDIATE;
         g_pwm_output_state[channel].inhibited = true;
     }
     g_initialized = true;
+    return PWM_OUTPUT_STATUS_OK;
+}
+
+PwmOutputStatus_t PwmOutputService_SetPeriod(
+    uint8_t channel,
+    uint32_t period_ms,
+    PwmOutputPeriodUpdateMode_t update_mode)
+{
+    HalPwmPeriodUpdateMode_t hal_update_mode;
+
+    if ((channel >= g_channel_count) ||
+        (period_ms < PWM_OUTPUT_PERIOD_MIN_MS) ||
+        (period_ms > PWM_OUTPUT_PERIOD_MAX_MS) ||
+        ((update_mode != PWM_OUTPUT_PERIOD_UPDATE_IMMEDIATE) &&
+         (update_mode != PWM_OUTPUT_PERIOD_UPDATE_NEXT_CYCLE)))
+    {
+        return PWM_OUTPUT_STATUS_INVALID_ARGUMENT;
+    }
+    if (!g_initialized)
+    {
+        return PWM_OUTPUT_STATUS_NOT_INITIALIZED;
+    }
+
+    hal_update_mode =
+        (update_mode == PWM_OUTPUT_PERIOD_UPDATE_IMMEDIATE) ?
+        HAL_PWM_PERIOD_UPDATE_IMMEDIATE :
+        HAL_PWM_PERIOD_UPDATE_NEXT_CYCLE;
+    if (HalPwm_SetPeriodMs(channel, period_ms, hal_update_mode) !=
+        HAL_PWM_STATUS_OK)
+    {
+        return PWM_OUTPUT_STATUS_DRIVER_ERROR;
+    }
+
+    g_pwm_output_state[channel].requested_period_ms = period_ms;
+    g_pwm_output_state[channel].period_update_mode = update_mode;
     return PWM_OUTPUT_STATUS_OK;
 }
 

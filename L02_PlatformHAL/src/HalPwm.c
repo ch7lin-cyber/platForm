@@ -33,6 +33,35 @@ HalPwmStatus_t HalPwm_RegisterDriver(uint8_t channel,
     return HAL_PWM_STATUS_OK;
 }
 
+HalPwmStatus_t HalPwm_SetPeriodMs(uint8_t channel,
+                                 uint32_t period_ms,
+                                 HalPwmPeriodUpdateMode_t update_mode)
+{
+    HalPwmInstance_t *instance;
+
+    if ((channel >= HAL_PWM_CHANNEL_COUNT) || (period_ms == 0U) ||
+        ((update_mode != HAL_PWM_PERIOD_UPDATE_IMMEDIATE) &&
+         (update_mode != HAL_PWM_PERIOD_UPDATE_NEXT_CYCLE)))
+    {
+        return HAL_PWM_STATUS_INVALID_ARGUMENT;
+    }
+    instance = &g_hal_pwm[channel];
+    if (!instance->registered)
+    {
+        return HAL_PWM_STATUS_NOT_REGISTERED;
+    }
+    if (!instance->initialized)
+    {
+        return HAL_PWM_STATUS_NOT_INITIALIZED;
+    }
+    if (instance->ops->set_period_ms == NULL)
+    {
+        return HAL_PWM_STATUS_NOT_SUPPORTED;
+    }
+    return instance->ops->set_period_ms(instance->driver_context,
+                                        period_ms, update_mode);
+}
+
 HalPwmStatus_t HalPwm_Initialize(uint8_t channel)
 {
     HalPwmInstance_t *instance;
