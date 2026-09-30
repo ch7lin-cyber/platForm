@@ -102,10 +102,25 @@ static void TestResolverFailureRetainsEventAndInhibitsOutput(void)
     assert(!SafetyConfigurationEventConsumer_IsOutputInhibited(0U));
 }
 
+static void TestGlobalInterlockInhibitsEveryOutput(void)
+{
+    assert(!SafetyConfigurationEventConsumer_IsGlobalOutputInhibited());
+    assert(!SafetyConfigurationEventConsumer_IsOutputInhibited(0U));
+
+    SafetyConfigurationEventConsumer_SetGlobalOutputInhibit(true);
+    assert(SafetyConfigurationEventConsumer_IsGlobalOutputInhibited());
+    assert(SafetyConfigurationEventConsumer_IsOutputInhibited(0U));
+
+    SafetyConfigurationEventConsumer_SetGlobalOutputInhibit(false);
+    assert(!SafetyConfigurationEventConsumer_IsGlobalOutputInhibited());
+    assert(!SafetyConfigurationEventConsumer_IsOutputInhibited(0U));
+}
+
 int main(void)
 {
     TestEnabledSensorUpdatesSafetyRange();
     TestSensorOffInhibitsOutput();
     TestResolverFailureRetainsEventAndInhibitsOutput();
+    TestGlobalInterlockInhibitsEveryOutput();
     return 0;
 }

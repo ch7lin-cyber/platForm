@@ -16,7 +16,9 @@ typedef enum
     FAULT_CODE_NVM_DATA_PROGRAM_FAILED = 0x0103,
     FAULT_CODE_NVM_COMMIT_PROGRAM_FAILED = 0x0104,
     FAULT_CODE_NVM_VERIFY_FAILED = 0x0105,
-    FAULT_CODE_NVM_EVENT_ACK_FAILED = 0x0106
+    FAULT_CODE_NVM_EVENT_ACK_FAILED = 0x0106,
+    /* detail is the measured MCU temperature in 0.01 degree Celsius. */
+    FAULT_CODE_MCU_OVERTEMPERATURE = 0x0201
 } FaultCode_t;
 
 typedef struct

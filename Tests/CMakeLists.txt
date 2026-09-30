@@ -60,6 +60,11 @@ add_executable(test_event_service
 )
 target_link_libraries(test_event_service PRIVATE Platform::L03Serial)
 add_test(NAME event_service COMMAND test_event_service)
+add_executable(test_fault_service
+    Unit/L03_SystemPlatform/test_fault_service.c
+)
+target_link_libraries(test_fault_service PRIVATE Platform::L03Serial)
+add_test(NAME fault_service COMMAND test_fault_service)
 add_executable(test_alarm_configuration_event_consumer
     Unit/L04_FunctionBlock/test_alarm_configuration_event_consumer.c
 )
