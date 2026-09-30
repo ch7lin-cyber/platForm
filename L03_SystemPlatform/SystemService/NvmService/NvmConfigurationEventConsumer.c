@@ -6,6 +6,7 @@
 
 static uint32_t g_queued_event_id;
 static uint16_t g_queued_revision;
+static uint8_t g_queued_channel;
 static FaultCode_t g_fault_code;
 static bool g_fault_raised;
 static bool g_service_available;
@@ -42,6 +43,7 @@ bool NvmConfigurationEventConsumer_Initialize(void)
 {
     g_queued_event_id = 0U;
     g_queued_revision = 0U;
+    g_queued_channel = 0U;
     g_fault_code = FAULT_CODE_NONE;
     g_fault_raised = false;
     g_service_available = NvmService_Initialize();
@@ -83,6 +85,13 @@ bool NvmConfigurationEventConsumer_Process(uint8_t channel)
         return true;
     }
 
+    /* Persist only after the new sensor configuration reached hardware. */
+    if (((event.required_ack_mask & EVENT_ACK_ANALOG_INPUT) != 0U) &&
+        ((event.completed_ack_mask & EVENT_ACK_ANALOG_INPUT) == 0U))
+    {
+        return false;
+    }
+
     if (g_fault_raised)
     {
         if (FaultService_IsActive(g_fault_code))
@@ -96,14 +105,15 @@ bool NvmConfigurationEventConsumer_Process(uint8_t channel)
             NvmService_ResetError();
             g_queued_event_id = 0U;
             g_queued_revision = 0U;
+            g_queued_channel = 0U;
             return false;
         }
     }
 
     if (g_queued_event_id == 0U)
     {
-        if (NvmService_GetLoadedTemperatureInputConfiguration(
-                &loaded_revision, &loaded_configuration) &&
+        if (NvmService_GetLoadedTemperatureInputConfigurationForChannel(
+                channel, &loaded_revision, &loaded_configuration) &&
             (loaded_revision == event.configuration_revision) &&
             (loaded_configuration.filter_time_constant_seconds ==
              event.new_configuration.filter_time_constant_seconds) &&
@@ -114,13 +124,15 @@ bool NvmConfigurationEventConsumer_Process(uint8_t channel)
         {
             return EventService_Acknowledge(event.event_id, EVENT_ACK_NVM);
         }
-        if (!NvmService_QueueTemperatureInputConfiguration(
-                event.configuration_revision, &event.new_configuration))
+        if (!NvmService_QueueTemperatureInputConfigurationForChannel(
+                channel, event.configuration_revision,
+                &event.new_configuration))
         {
             return false;
         }
         g_queued_event_id = event.event_id;
         g_queued_revision = event.configuration_revision;
+        g_queued_channel = channel;
     }
     else if (g_queued_event_id != event.event_id)
     {
@@ -138,7 +150,8 @@ bool NvmConfigurationEventConsumer_Process(uint8_t channel)
     }
     if (state == NVM_SERVICE_STATE_COMPLETE)
     {
-        if (NvmService_GetCompletedRevision() != g_queued_revision)
+        if ((NvmService_GetCompletedRevision() != g_queued_revision) ||
+            (NvmService_GetCompletedChannel() != g_queued_channel))
         {
             return false;
         }
@@ -151,6 +164,7 @@ bool NvmConfigurationEventConsumer_Process(uint8_t channel)
         NvmService_AcknowledgeCompletion();
         g_queued_event_id = 0U;
         g_queued_revision = 0U;
+        g_queued_channel = 0U;
     }
     return true;
 }

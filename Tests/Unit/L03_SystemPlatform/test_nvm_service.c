@@ -77,6 +77,7 @@ static void TestDualSlotAndPowerLoss(void)
          NULL, NULL, NULL};
     EventTemperatureInputConfiguration_t first = {0.5F, 95U, 48U};
     EventTemperatureInputConfiguration_t second = {2.0F, 95U, 46U};
+    EventTemperatureInputConfiguration_t channel_three = {1.0F, 124U, 48U};
     EventTemperatureInputConfiguration_t loaded;
     uint16_t revision;
 
@@ -121,6 +122,21 @@ static void TestDualSlotAndPowerLoss(void)
     assert(loaded.filter_time_constant_seconds == 2.0F);
     assert(loaded.tc_linearization == 46U);
     NvmService_AcknowledgeCompletion();
+
+    assert(NvmService_QueueTemperatureInputConfigurationForChannel(
+        3U, 7U, &channel_three));
+    ProcessToCompletion();
+    assert(NvmService_GetCompletedChannel() == 3U);
+    NvmService_AcknowledgeCompletion();
+    assert(NvmService_Initialize());
+    assert(NvmService_GetLoadedTemperatureInputConfigurationForChannel(
+        3U, &revision, &loaded));
+    assert(revision == 7U);
+    assert(loaded.sensor_type == 124U);
+    assert(NvmService_GetLoadedTemperatureInputConfigurationForChannel(
+        0U, &revision, &loaded));
+    assert(revision == 2U);
+    assert(loaded.tc_linearization == 46U);
 }
 
 static void TestEventAcknowledgedAfterVerifiedWrite(void)

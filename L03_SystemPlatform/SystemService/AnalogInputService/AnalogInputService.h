@@ -58,6 +58,10 @@ AnalogInputStatus_t AnalogInputService_SetDeviceConfiguration(
 AnalogInputStatus_t AnalogInputService_SetRoutes(
     const AnalogInputRoute_t *routes, uint8_t route_count);
 AnalogInputStatus_t AnalogInputService_Initialize(uint8_t device_count);
+AnalogInputStatus_t AnalogInputService_ReconfigureDevice(
+    uint8_t device, const HalAdcDeviceConfig_t *config);
+bool AnalogInputService_SetInputSensorClass(
+    uint8_t logical_input, AnalogInputSensorClass_t sensor_class);
 AnalogInputStatus_t AnalogInputService_Process(void);
 AnalogInputStatus_t AnalogInputService_RetryDevice(uint8_t device);
 bool AnalogInputService_GetLatest(uint8_t device,

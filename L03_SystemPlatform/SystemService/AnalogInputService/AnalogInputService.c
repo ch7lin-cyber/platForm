@@ -119,6 +119,59 @@ AnalogInputStatus_t AnalogInputService_Initialize(uint8_t device_count)
                                 ANALOG_INPUT_STATUS_DRIVER_ERROR;
 }
 
+AnalogInputStatus_t AnalogInputService_ReconfigureDevice(
+    uint8_t device, const HalAdcDeviceConfig_t *config)
+{
+    HalAdcStatus_t status;
+    uint8_t route_index;
+
+    if ((!g_initialized) || (device >= g_device_count) || (config == NULL))
+    {
+        return ANALOG_INPUT_STATUS_INVALID_ARGUMENT;
+    }
+
+    status = HalAdc_Configure(device, config);
+    if (status != HAL_ADC_STATUS_OK)
+    {
+        g_diagnostics[device].driver_errors++;
+        g_diagnostics[device].online = false;
+        return MapHalStatus(status);
+    }
+
+    g_device_configs[device] = config;
+    g_diagnostics[device].online = true;
+    g_latest[device].valid = false;
+    for (route_index = 0U; route_index < g_route_count; route_index++)
+    {
+        if (g_routes[route_index].device == device)
+        {
+            g_input_latest[g_routes[route_index].logical_input].valid = false;
+        }
+    }
+    return ANALOG_INPUT_STATUS_OK;
+}
+
+bool AnalogInputService_SetInputSensorClass(
+    uint8_t logical_input, AnalogInputSensorClass_t sensor_class)
+{
+    uint8_t route_index;
+
+    if ((!g_initialized) ||
+        (sensor_class > ANALOG_INPUT_SENSOR_CURRENT))
+    {
+        return false;
+    }
+    for (route_index = 0U; route_index < g_route_count; route_index++)
+    {
+        if (g_routes[route_index].logical_input == logical_input)
+        {
+            g_routes[route_index].sensor_class = sensor_class;
+            return true;
+        }
+    }
+    return false;
+}
+
 AnalogInputStatus_t AnalogInputService_Process(void)
 {
     HalAdcSample_t hal_sample;

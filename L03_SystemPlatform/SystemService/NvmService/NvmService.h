@@ -10,6 +10,8 @@
 extern "C" {
 #endif
 
+#define NVM_SERVICE_TEMPERATURE_INPUT_COUNT (4U)
+
 typedef enum
 {
     NVM_SERVICE_STATE_UNINITIALIZED = 0,
@@ -36,6 +38,10 @@ bool NvmService_Initialize(void);
 bool NvmService_QueueTemperatureInputConfiguration(
     uint16_t configuration_revision,
     const EventTemperatureInputConfiguration_t *configuration);
+bool NvmService_QueueTemperatureInputConfigurationForChannel(
+    uint8_t channel,
+    uint16_t configuration_revision,
+    const EventTemperatureInputConfiguration_t *configuration);
 void NvmService_Process(void);
 NvmServiceState_t NvmService_GetState(void);
 NvmServiceError_t NvmService_GetLastError(void);
@@ -43,7 +49,12 @@ void NvmService_ResetError(void);
 bool NvmService_GetLoadedTemperatureInputConfiguration(
     uint16_t *configuration_revision,
     EventTemperatureInputConfiguration_t *configuration);
+bool NvmService_GetLoadedTemperatureInputConfigurationForChannel(
+    uint8_t channel,
+    uint16_t *configuration_revision,
+    EventTemperatureInputConfiguration_t *configuration);
 uint16_t NvmService_GetCompletedRevision(void);
+uint8_t NvmService_GetCompletedChannel(void);
 void NvmService_AcknowledgeCompletion(void);
 
 #ifdef __cplusplus

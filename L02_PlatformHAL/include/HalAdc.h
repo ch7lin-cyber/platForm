@@ -52,6 +52,12 @@ typedef enum
     HAL_ADC_GAIN_128 = 128
 } HalAdcGain_t;
 
+typedef enum
+{
+    HAL_ADC_INPUT_MODE_VOLTAGE = 0,
+    HAL_ADC_INPUT_MODE_CURRENT
+} HalAdcInputMode_t;
+
 typedef struct
 {
     HalAdcReference_t reference;
@@ -78,6 +84,10 @@ typedef struct
     uint8_t setup_count;
     const HalAdcChannelConfig_t *channels;
     uint8_t channel_count;
+    HalAdcInputMode_t input_mode;
+    uint16_t excitation_current_ua;
+    uint8_t excitation_output0;
+    uint8_t excitation_output1;
 } HalAdcDeviceConfig_t;
 
 typedef struct

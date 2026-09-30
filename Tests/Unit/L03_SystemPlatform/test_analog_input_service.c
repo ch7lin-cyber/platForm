@@ -54,7 +54,8 @@ int main(void)
     static const HalAdcChannelConfig_t channel =
         {3U, 0U, 0U, 1U, true};
     static const HalAdcDeviceConfig_t config =
-        {&setup, 1U, &channel, 1U};
+        {&setup, 1U, &channel, 1U, HAL_ADC_INPUT_MODE_VOLTAGE,
+         0U, 0U, 7U};
     static const AnalogInputRoute_t route =
         {0U, 0U, 3U, ANALOG_INPUT_SENSOR_THERMOCOUPLE};
     MockAdcDriver_t drivers[2] =
