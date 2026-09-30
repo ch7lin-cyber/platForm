@@ -108,3 +108,9 @@ add_executable(test_sensor_tables
 )
 target_link_libraries(test_sensor_tables PRIVATE Platform::L03Serial)
 add_test(NAME sensor_tables COMMAND test_sensor_tables)
+
+add_executable(test_hal_dac
+    Unit/L02_PlatformHAL/test_hal_dac.c
+)
+target_link_libraries(test_hal_dac PRIVATE Platform::L02Hal)
+add_test(NAME hal_dac COMMAND test_hal_dac)
