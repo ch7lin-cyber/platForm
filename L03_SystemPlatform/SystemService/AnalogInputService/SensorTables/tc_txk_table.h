@@ -23,7 +23,7 @@ extern "C" {
 #define TC_TXK_CJC_INTERVAL_MC (10000L)
 #define TC_TXK_CJC_SEGMENT_COUNT (13U)
 #define TC_TXK_CJC_INPUT_SHIFT_DECICELSIUS (200L)
-#define TC_TXK_CJC_COEFFICIENT_SCALE (1000UL)
+#define TC_TXK_CJC_COEFFICIENT_SCALE (10000UL)
 
 const PiecewiseLinearTable_t *TcTxkTable_GetMeasurementTable(void);
 const PiecewiseLinearTable_t *TcTxkTable_GetCjcTable(void);
@@ -34,4 +34,3 @@ bool TcTxkTable_IsReady(void);
 #endif
 
 #endif /* TC_TXK_TABLE_H */
-

@@ -57,6 +57,18 @@ static void TestKnownKTypePoints(void)
     assert(temperature_mc == 819983L);
 }
 
+static void TestKnownKTypeCjcPoint(void)
+{
+    const PiecewiseLinearTable_t *table = TcKTable_GetCjcTable();
+    int32_t microvolts;
+
+    assert(table != NULL);
+    assert(PiecewiseLinearTable_Evaluate(table, 25000L, &microvolts));
+    /* K type at 25 C is approximately 1.000 mV. */
+    assert(microvolts >= 995L);
+    assert(microvolts <= 1006L);
+}
+
 static void TestKnownCu50Points(void)
 {
     const PiecewiseLinearTable_t *table =
@@ -76,6 +88,7 @@ int main(void)
 {
     TestTableReadiness();
     TestKnownKTypePoints();
+    TestKnownKTypeCjcPoint();
     TestKnownCu50Points();
     return 0;
 }
