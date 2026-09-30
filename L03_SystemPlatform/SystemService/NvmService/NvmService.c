@@ -7,8 +7,8 @@
 
 #define NVM_DATA_MAGIC          (0x54494E31UL)
 #define NVM_COMMIT_MAGIC        (0xA5A55A5AUL)
-#define NVM_FORMAT_VERSION      (2U)
-#define NVM_ENTRY_LENGTH        (10U)
+#define NVM_FORMAT_VERSION      (3U)
+#define NVM_ENTRY_LENGTH        (8U)
 #define NVM_PAYLOAD_LENGTH      \
     (2U + (NVM_SERVICE_TEMPERATURE_INPUT_COUNT * NVM_ENTRY_LENGTH))
 #define NVM_DATA_CRC_OFFSET     \
@@ -108,8 +108,6 @@ static void BuildPages(void)
         PutU32(&g_data_page[offset + 2U], filter_bits);
         PutU16(&g_data_page[offset + 6U],
                g_pending_configuration[channel].sensor_type);
-        PutU16(&g_data_page[offset + 8U],
-               g_pending_configuration[channel].tc_linearization);
     }
     PutU32(&g_data_page[NVM_DATA_CRC_OFFSET],
            Crc32(g_data_page, NVM_DATA_CRC_OFFSET));
@@ -163,8 +161,27 @@ static bool ReadValidSlot(
                      &filter_bits, sizeof(filter_bits));
         configurations[channel].sensor_type =
             GetU16(&data_page[offset + 6U]);
-        configurations[channel].tc_linearization =
-            GetU16(&data_page[offset + 8U]);
+    }
+    return true;
+}
+
+static bool ConfigurationsEqual(
+    uint16_t valid_mask,
+    const EventTemperatureInputConfiguration_t *left,
+    const EventTemperatureInputConfiguration_t *right)
+{
+    uint8_t channel;
+
+    for (channel = 0U; channel < NVM_SERVICE_TEMPERATURE_INPUT_COUNT;
+         channel++)
+    {
+        if (((valid_mask & (uint16_t)(1UL << channel)) != 0U) &&
+            ((left[channel].filter_time_constant_seconds !=
+              right[channel].filter_time_constant_seconds) ||
+             (left[channel].sensor_type != right[channel].sensor_type)))
+        {
+            return false;
+        }
     }
     return true;
 }
@@ -311,8 +328,8 @@ void NvmService_Process(void)
                 (valid_mask == g_pending_valid_mask) &&
                 (memcmp(revisions, g_pending_revision,
                         sizeof(revisions)) == 0) &&
-                (memcmp(configurations, g_pending_configuration,
-                        sizeof(configurations)) == 0))
+                ConfigurationsEqual(valid_mask, configurations,
+                                    g_pending_configuration))
             {
                 g_active_slot = g_target_slot;
                 g_loaded_valid_mask = valid_mask;

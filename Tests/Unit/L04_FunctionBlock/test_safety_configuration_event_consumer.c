@@ -25,7 +25,7 @@ static bool ResolveRange(
         *input_enabled = false;
         return true;
     }
-    if (configuration->sensor_type == 95U)
+    if (configuration->sensor_type == 48U)
     {
         *minimum = -270.0F;
         *maximum = 1372.0F;
@@ -38,9 +38,9 @@ static bool ResolveRange(
 static void TestEnabledSensorUpdatesSafetyRange(void)
 {
     EventTemperatureInputConfiguration_t old_configuration =
-        {0.5F, 62U, 46U};
+        {0.5F, 62U};
     EventTemperatureInputConfiguration_t new_configuration =
-        {0.5F, 95U, 48U};
+        {0.5F, 48U};
     SafetyConfigurationRange_t range;
 
     assert(SafetyConfigurationEventConsumer_IsOutputInhibited(0U));
@@ -66,9 +66,9 @@ static void TestEnabledSensorUpdatesSafetyRange(void)
 static void TestSensorOffInhibitsOutput(void)
 {
     EventTemperatureInputConfiguration_t old_configuration =
-        {0.5F, 95U, 48U};
+        {0.5F, 48U};
     EventTemperatureInputConfiguration_t new_configuration =
-        {0.5F, 62U, 48U};
+        {0.5F, 62U};
     SafetyConfigurationRange_t range;
 
     assert(EventService_RaiseTemperatureInputConfigurationChanged(
@@ -84,9 +84,9 @@ static void TestSensorOffInhibitsOutput(void)
 static void TestResolverFailureRetainsEventAndInhibitsOutput(void)
 {
     EventTemperatureInputConfiguration_t old_configuration =
-        {0.5F, 62U, 48U};
+        {0.5F, 62U};
     EventTemperatureInputConfiguration_t new_configuration =
-        {0.5F, 95U, 48U};
+        {0.5F, 48U};
 
     g_resolver_succeeds = false;
     assert(EventService_RaiseTemperatureInputConfigurationChanged(

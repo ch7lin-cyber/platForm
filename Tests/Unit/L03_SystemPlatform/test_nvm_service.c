@@ -75,9 +75,9 @@ static void TestDualSlotAndPowerLoss(void)
     static const HalNvmDriverOps_t ops =
         {MockInitialize, MockRead, MockErase, MockProgram,
          NULL, NULL, NULL};
-    EventTemperatureInputConfiguration_t first = {0.5F, 95U, 48U};
-    EventTemperatureInputConfiguration_t second = {2.0F, 95U, 46U};
-    EventTemperatureInputConfiguration_t channel_three = {1.0F, 124U, 48U};
+    EventTemperatureInputConfiguration_t first = {0.5F, 48U};
+    EventTemperatureInputConfiguration_t second = {2.0F, 46U};
+    EventTemperatureInputConfiguration_t channel_three = {1.0F, 124U};
     EventTemperatureInputConfiguration_t loaded;
     uint16_t revision;
 
@@ -102,8 +102,7 @@ static void TestDualSlotAndPowerLoss(void)
     assert(NvmService_GetLoadedTemperatureInputConfiguration(
         &revision, &loaded));
     assert(revision == 1U);
-    assert(loaded.sensor_type == 95U);
-    assert(loaded.tc_linearization == 48U);
+    assert(loaded.sensor_type == 48U);
 
     assert(NvmService_QueueTemperatureInputConfiguration(2U, &second));
     NvmService_Process(); /* erase inactive slot */
@@ -112,7 +111,7 @@ static void TestDualSlotAndPowerLoss(void)
     assert(NvmService_GetLoadedTemperatureInputConfiguration(
         &revision, &loaded));
     assert(revision == 1U);
-    assert(loaded.tc_linearization == 48U);
+    assert(loaded.sensor_type == 48U);
 
     assert(NvmService_QueueTemperatureInputConfiguration(2U, &second));
     ProcessToCompletion();
@@ -120,7 +119,7 @@ static void TestDualSlotAndPowerLoss(void)
         &revision, &loaded));
     assert(revision == 2U);
     assert(loaded.filter_time_constant_seconds == 2.0F);
-    assert(loaded.tc_linearization == 46U);
+    assert(loaded.sensor_type == 46U);
     NvmService_AcknowledgeCompletion();
 
     assert(NvmService_QueueTemperatureInputConfigurationForChannel(
@@ -136,15 +135,15 @@ static void TestDualSlotAndPowerLoss(void)
     assert(NvmService_GetLoadedTemperatureInputConfigurationForChannel(
         0U, &revision, &loaded));
     assert(revision == 2U);
-    assert(loaded.tc_linearization == 46U);
+    assert(loaded.sensor_type == 46U);
 }
 
 static void TestEventAcknowledgedAfterVerifiedWrite(void)
 {
     EventTemperatureInputConfiguration_t old_configuration =
-        {2.0F, 95U, 46U};
+        {2.0F, 46U};
     EventTemperatureInputConfiguration_t new_configuration =
-        {2.0F, 62U, 46U};
+        {2.0F, 62U};
     uint8_t step;
 
     assert(EventService_Initialize(EVENT_ACK_SERIAL_REQUIRED_DEFAULT));
@@ -166,9 +165,9 @@ static void TestEventAcknowledgedAfterVerifiedWrite(void)
 static void TestEraseFailureRaisesFaultAndExplicitClearRetries(void)
 {
     EventTemperatureInputConfiguration_t old_configuration =
-        {2.0F, 62U, 46U};
+        {2.0F, 62U};
     EventTemperatureInputConfiguration_t new_configuration =
-        {2.0F, 95U, 48U};
+        {2.0F, 48U};
     TemperatureInputConfigurationChangedEvent_t event;
     FaultRecord_t fault;
     uint8_t step;

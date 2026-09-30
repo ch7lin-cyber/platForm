@@ -39,8 +39,7 @@ bool SafetyConfigurationEventConsumer_Process(uint8_t channel)
     TemperatureInputConfigurationChangedEvent_t event;
     SafetyConfigurationRange_t new_range;
     const uint32_t safety_relevant_changes =
-        EVENT_TEMPERATURE_INPUT_CHANGE_SENSOR_TYPE |
-        EVENT_TEMPERATURE_INPUT_CHANGE_TC_LINEARIZATION;
+        EVENT_TEMPERATURE_INPUT_CHANGE_SENSOR_TYPE;
 
     if ((channel >= EVENT_SERVICE_TEMPERATURE_INPUT_COUNT) ||
         (g_range_resolver == NULL))

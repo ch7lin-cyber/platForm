@@ -30,11 +30,9 @@ extern "C" {
 
 #define EVENT_TEMPERATURE_INPUT_CHANGE_FILTER_TIME_CONSTANT (1UL << 0)
 #define EVENT_TEMPERATURE_INPUT_CHANGE_SENSOR_TYPE          (1UL << 1)
-#define EVENT_TEMPERATURE_INPUT_CHANGE_TC_LINEARIZATION     (1UL << 2)
 #define EVENT_TEMPERATURE_INPUT_CHANGE_ALL                  \
     (EVENT_TEMPERATURE_INPUT_CHANGE_FILTER_TIME_CONSTANT |  \
-     EVENT_TEMPERATURE_INPUT_CHANGE_SENSOR_TYPE |           \
-     EVENT_TEMPERATURE_INPUT_CHANGE_TC_LINEARIZATION)
+     EVENT_TEMPERATURE_INPUT_CHANGE_SENSOR_TYPE)
 
 typedef enum
 {
@@ -65,7 +63,6 @@ typedef struct
 {
     float filter_time_constant_seconds;
     uint16_t sensor_type;
-    uint16_t tc_linearization;
 } EventTemperatureInputConfiguration_t;
 
 typedef struct

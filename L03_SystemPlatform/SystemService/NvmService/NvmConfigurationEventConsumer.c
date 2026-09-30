@@ -118,9 +118,7 @@ bool NvmConfigurationEventConsumer_Process(uint8_t channel)
             (loaded_configuration.filter_time_constant_seconds ==
              event.new_configuration.filter_time_constant_seconds) &&
             (loaded_configuration.sensor_type ==
-             event.new_configuration.sensor_type) &&
-            (loaded_configuration.tc_linearization ==
-             event.new_configuration.tc_linearization))
+             event.new_configuration.sensor_type))
         {
             return EventService_Acknowledge(event.event_id, EVENT_ACK_NVM);
         }

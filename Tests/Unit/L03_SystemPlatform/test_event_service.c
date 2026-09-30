@@ -6,9 +6,9 @@
 static void TestTemperatureInputEventLifecycle(void)
 {
     EventTemperatureInputConfiguration_t old_configuration =
-        {0.5F, 62U, 46U};
+        {0.5F, 62U};
     EventTemperatureInputConfiguration_t new_configuration =
-        {2.0F, 95U, 48U};
+        {2.0F, 48U};
     TemperatureInputConfigurationChangedEvent_t event;
     uint32_t event_id;
 
@@ -29,7 +29,7 @@ static void TestTemperatureInputEventLifecycle(void)
     assert(event.channel == 0U);
     assert(event.changed_mask == EVENT_TEMPERATURE_INPUT_CHANGE_ALL);
     assert(event.old_configuration.sensor_type == 62U);
-    assert(event.new_configuration.sensor_type == 95U);
+    assert(event.new_configuration.sensor_type == 48U);
 
     /* An unacknowledged event may not be overwritten. */
     assert(!EventService_RaiseTemperatureInputConfigurationChanged(
@@ -45,6 +45,8 @@ static void TestTemperatureInputEventLifecycle(void)
     assert(EventService_Acknowledge(event_id, EVENT_ACK_SAFETY));
     assert(EventService_Acknowledge(event_id, EVENT_ACK_HMI));
     assert(EventService_IsTemperatureInputConfigurationChangedPending(0U));
+    assert(EventService_Acknowledge(event_id, EVENT_ACK_ANALOG_INPUT));
+    assert(EventService_IsTemperatureInputConfigurationChangedPending(0U));
     assert(EventService_Acknowledge(event_id, EVENT_ACK_NVM));
     assert(!EventService_IsTemperatureInputConfigurationChangedPending(0U));
     assert(!EventService_GetTemperatureInputConfigurationChanged(0U, &event));
@@ -55,7 +57,7 @@ static void TestTemperatureInputEventLifecycle(void)
 static void TestTemperatureInputEventValidation(void)
 {
     EventTemperatureInputConfiguration_t configuration =
-        {0.5F, 62U, 46U};
+        {0.5F, 62U};
 
     assert(!EventService_RaiseTemperatureInputConfigurationChanged(
         EVENT_SERVICE_TEMPERATURE_INPUT_COUNT, 1U,

@@ -16,7 +16,9 @@ static bool ResolveRange(
 {
     (void)context;
     g_resolver_call_count++;
-    if (!g_resolver_succeeds || (configuration->sensor_type != 95U))
+    if (!g_resolver_succeeds ||
+        ((configuration->sensor_type != 48U) &&
+         (configuration->sensor_type != 46U)))
     {
         return false;
     }
@@ -30,9 +32,9 @@ static bool ResolveRange(
 static void TestAlarmRangeUpdateAndAcknowledge(void)
 {
     EventTemperatureInputConfiguration_t old_configuration =
-        {0.5F, 62U, 46U};
+        {0.5F, 62U};
     EventTemperatureInputConfiguration_t new_configuration =
-        {0.5F, 95U, 48U};
+        {0.5F, 48U};
     AlarmConfigurationRange_t range;
 
     assert(EventService_Initialize(EVENT_ACK_SERIAL_REQUIRED_DEFAULT));
@@ -43,8 +45,7 @@ static void TestAlarmRangeUpdateAndAcknowledge(void)
     assert(AlarmConfigurationEventConsumer_Initialize(ResolveRange, NULL));
     assert(EventService_RaiseTemperatureInputConfigurationChanged(
         0U, 1U,
-        EVENT_TEMPERATURE_INPUT_CHANGE_SENSOR_TYPE |
-            EVENT_TEMPERATURE_INPUT_CHANGE_TC_LINEARIZATION,
+        EVENT_TEMPERATURE_INPUT_CHANGE_SENSOR_TYPE,
         &old_configuration, &new_configuration, NULL));
 
     assert(AlarmConfigurationEventConsumer_Process(0U));
@@ -60,13 +61,13 @@ static void TestAlarmRangeUpdateAndAcknowledge(void)
 static void TestResolverFailureRetainsEvent(void)
 {
     EventTemperatureInputConfiguration_t old_configuration =
-        {0.5F, 95U, 48U};
+        {0.5F, 48U};
     EventTemperatureInputConfiguration_t new_configuration =
-        {0.5F, 95U, 46U};
+        {0.5F, 46U};
 
     g_resolver_succeeds = false;
     assert(EventService_RaiseTemperatureInputConfigurationChanged(
-        0U, 2U, EVENT_TEMPERATURE_INPUT_CHANGE_TC_LINEARIZATION,
+        0U, 2U, EVENT_TEMPERATURE_INPUT_CHANGE_SENSOR_TYPE,
         &old_configuration, &new_configuration, NULL));
     assert(!AlarmConfigurationEventConsumer_Process(0U));
     assert(EventService_IsTemperatureInputConfigurationChangedPending(0U));
@@ -79,9 +80,9 @@ static void TestResolverFailureRetainsEvent(void)
 static void TestFilterOnlyChangeDoesNotResolveRangeAgain(void)
 {
     EventTemperatureInputConfiguration_t old_configuration =
-        {0.5F, 95U, 46U};
+        {0.5F, 46U};
     EventTemperatureInputConfiguration_t new_configuration =
-        {2.0F, 95U, 46U};
+        {2.0F, 46U};
     AlarmConfigurationRange_t range;
     uint32_t calls_before = g_resolver_call_count;
 
