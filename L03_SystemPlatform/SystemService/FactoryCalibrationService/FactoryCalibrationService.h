@@ -5,11 +5,11 @@
 #include <stdint.h>
 
 #include "HalAdcMeasurement.h"
+#include "FactoryModeService.h"
 
 #define FACTORY_CALIBRATION_INPUT_COUNT   (16U)
 #define FACTORY_CALIBRATION_PROFILE_COUNT (7U)
-#define FACTORY_CALIBRATION_UNLOCK_KEY    (0x1234U)
-
+#define FACTORY_CALIBRATION_UNLOCK_KEY     FACTORY_MODE_UNLOCK_KEY
 typedef enum
 {
     FACTORY_CAL_PROFILE_TC_GAIN1 = 0,

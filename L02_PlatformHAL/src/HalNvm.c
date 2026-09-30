@@ -74,6 +74,59 @@ HalNvmStatus_t HalNvm_ProgramPage(uint8_t slot, uint8_t page,
     return g_ops->program_page(g_context, slot, page, data);
 }
 
+HalNvmStatus_t HalNvm_GetCapacity(uint32_t *capacity_bytes)
+{
+    if (capacity_bytes == NULL)
+    {
+        return HAL_NVM_STATUS_INVALID_ARGUMENT;
+    }
+    if (!g_initialized)
+    {
+        return HAL_NVM_STATUS_NOT_INITIALIZED;
+    }
+    if (g_ops->get_capacity == NULL)
+    {
+        return HAL_NVM_STATUS_NOT_SUPPORTED;
+    }
+    return g_ops->get_capacity(g_context, capacity_bytes);
+}
+
+HalNvmStatus_t HalNvm_ReadRaw(uint32_t address, uint8_t *data,
+                              uint32_t length)
+{
+    if ((data == NULL) || (length == 0U))
+    {
+        return HAL_NVM_STATUS_INVALID_ARGUMENT;
+    }
+    if (!g_initialized)
+    {
+        return HAL_NVM_STATUS_NOT_INITIALIZED;
+    }
+    if (g_ops->read_raw == NULL)
+    {
+        return HAL_NVM_STATUS_NOT_SUPPORTED;
+    }
+    return g_ops->read_raw(g_context, address, data, length);
+}
+
+HalNvmStatus_t HalNvm_WriteRaw(uint32_t address, const uint8_t *data,
+                               uint32_t length)
+{
+    if ((data == NULL) || (length == 0U))
+    {
+        return HAL_NVM_STATUS_INVALID_ARGUMENT;
+    }
+    if (!g_initialized)
+    {
+        return HAL_NVM_STATUS_NOT_INITIALIZED;
+    }
+    if (g_ops->write_raw == NULL)
+    {
+        return HAL_NVM_STATUS_NOT_SUPPORTED;
+    }
+    return g_ops->write_raw(g_context, address, data, length);
+}
+
 bool HalNvm_IsInitialized(void)
 {
     return g_initialized;

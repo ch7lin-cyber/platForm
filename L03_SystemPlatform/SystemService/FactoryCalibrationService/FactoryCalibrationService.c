@@ -3,19 +3,17 @@
 #include <stddef.h>
 #include <string.h>
 
+#include "FactoryModeService.h"
+
 static HalAdcFactoryCalibration_t
     g_calibration[FACTORY_CALIBRATION_INPUT_COUNT]
                  [FACTORY_CALIBRATION_PROFILE_COUNT];
 static int32_t g_live_uv[FACTORY_CALIBRATION_INPUT_COUNT];
 static bool g_live_valid[FACTORY_CALIBRATION_INPUT_COUNT];
 static FactoryCalibrationSnapshot_t g_snapshot;
-static uint16_t g_unlock_key1;
-static uint16_t g_unlock_key2;
-
 static bool IsUnlocked(void)
 {
-    return (g_unlock_key1 == FACTORY_CALIBRATION_UNLOCK_KEY) &&
-           (g_unlock_key2 == FACTORY_CALIBRATION_UNLOCK_KEY);
+    return FactoryModeService_IsActive();
 }
 
 static bool Fail(FactoryCalibrationError_t error)
@@ -32,8 +30,6 @@ void FactoryCalibrationService_Initialize(void)
 
     (void)memset(g_live_valid, 0, sizeof(g_live_valid));
     (void)memset(&g_snapshot, 0, sizeof(g_snapshot));
-    g_unlock_key1 = 0U;
-    g_unlock_key2 = 0U;
     g_snapshot.state = FACTORY_CAL_STATE_LOCKED;
     for (input = 0U; input < FACTORY_CALIBRATION_INPUT_COUNT; input++)
     {
@@ -49,14 +45,14 @@ void FactoryCalibrationService_Initialize(void)
 
 void FactoryCalibrationService_SetUnlockKey1(uint16_t key)
 {
-    g_unlock_key1 = key;
+    FactoryModeService_SetUnlockKey1(key);
     g_snapshot.state = IsUnlocked() ? FACTORY_CAL_STATE_READY :
                                       FACTORY_CAL_STATE_LOCKED;
 }
 
 void FactoryCalibrationService_SetUnlockKey2(uint16_t key)
 {
-    g_unlock_key2 = key;
+    FactoryModeService_SetUnlockKey2(key);
     g_snapshot.state = IsUnlocked() ? FACTORY_CAL_STATE_READY :
                                       FACTORY_CAL_STATE_LOCKED;
 }

@@ -41,6 +41,7 @@ add_library(PlatformL03Serial STATIC
     SystemService/AnalogInputService/SensorTables/rtd_pt100_table.c
     SystemService/AnalogInputService/SensorTables/rtd_pt1000_table.c
     SystemService/FactoryCalibrationService/FactoryCalibrationService.c
+    SystemService/FactoryModeService/FactoryModeService.c
     SystemService/SerialConfigurationApplyService/SerialConfigurationApplyService.c
 )
 
@@ -60,6 +61,7 @@ target_include_directories(PlatformL03Serial
         ${CMAKE_CURRENT_LIST_DIR}/SystemService/AnalogInputService
         ${CMAKE_CURRENT_LIST_DIR}/SystemService/AnalogInputService/SensorTables
         ${CMAKE_CURRENT_LIST_DIR}/SystemService/FactoryCalibrationService
+        ${CMAKE_CURRENT_LIST_DIR}/SystemService/FactoryModeService
         ${CMAKE_CURRENT_LIST_DIR}/SystemService/SerialConfigurationApplyService
 )
 

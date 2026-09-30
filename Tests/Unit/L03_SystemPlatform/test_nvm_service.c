@@ -73,7 +73,8 @@ static void ProcessToCompletion(void)
 static void TestDualSlotAndPowerLoss(void)
 {
     static const HalNvmDriverOps_t ops =
-        {MockInitialize, MockRead, MockErase, MockProgram};
+        {MockInitialize, MockRead, MockErase, MockProgram,
+         NULL, NULL, NULL};
     EventTemperatureInputConfiguration_t first = {0.5F, 95U, 48U};
     EventTemperatureInputConfiguration_t second = {2.0F, 95U, 46U};
     EventTemperatureInputConfiguration_t loaded;
@@ -82,6 +83,16 @@ static void TestDualSlotAndPowerLoss(void)
     (void)memset(g_storage, 0xFF, sizeof(g_storage));
     assert(HalNvm_RegisterDriver(&ops, NULL) == HAL_NVM_STATUS_OK);
     assert(NvmService_Initialize());
+    {
+        uint32_t capacity = 0U;
+        uint8_t data = 0U;
+        assert(HalNvm_GetCapacity(&capacity) ==
+               HAL_NVM_STATUS_NOT_SUPPORTED);
+        assert(HalNvm_ReadRaw(0U, &data, 1U) ==
+               HAL_NVM_STATUS_NOT_SUPPORTED);
+        assert(HalNvm_WriteRaw(0U, &data, 1U) ==
+               HAL_NVM_STATUS_NOT_SUPPORTED);
+    }
     assert(!NvmService_GetLoadedTemperatureInputConfiguration(
         &revision, &loaded));
     assert(NvmService_QueueTemperatureInputConfiguration(1U, &first));
