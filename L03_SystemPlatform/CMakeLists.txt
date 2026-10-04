@@ -16,6 +16,8 @@ add_library(PlatformL03Serial STATIC
     MiddlewareAdapter/ModbusRegisterAdapter.c
     SystemService/EventService/EventService.c
     SystemService/PwmOutputService/PwmOutputService.c
+    SystemService/DigitalInputService/DigitalInputService.c
+    SystemService/DigitalOutputService/DigitalOutputService.c
     SystemService/NvmService/NvmService.c
     SystemService/NvmService/NvmConfigurationEventConsumer.c
     SystemService/FaultService/FaultService.c
@@ -56,6 +58,8 @@ target_include_directories(PlatformL03Serial
         ${CMAKE_CURRENT_LIST_DIR}/MiddlewareAdapter
         ${CMAKE_CURRENT_LIST_DIR}/SystemService/EventService
         ${CMAKE_CURRENT_LIST_DIR}/SystemService/PwmOutputService
+        ${CMAKE_CURRENT_LIST_DIR}/SystemService/DigitalInputService
+        ${CMAKE_CURRENT_LIST_DIR}/SystemService/DigitalOutputService
         ${CMAKE_CURRENT_LIST_DIR}/SystemService/NvmService
         ${CMAKE_CURRENT_LIST_DIR}/SystemService/FaultService
         ${CMAKE_CURRENT_LIST_DIR}/SystemService/AnalogInputService

@@ -114,3 +114,9 @@ add_executable(test_hal_dac
 )
 target_link_libraries(test_hal_dac PRIVATE Platform::L02Hal)
 add_test(NAME hal_dac COMMAND test_hal_dac)
+
+add_executable(test_digital_io_services
+    Unit/L03_SystemPlatform/test_digital_io_services.c
+)
+target_link_libraries(test_digital_io_services PRIVATE Platform::L03Serial)
+add_test(NAME digital_io_services COMMAND test_digital_io_services)
