@@ -114,6 +114,23 @@ static void TestGlobalInterlockInhibitsEveryOutput(void)
     SafetyConfigurationEventConsumer_SetGlobalOutputInhibit(false);
     assert(!SafetyConfigurationEventConsumer_IsGlobalOutputInhibited());
     assert(!SafetyConfigurationEventConsumer_IsOutputInhibited(0U));
+
+    assert(SafetyConfigurationEventConsumer_UpdateGlobalOutputInhibit(
+        0x00000001UL, true));
+    assert(SafetyConfigurationEventConsumer_UpdateGlobalOutputInhibit(
+        0x00000002UL, true));
+    assert(SafetyConfigurationEventConsumer_GetGlobalOutputInhibitMask() ==
+           0x00000003UL);
+    assert(SafetyConfigurationEventConsumer_UpdateGlobalOutputInhibit(
+        0x00000001UL, false));
+    assert(SafetyConfigurationEventConsumer_IsGlobalOutputInhibited());
+    assert(SafetyConfigurationEventConsumer_GetGlobalOutputInhibitMask() ==
+           0x00000002UL);
+    assert(SafetyConfigurationEventConsumer_UpdateGlobalOutputInhibit(
+        0x00000002UL, false));
+    assert(!SafetyConfigurationEventConsumer_IsGlobalOutputInhibited());
+    assert(!SafetyConfigurationEventConsumer_UpdateGlobalOutputInhibit(
+        0U, true));
 }
 
 int main(void)

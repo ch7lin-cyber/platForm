@@ -37,6 +37,11 @@ bool SafetyConfigurationEventConsumer_GetRange(
 /* Product-wide interlocks, such as MCU overtemperature, inhibit all outputs. */
 void SafetyConfigurationEventConsumer_SetGlobalOutputInhibit(bool inhibit);
 bool SafetyConfigurationEventConsumer_IsGlobalOutputInhibited(void);
+/* Each caller owns a nonzero source bit; independent inhibits are ORed. */
+bool SafetyConfigurationEventConsumer_UpdateGlobalOutputInhibit(
+    uint32_t source_mask,
+    bool inhibit);
+uint32_t SafetyConfigurationEventConsumer_GetGlobalOutputInhibitMask(void);
 bool SafetyConfigurationEventConsumer_IsOutputInhibited(uint8_t channel);
 
 #ifdef __cplusplus

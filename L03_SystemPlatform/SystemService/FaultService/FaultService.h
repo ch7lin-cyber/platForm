@@ -19,6 +19,8 @@ typedef enum
     FAULT_CODE_NVM_EVENT_ACK_FAILED = 0x0106,
     /* detail is the measured MCU temperature in 0.01 degree Celsius. */
     FAULT_CODE_MCU_OVERTEMPERATURE = 0x0201,
+    /* detail 1 means the external low-voltage detector is asserted. */
+    FAULT_CODE_LOW_VOLTAGE = 0x0202,
     FAULT_CODE_ANALOG_INPUT_RECONFIGURE_FAILED = 0x0301
 } FaultCode_t;
 

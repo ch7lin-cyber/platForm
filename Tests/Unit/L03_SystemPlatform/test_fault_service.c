@@ -17,5 +17,9 @@ int main(void)
     assert(record.occurrence_count == 1U);
     assert(FaultService_Clear(FAULT_CODE_MCU_OVERTEMPERATURE));
     assert(!FaultService_IsActive(FAULT_CODE_MCU_OVERTEMPERATURE));
+    assert(FaultService_Raise(FAULT_CODE_LOW_VOLTAGE, 1U, 2U, 0U));
+    assert(FaultService_Get(FAULT_CODE_LOW_VOLTAGE, &record));
+    assert(record.last_detail == 1U);
+    assert(record.last_configuration_revision == 2U);
     return 0;
 }

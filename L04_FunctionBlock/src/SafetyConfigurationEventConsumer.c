@@ -7,7 +7,9 @@ static SafetyConfigurationRange_t
     g_safety_ranges[EVENT_SERVICE_TEMPERATURE_INPUT_COUNT];
 static SafetySensorRangeResolver_t g_range_resolver;
 static void *g_range_resolver_context;
-static bool g_global_output_inhibit;
+static uint32_t g_global_output_inhibit_mask;
+
+#define SAFETY_GLOBAL_INHIBIT_LEGACY_MASK (1UL << 31U)
 
 bool SafetyConfigurationEventConsumer_Initialize(
     SafetySensorRangeResolver_t range_resolver,
@@ -30,7 +32,7 @@ bool SafetyConfigurationEventConsumer_Initialize(
     }
     g_range_resolver = range_resolver;
     g_range_resolver_context = range_resolver_context;
-    g_global_output_inhibit = false;
+    g_global_output_inhibit_mask = 0U;
     return true;
 }
 
@@ -97,16 +99,41 @@ bool SafetyConfigurationEventConsumer_IsOutputInhibited(uint8_t channel)
 {
     return (channel >= EVENT_SERVICE_TEMPERATURE_INPUT_COUNT) ||
            (g_range_resolver == NULL) ||
-           g_global_output_inhibit ||
+           (g_global_output_inhibit_mask != 0U) ||
            g_safety_ranges[channel].output_inhibit;
 }
 
 void SafetyConfigurationEventConsumer_SetGlobalOutputInhibit(bool inhibit)
 {
-    g_global_output_inhibit = inhibit;
+    (void)SafetyConfigurationEventConsumer_UpdateGlobalOutputInhibit(
+        SAFETY_GLOBAL_INHIBIT_LEGACY_MASK, inhibit);
 }
 
 bool SafetyConfigurationEventConsumer_IsGlobalOutputInhibited(void)
 {
-    return g_global_output_inhibit;
+    return g_global_output_inhibit_mask != 0U;
+}
+
+bool SafetyConfigurationEventConsumer_UpdateGlobalOutputInhibit(
+    uint32_t source_mask,
+    bool inhibit)
+{
+    if (source_mask == 0U)
+    {
+        return false;
+    }
+    if (inhibit)
+    {
+        g_global_output_inhibit_mask |= source_mask;
+    }
+    else
+    {
+        g_global_output_inhibit_mask &= ~source_mask;
+    }
+    return true;
+}
+
+uint32_t SafetyConfigurationEventConsumer_GetGlobalOutputInhibitMask(void)
+{
+    return g_global_output_inhibit_mask;
 }
