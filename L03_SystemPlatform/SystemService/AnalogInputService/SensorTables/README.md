@@ -42,7 +42,7 @@ Incomplete tables must return `NULL` and must not be registered for runtime use.
 | N | `tc_n_table` | -200 to 1300 | Complete |
 | R | `tc_r_table` | 0 to 1700 | Complete |
 | S | `tc_s_table` | 0 to 1700 | Complete |
-| B | `tc_b_table` | 100 to 1800 | Data requires review |
+| B | `tc_b_table` | 100 to 1800 | Complete |
 | L | `tc_l_table` | -200 to 850 | Complete |
 | U | `tc_u_table` | -200 to 500 | Complete |
 | TXK | `tc_txk_table` | -150 to 800 | Complete |
@@ -80,6 +80,8 @@ boundaries, coefficients and `INPUT_SHIFT_MILLIOHM`.
 - Every table must contain exactly `segment_count + 1` boundaries and
   `segment_count` coefficient rows.
 - Boundaries must be strictly increasing for binary-search evaluation.
-- TC-B currently starts with `98, 100, 97, 100`; this is not strictly
-  increasing, so `TcBTable_IsReady()` returns `false`. Confirm and
-  regenerate the low-temperature B-type input data before runtime use.
+- TC-B measurement inversion starts at the extended lower limit of 80 degree
+  C. The lower ITS-90 region is intentionally excluded because B-type EMF is
+  not monotonic there and therefore cannot be used as a unique inverse-table
+  input. Its CJC table still covers -20 through 110 degree C because that
+  table is searched by temperature rather than EMF.

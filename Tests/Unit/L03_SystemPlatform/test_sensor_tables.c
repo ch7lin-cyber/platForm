@@ -23,7 +23,7 @@
 
 static void TestTableReadiness(void)
 {
-    assert(!TcBTable_IsReady());
+    assert(TcBTable_IsReady());
     assert(TcCTable_IsReady());
     assert(TcDTable_IsReady());
     assert(TcETable_IsReady());
@@ -41,6 +41,80 @@ static void TestTableReadiness(void)
     assert(RtdNi120Table_IsReady());
     assert(RtdPt100Table_IsReady());
     assert(RtdPt1000Table_IsReady());
+}
+
+static void TestKnownBTypePoints(void)
+{
+    const PiecewiseLinearTable_t *measurement =
+        TcBTable_GetMeasurementTable();
+    const PiecewiseLinearTable_t *cjc = TcBTable_GetCjcTable();
+    int32_t value;
+
+    assert(measurement != NULL);
+    assert(cjc != NULL);
+
+    /* Rounded NIST ITS-90 B-type EMF reference points. */
+    assert(PiecewiseLinearTable_Evaluate(measurement, 17L, &value));
+    assert(value == 80000L);
+    assert(PiecewiseLinearTable_Evaluate(measurement, 33L, &value));
+    assert(value == 100000L);
+    assert(PiecewiseLinearTable_Evaluate(measurement, 1242L, &value));
+    assert(value >= 499900L);
+    assert(value <= 500100L);
+    assert(PiecewiseLinearTable_Evaluate(measurement, 4834L, &value));
+    assert(value >= 999900L);
+    assert(value <= 1000100L);
+    assert(PiecewiseLinearTable_Evaluate(measurement, 10099L, &value));
+    assert(value >= 1499900L);
+    assert(value <= 1500100L);
+    assert(PiecewiseLinearTable_Evaluate(measurement, 13591L, &value));
+    assert(value >= 1799900L);
+    assert(value <= 1800100L);
+    assert(!PiecewiseLinearTable_Evaluate(measurement, 16L, &value));
+    assert(!PiecewiseLinearTable_Evaluate(measurement, 13821L, &value));
+
+    assert(PiecewiseLinearTable_Evaluate(cjc, -20000L, &value));
+    assert(value == 7L);
+    assert(PiecewiseLinearTable_Evaluate(cjc, 0L, &value));
+    assert(value == 0L);
+    assert(PiecewiseLinearTable_Evaluate(cjc, 25000L, &value));
+    assert(value == -2L);
+    assert(PiecewiseLinearTable_Evaluate(cjc, 100000L, &value));
+    assert(value == 33L);
+}
+
+static void TestBTypeMeasurementCoverage(void)
+{
+    const PiecewiseLinearTable_t *table =
+        TcBTable_GetMeasurementTable();
+    uint16_t index;
+
+    assert(table != NULL);
+    assert(table->segment_count == TC_B_MEASUREMENT_SEGMENT_COUNT);
+    assert(table->segments[0].x_min == 17L);
+    assert(table->segments[table->segment_count - 1U].x_max == 13820L);
+
+    for (index = 0U; index < table->segment_count; index++)
+    {
+        const PiecewiseLinearSegment_t *segment = &table->segments[index];
+        int32_t expected_min = 80000L + ((int32_t)index * 20000L);
+        int32_t expected_max = expected_min + 20000L;
+        int32_t value;
+
+        assert(segment->x_min < segment->x_max);
+        if (index > 0U)
+        {
+            assert(segment->x_min == table->segments[index - 1U].x_max);
+        }
+        assert(PiecewiseLinearTable_Evaluate(
+            table, segment->x_min, &value));
+        assert(value >= (expected_min - 100L));
+        assert(value <= (expected_min + 100L));
+        assert(PiecewiseLinearTable_Evaluate(
+            table, segment->x_max, &value));
+        assert(value >= (expected_max - 100L));
+        assert(value <= (expected_max + 100L));
+    }
 }
 
 static void TestKnownKTypePoints(void)
@@ -87,6 +161,8 @@ static void TestKnownCu50Points(void)
 int main(void)
 {
     TestTableReadiness();
+    TestKnownBTypePoints();
+    TestBTypeMeasurementCoverage();
     TestKnownKTypePoints();
     TestKnownKTypeCjcPoint();
     TestKnownCu50Points();
