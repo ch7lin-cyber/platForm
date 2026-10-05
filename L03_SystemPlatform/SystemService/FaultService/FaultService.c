@@ -3,7 +3,7 @@
 #include <stddef.h>
 #include <string.h>
 
-#define FAULT_SERVICE_RECORD_COUNT (9U)
+#define FAULT_SERVICE_RECORD_COUNT (16U)
 
 static FaultRecord_t g_records[FAULT_SERVICE_RECORD_COUNT];
 
@@ -32,7 +32,14 @@ void FaultService_Initialize(void)
         FAULT_CODE_NVM_EVENT_ACK_FAILED,
         FAULT_CODE_MCU_OVERTEMPERATURE,
         FAULT_CODE_LOW_VOLTAGE,
-        FAULT_CODE_ANALOG_INPUT_RECONFIGURE_FAILED
+        FAULT_CODE_ANALOG_INPUT_RECONFIGURE_FAILED,
+        FAULT_CODE_ADC_COMMUNICATION,
+        FAULT_CODE_ADC_INTEGRITY,
+        FAULT_CODE_ADC_REFERENCE,
+        FAULT_CODE_ADC_CONVERSION,
+        FAULT_CODE_ADC_INPUT_VOLTAGE,
+        FAULT_CODE_ADC_INTERNAL,
+        FAULT_CODE_ADC_STALE_OFFLINE
     };
     uint16_t index;
     (void)memset(g_records, 0, sizeof(g_records));

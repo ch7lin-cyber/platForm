@@ -3,6 +3,8 @@
 #include <stddef.h>
 #include <string.h>
 
+#define ANALOG_INPUT_OFFLINE_ERROR_COUNT (3U)
+
 static AnalogInputSample_t g_latest[HAL_ADC_DEVICE_COUNT];
 static AnalogInputDiagnostics_t g_diagnostics[HAL_ADC_DEVICE_COUNT];
 static uint8_t g_device_count;
@@ -202,9 +204,19 @@ AnalogInputStatus_t AnalogInputService_Process(void)
     if (hal_status != HAL_ADC_STATUS_OK)
     {
         diagnostics->driver_errors++;
-        diagnostics->online = false;
+        if (diagnostics->consecutive_driver_errors < UINT8_MAX)
+        {
+            diagnostics->consecutive_driver_errors++;
+        }
+        if (diagnostics->consecutive_driver_errors >=
+            ANALOG_INPUT_OFFLINE_ERROR_COUNT)
+        {
+            diagnostics->online = false;
+        }
         return MapHalStatus(hal_status);
     }
+
+    diagnostics->consecutive_driver_errors = 0U;
 
     latest = &g_latest[device];
     latest->raw_code = hal_sample.raw_code;
@@ -249,6 +261,10 @@ AnalogInputStatus_t AnalogInputService_RetryDevice(uint8_t device)
         status = HalAdc_Configure(device, g_device_configs[device]);
     }
     g_diagnostics[device].online = (status == HAL_ADC_STATUS_OK);
+    if (status == HAL_ADC_STATUS_OK)
+    {
+        g_diagnostics[device].consecutive_driver_errors = 0U;
+    }
     if (status != HAL_ADC_STATUS_OK)
     {
         g_diagnostics[device].driver_errors++;

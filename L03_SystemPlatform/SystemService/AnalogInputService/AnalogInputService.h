@@ -33,6 +33,7 @@ typedef struct
     uint32_t successful_samples;
     uint32_t not_ready_polls;
     uint32_t driver_errors;
+    uint8_t consecutive_driver_errors;
     bool online;
 } AnalogInputDiagnostics_t;
 

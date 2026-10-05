@@ -102,5 +102,21 @@ int main(void)
     assert(AnalogInputService_GetDiagnostics(1U, &diagnostics));
     assert(diagnostics.online);
     assert(diagnostics.not_ready_polls == 1U);
+
+    drivers[0].read_status = HAL_ADC_STATUS_IO_ERROR;
+    assert(AnalogInputService_Process() == ANALOG_INPUT_STATUS_DRIVER_ERROR);
+    assert(AnalogInputService_GetDiagnostics(0U, &diagnostics));
+    assert(diagnostics.online);
+    assert(diagnostics.consecutive_driver_errors == 1U);
+    assert(AnalogInputService_Process() == ANALOG_INPUT_STATUS_NOT_READY);
+    assert(AnalogInputService_Process() == ANALOG_INPUT_STATUS_DRIVER_ERROR);
+    assert(AnalogInputService_GetDiagnostics(0U, &diagnostics));
+    assert(diagnostics.online);
+    assert(diagnostics.consecutive_driver_errors == 2U);
+    assert(AnalogInputService_Process() == ANALOG_INPUT_STATUS_NOT_READY);
+    assert(AnalogInputService_Process() == ANALOG_INPUT_STATUS_DRIVER_ERROR);
+    assert(AnalogInputService_GetDiagnostics(0U, &diagnostics));
+    assert(!diagnostics.online);
+    assert(diagnostics.consecutive_driver_errors == 3U);
     return 0;
 }
