@@ -3,6 +3,7 @@
 #include "EventService.h"
 #include "FaultService.h"
 #include "NvmService.h"
+#include "SystemFaultService.h"
 
 static uint32_t g_queued_event_id;
 static uint16_t g_queued_revision;
@@ -29,10 +30,12 @@ static FaultCode_t MapError(NvmServiceError_t error)
 }
 
 static void RaiseFault(FaultCode_t code, uint16_t detail,
-                       uint16_t revision, uint32_t event_id)
+                       uint16_t revision, uint32_t event_id,
+                       uint32_t timestamp_ms)
 {
     if (!g_fault_raised &&
-        FaultService_Raise(code, detail, revision, event_id))
+        SystemFaultService_Raise(code, detail, revision, event_id,
+                                 timestamp_ms, NULL))
     {
         g_fault_code = code;
         g_fault_raised = true;
@@ -50,13 +53,14 @@ bool NvmConfigurationEventConsumer_Initialize(void)
     if (!g_service_available)
     {
         RaiseFault(FAULT_CODE_NVM_INITIALIZATION_FAILED,
-                   (uint16_t)NvmService_GetLastError(), 0U, 0U);
+                   (uint16_t)NvmService_GetLastError(), 0U, 0U, 0U);
     }
     /* Initialization fault is reported; keep communication/HMI alive. */
     return true;
 }
 
-bool NvmConfigurationEventConsumer_Process(uint8_t channel)
+bool NvmConfigurationEventConsumer_Process(uint8_t channel,
+                                           uint32_t timestamp_ms)
 {
     TemperatureInputConfigurationChangedEvent_t event;
     EventTemperatureInputConfiguration_t loaded_configuration;
@@ -74,7 +78,8 @@ bool NvmConfigurationEventConsumer_Process(uint8_t channel)
         if (!g_service_available)
         {
             RaiseFault(FAULT_CODE_NVM_INITIALIZATION_FAILED,
-                       (uint16_t)NvmService_GetLastError(), 0U, 0U);
+                       (uint16_t)NvmService_GetLastError(), 0U, 0U,
+                       timestamp_ms);
         }
         return g_service_available;
     }
@@ -143,7 +148,8 @@ bool NvmConfigurationEventConsumer_Process(uint8_t channel)
     {
         FaultCode_t code = MapError(NvmService_GetLastError());
         RaiseFault(code, (uint16_t)NvmService_GetLastError(),
-                   event.configuration_revision, event.event_id);
+                   event.configuration_revision, event.event_id,
+                   timestamp_ms);
         return false;
     }
     if (state == NVM_SERVICE_STATE_COMPLETE)
@@ -156,7 +162,8 @@ bool NvmConfigurationEventConsumer_Process(uint8_t channel)
         if (!EventService_Acknowledge(g_queued_event_id, EVENT_ACK_NVM))
         {
             RaiseFault(FAULT_CODE_NVM_EVENT_ACK_FAILED, 0U,
-                       g_queued_revision, g_queued_event_id);
+                       g_queued_revision, g_queued_event_id,
+                       timestamp_ms);
             return false;
         }
         NvmService_AcknowledgeCompletion();

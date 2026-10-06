@@ -146,6 +146,18 @@ add_executable(test_system_routine
 target_link_libraries(test_system_routine PRIVATE Platform::L03Serial)
 add_test(NAME system_routine COMMAND test_system_routine)
 
+add_executable(test_system_event_service
+    Unit/L03_SystemPlatform/test_system_event_service.c
+)
+target_link_libraries(test_system_event_service PRIVATE Platform::L03Serial)
+add_test(NAME system_event_service COMMAND test_system_event_service)
+
+add_executable(test_system_fault_service
+    Unit/L03_SystemPlatform/test_system_fault_service.c
+)
+target_link_libraries(test_system_fault_service PRIVATE Platform::L03Serial)
+add_test(NAME system_fault_service COMMAND test_system_fault_service)
+
 add_executable(test_hal_dac
     Unit/L02_PlatformHAL/test_hal_dac.c
 )

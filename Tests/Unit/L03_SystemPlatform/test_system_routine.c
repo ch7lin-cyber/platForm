@@ -6,6 +6,7 @@
 #include "FaultService.h"
 #include "SafetyService.h"
 #include "SnapshotService.h"
+#include "SystemEventService.h"
 #include "SystemRoutine.h"
 #include "WarningService.h"
 
@@ -76,6 +77,7 @@ static void TestInitializationAndExecution(void)
 
     assert(SystemRoutine_Initialize(&configuration));
     assert(SnapshotService_GetCount() == 0U);
+    assert(SystemEventService_GetCount() == 0U);
     assert(FaultService_GetActiveCount() == 0U);
     assert(!WarningService_IsActive(WARNING_SOURCE_ALL));
 
@@ -86,6 +88,11 @@ static void TestInitializationAndExecution(void)
     assert(output.inhibited);
     assert(output.source_mask == SAFETY_SOURCE_LOW_VOLTAGE);
     assert(SnapshotService_GetCount() == 1U);
+    assert(SystemEventService_GetCount() == 1U);
+    assert(SystemRoutine_ExecuteFast(11U));
+    assert(output.call_count == 1U);
+    assert(SnapshotService_GetCount() == 1U);
+    assert(SystemEventService_GetCount() == 1U);
 
     assert(SystemRoutine_ExecuteControl(20U));
     assert(SystemRoutine_ExecuteBackground(30U));
@@ -96,7 +103,7 @@ static void TestInitializationAndExecution(void)
 
     assert(SystemRoutine_GetStatus(&status));
     assert(status.initialized);
-    assert(status.fast_execution_count == 1U);
+    assert(status.fast_execution_count == 2U);
     assert(status.control_execution_count == 1U);
     assert(status.background_execution_count == 1U);
     assert(status.fast_failure_count == 0U);

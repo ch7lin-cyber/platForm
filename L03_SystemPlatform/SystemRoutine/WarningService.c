@@ -3,6 +3,8 @@
 #include <stddef.h>
 #include <string.h>
 
+#include "SystemEventService.h"
+
 #define WARNING_SERVICE_SOURCE_COUNT (11U)
 
 typedef struct
@@ -53,6 +55,27 @@ static bool CaptureWarning(
         (void)memcpy(capture.values, values, sizeof(capture.values));
     }
     return SnapshotService_Capture(&capture, NULL);
+}
+
+static void RecordWarningEvent(
+    uint32_t source_mask,
+    SystemEventState_t state,
+    uint16_t detail,
+    uint32_t timestamp_ms,
+    uint16_t configuration_revision,
+    uint32_t event_id)
+{
+    SystemEventCapture_t capture;
+
+    (void)memset(&capture, 0, sizeof(capture));
+    capture.timestamp_ms = timestamp_ms;
+    capture.domain = SYSTEM_EVENT_DOMAIN_WARNING;
+    capture.state = state;
+    capture.code = (uint16_t)source_mask;
+    capture.detail = detail;
+    capture.configuration_revision = configuration_revision;
+    capture.correlation_event_id = event_id;
+    (void)SystemEventService_Record(&capture, NULL);
 }
 
 void WarningService_Initialize(void)
@@ -165,6 +188,10 @@ bool WarningService_UpdateSource(
         g_status.warning_source_mask =
             g_status.active_source_mask | g_status.latched_source_mask;
 
+        RecordWarningEvent(source_mask, SYSTEM_EVENT_STATE_ASSERTED,
+                           detail, timestamp_ms,
+                           configuration_revision, event_id);
+
         /* Warning state remains asserted even if diagnostic capture fails. */
         return CaptureWarning(source_mask, detail, timestamp_ms,
                               configuration_revision, event_id, values);
@@ -190,6 +217,9 @@ bool WarningService_UpdateSource(
     g_status.transition_count++;
     g_status.warning_source_mask =
         g_status.active_source_mask | g_status.latched_source_mask;
+    RecordWarningEvent(source_mask, SYSTEM_EVENT_STATE_CLEARED,
+                       detail, timestamp_ms,
+                       configuration_revision, event_id);
     return true;
 }
 

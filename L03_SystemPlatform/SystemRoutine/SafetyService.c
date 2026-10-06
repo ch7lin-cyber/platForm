@@ -3,6 +3,8 @@
 #include <stddef.h>
 #include <string.h>
 
+#include "SystemEventService.h"
+
 typedef struct
 {
     uint32_t active_source_mask;
@@ -49,6 +51,27 @@ static bool CaptureAssertion(
     return SnapshotService_Capture(&capture, NULL);
 }
 
+static void RecordSafetyEvent(
+    uint32_t source_mask,
+    SystemEventState_t state,
+    uint16_t detail,
+    uint32_t timestamp_ms,
+    uint16_t configuration_revision,
+    uint32_t event_id)
+{
+    SystemEventCapture_t capture;
+
+    (void)memset(&capture, 0, sizeof(capture));
+    capture.timestamp_ms = timestamp_ms;
+    capture.domain = SYSTEM_EVENT_DOMAIN_SAFETY;
+    capture.state = state;
+    capture.code = (uint16_t)source_mask;
+    capture.detail = detail;
+    capture.configuration_revision = configuration_revision;
+    capture.correlation_event_id = event_id;
+    (void)SystemEventService_Record(&capture, NULL);
+}
+
 bool SafetyService_Initialize(uint32_t latching_source_mask,
                               SafetyOutputAction_t output_action,
                               void *output_action_context)
@@ -77,6 +100,7 @@ bool SafetyService_UpdateSource(
     const int32_t values[SNAPSHOT_SERVICE_VALUE_COUNT])
 {
     uint32_t newly_active;
+    uint32_t newly_inactive;
 
     if (!g_safety.initialized || (source_mask == 0U) ||
         ((source_mask & ~SAFETY_SOURCE_ALL) != 0U))
@@ -86,6 +110,8 @@ bool SafetyService_UpdateSource(
 
     newly_active = active ?
         (source_mask & ~g_safety.active_source_mask) : 0U;
+    newly_inactive = active ? 0U :
+        (source_mask & g_safety.active_source_mask);
     if (active)
     {
         g_safety.active_source_mask |= source_mask;
@@ -95,6 +121,19 @@ bool SafetyService_UpdateSource(
     else
     {
         g_safety.active_source_mask &= ~source_mask;
+    }
+
+    if (newly_active != 0U)
+    {
+        RecordSafetyEvent(newly_active, SYSTEM_EVENT_STATE_ASSERTED,
+                          detail, timestamp_ms,
+                          configuration_revision, event_id);
+    }
+    if (newly_inactive != 0U)
+    {
+        RecordSafetyEvent(newly_inactive, SYSTEM_EVENT_STATE_CLEARED,
+                          detail, timestamp_ms,
+                          configuration_revision, event_id);
     }
 
     if ((newly_active != 0U) &&

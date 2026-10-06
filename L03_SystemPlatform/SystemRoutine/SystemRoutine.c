@@ -5,6 +5,7 @@
 
 #include "FaultService.h"
 #include "SnapshotService.h"
+#include "SystemEventService.h"
 #include "SystemRoutineInternal.h"
 #include "WarningService.h"
 
@@ -19,6 +20,7 @@ bool SystemRoutine_Initialize(
     }
 
     (void)memset(&g_system_routine, 0, sizeof(g_system_routine));
+    SystemEventService_Initialize();
     SnapshotService_Initialize();
     FaultService_Initialize();
     WarningService_Initialize();

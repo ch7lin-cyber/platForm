@@ -155,10 +155,10 @@ static void TestEventAcknowledgedAfterVerifiedWrite(void)
         &old_configuration, &new_configuration, NULL));
     for (step = 0U; step < 3U; step++)
     {
-        assert(NvmConfigurationEventConsumer_Process(0U));
+        assert(NvmConfigurationEventConsumer_Process(0U, 0U));
         assert(EventService_IsTemperatureInputConfigurationChangedPending(0U));
     }
-    assert(NvmConfigurationEventConsumer_Process(0U));
+    assert(NvmConfigurationEventConsumer_Process(0U, 0U));
     assert(!EventService_IsTemperatureInputConfigurationChangedPending(0U));
 }
 
@@ -182,23 +182,23 @@ static void TestEraseFailureRaisesFaultAndExplicitClearRetries(void)
     assert(EventService_GetTemperatureInputConfigurationChanged(0U, &event));
 
     g_fail_erase = true;
-    assert(!NvmConfigurationEventConsumer_Process(0U));
+    assert(!NvmConfigurationEventConsumer_Process(0U, 0U));
     assert(FaultService_IsActive(FAULT_CODE_NVM_ERASE_FAILED));
     assert(FaultService_Get(FAULT_CODE_NVM_ERASE_FAILED, &fault));
     assert(fault.first_configuration_revision == 4U);
     assert(fault.first_event_id == event.event_id);
     assert(fault.occurrence_count == 1U);
-    assert(!NvmConfigurationEventConsumer_Process(0U));
+    assert(!NvmConfigurationEventConsumer_Process(0U, 0U));
     assert(FaultService_Get(FAULT_CODE_NVM_ERASE_FAILED, &fault));
     assert(fault.occurrence_count == 1U);
     assert(EventService_IsTemperatureInputConfigurationChangedPending(0U));
 
     g_fail_erase = false;
     assert(FaultService_Clear(FAULT_CODE_NVM_ERASE_FAILED));
-    assert(!NvmConfigurationEventConsumer_Process(0U));
+    assert(!NvmConfigurationEventConsumer_Process(0U, 0U));
     for (step = 0U; step < 4U; step++)
     {
-        assert(NvmConfigurationEventConsumer_Process(0U));
+        assert(NvmConfigurationEventConsumer_Process(0U, 0U));
     }
     assert(!EventService_IsTemperatureInputConfigurationChangedPending(0U));
     assert(!FaultService_IsActive(FAULT_CODE_NVM_ERASE_FAILED));

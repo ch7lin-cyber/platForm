@@ -5,6 +5,7 @@
 #include <stdint.h>
 
 bool NvmConfigurationEventConsumer_Initialize(void);
-bool NvmConfigurationEventConsumer_Process(uint8_t channel);
+bool NvmConfigurationEventConsumer_Process(uint8_t channel,
+                                           uint32_t timestamp_ms);
 
 #endif

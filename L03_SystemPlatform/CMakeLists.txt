@@ -48,6 +48,8 @@ add_library(PlatformL03Serial STATIC
     SystemRoutine/SnapshotService.c
     SystemRoutine/SafetyService.c
     SystemRoutine/WarningService.c
+    SystemRoutine/SystemEventService.c
+    SystemRoutine/SystemFaultService.c
     SystemRoutine/SystemRoutine.c
     SystemRoutine/SystemRoutineFast.c
     SystemRoutine/SystemRoutineControl.c
