@@ -55,6 +55,19 @@ target_link_libraries(test_function_block_lifecycle
 )
 
 add_test(NAME function_block_lifecycle COMMAND test_function_block_lifecycle)
+
+add_executable(test_fb_logic
+    Unit/L04_FunctionBlock/test_fb_logic.c
+)
+target_link_libraries(test_fb_logic PRIVATE Platform::L04FunctionBlock)
+add_test(NAME fb_logic COMMAND test_fb_logic)
+
+add_executable(test_fb_alarm
+    Unit/L04_FunctionBlock/test_fb_alarm.c
+)
+target_link_libraries(test_fb_alarm PRIVATE Platform::L04FunctionBlock)
+add_test(NAME fb_alarm COMMAND test_fb_alarm)
+
 add_executable(test_event_service
     Unit/L03_SystemPlatform/test_event_service.c
 )

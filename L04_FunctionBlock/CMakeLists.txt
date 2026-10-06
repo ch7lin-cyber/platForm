@@ -1,4 +1,6 @@
 add_library(PlatformL04FunctionBlock STATIC
+    Alarm/FbAlarm.c
+    Utility/FbLogic.c
     src/FunctionBlockLifecycle.c
     src/AlarmConfigurationEventConsumer.c
     src/SafetyConfigurationEventConsumer.c
@@ -11,6 +13,7 @@ target_include_directories(PlatformL04FunctionBlock
         ${CMAKE_CURRENT_LIST_DIR}/include
         ${CMAKE_CURRENT_LIST_DIR}/Alarm
         ${CMAKE_CURRENT_LIST_DIR}/Safety
+        ${CMAKE_CURRENT_LIST_DIR}/Utility
 )
 
 target_link_libraries(PlatformL04FunctionBlock PUBLIC Platform::L03Serial)
