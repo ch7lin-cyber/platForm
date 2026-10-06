@@ -122,6 +122,24 @@ add_executable(test_sensor_tables
 target_link_libraries(test_sensor_tables PRIVATE Platform::L03Serial)
 add_test(NAME sensor_tables COMMAND test_sensor_tables)
 
+add_executable(test_snapshot_service
+    Unit/L03_SystemPlatform/test_snapshot_service.c
+)
+target_link_libraries(test_snapshot_service PRIVATE Platform::L03Serial)
+add_test(NAME snapshot_service COMMAND test_snapshot_service)
+
+add_executable(test_safety_service
+    Unit/L03_SystemPlatform/test_safety_service.c
+)
+target_link_libraries(test_safety_service PRIVATE Platform::L03Serial)
+add_test(NAME safety_service COMMAND test_safety_service)
+
+add_executable(test_warning_service
+    Unit/L03_SystemPlatform/test_warning_service.c
+)
+target_link_libraries(test_warning_service PRIVATE Platform::L03Serial)
+add_test(NAME warning_service COMMAND test_warning_service)
+
 add_executable(test_hal_dac
     Unit/L02_PlatformHAL/test_hal_dac.c
 )

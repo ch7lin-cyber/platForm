@@ -45,6 +45,9 @@ add_library(PlatformL03Serial STATIC
     SystemService/FactoryCalibrationService/FactoryCalibrationService.c
     SystemService/FactoryModeService/FactoryModeService.c
     SystemService/SerialConfigurationApplyService/SerialConfigurationApplyService.c
+    SystemRoutine/SnapshotService.c
+    SystemRoutine/SafetyService.c
+    SystemRoutine/WarningService.c
 )
 
 add_library(Platform::L03Serial ALIAS PlatformL03Serial)
@@ -67,6 +70,7 @@ target_include_directories(PlatformL03Serial
         ${CMAKE_CURRENT_LIST_DIR}/SystemService/FactoryCalibrationService
         ${CMAKE_CURRENT_LIST_DIR}/SystemService/FactoryModeService
         ${CMAKE_CURRENT_LIST_DIR}/SystemService/SerialConfigurationApplyService
+        ${CMAKE_CURRENT_LIST_DIR}/SystemRoutine
 )
 
 target_link_libraries(PlatformL03Serial PUBLIC Platform::L02Hal)
