@@ -123,13 +123,14 @@ static void TestMultipleSourcesAndActionRetry(void)
     assert(SafetyService_UpdateSource(
         SAFETY_SOURCE_LOW_VOLTAGE, false, 0U, 310U, 0U, 0U, NULL));
     assert(SafetyService_Process());
-    assert(action.call_count == 2U);
+    assert(action.call_count == 3U);
+    assert(action.last_mask == SAFETY_SOURCE_SENSOR_FAULT);
     assert(SafetyService_IsOutputInhibited());
 
     assert(SafetyService_UpdateSource(
         SAFETY_SOURCE_SENSOR_FAULT, false, 0U, 320U, 0U, 0U, NULL));
     assert(SafetyService_Process());
-    assert(action.call_count == 3U);
+    assert(action.call_count == 4U);
     assert(!SafetyService_IsOutputInhibited());
 }
 

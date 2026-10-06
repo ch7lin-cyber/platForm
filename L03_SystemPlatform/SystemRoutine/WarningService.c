@@ -3,7 +3,7 @@
 #include <stddef.h>
 #include <string.h>
 
-#define WARNING_SERVICE_SOURCE_COUNT (7U)
+#define WARNING_SERVICE_SOURCE_COUNT (11U)
 
 typedef struct
 {
@@ -59,12 +59,16 @@ void WarningService_Initialize(void)
 {
     static const uint32_t source_masks[WARNING_SERVICE_SOURCE_COUNT] =
     {
-        WARNING_SOURCE_COMMUNICATION,
+        WARNING_SOURCE_ADC_COMMUNICATION,
+        WARNING_SOURCE_ADC_INTEGRITY,
         WARNING_SOURCE_ADC_REFERENCE,
+        WARNING_SOURCE_ADC_CONVERSION,
+        WARNING_SOURCE_ADC_INPUT_VOLTAGE,
         WARNING_SOURCE_ADC_STALE,
         WARNING_SOURCE_LOW_VOLTAGE,
         WARNING_SOURCE_MCU_TEMPERATURE,
         WARNING_SOURCE_NVM,
+        WARNING_SOURCE_ADC_INTERNAL,
         WARNING_SOURCE_APPLICATION
     };
     uint16_t index;

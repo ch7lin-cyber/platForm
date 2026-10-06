@@ -89,11 +89,11 @@ static void TestValidation(void)
     WarningService_Initialize();
     assert(!WarningService_ConfigureSource(0U, &valid));
     assert(!WarningService_ConfigureSource(
-        WARNING_SOURCE_COMMUNICATION | WARNING_SOURCE_NVM, &valid));
+        WARNING_SOURCE_ADC_COMMUNICATION | WARNING_SOURCE_NVM, &valid));
     assert(!WarningService_ConfigureSource(
-        WARNING_SOURCE_COMMUNICATION, &invalid));
+        WARNING_SOURCE_ADC_COMMUNICATION, &invalid));
     assert(!WarningService_ConfigureSource(
-        WARNING_SOURCE_COMMUNICATION, NULL));
+        WARNING_SOURCE_ADC_COMMUNICATION, NULL));
     assert(!WarningService_UpdateSource(
         1UL << 30U, true, 0U, 0U, 0U, 0U, NULL));
     assert(!WarningService_GetStatus(NULL));

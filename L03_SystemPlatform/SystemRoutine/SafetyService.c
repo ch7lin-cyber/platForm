@@ -12,6 +12,7 @@ typedef struct
     SafetyState_t state;
     SafetyOutputAction_t output_action;
     void *output_action_context;
+    uint32_t applied_source_mask;
     bool output_inhibited;
     bool initialized;
 } SafetyServiceContext_t;
@@ -117,7 +118,8 @@ bool SafetyService_Process(void)
 
     trip_source_mask = TripSourceMask();
     inhibit_required = trip_source_mask != 0U;
-    if (inhibit_required != g_safety.output_inhibited)
+    if ((inhibit_required != g_safety.output_inhibited) ||
+        (trip_source_mask != g_safety.applied_source_mask))
     {
         if ((g_safety.output_action != NULL) &&
             !g_safety.output_action(inhibit_required, trip_source_mask,
@@ -127,6 +129,7 @@ bool SafetyService_Process(void)
             return false;
         }
         g_safety.output_inhibited = inhibit_required;
+        g_safety.applied_source_mask = trip_source_mask;
         g_safety.transition_count++;
     }
 

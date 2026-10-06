@@ -48,6 +48,10 @@ add_library(PlatformL03Serial STATIC
     SystemRoutine/SnapshotService.c
     SystemRoutine/SafetyService.c
     SystemRoutine/WarningService.c
+    SystemRoutine/SystemRoutine.c
+    SystemRoutine/SystemRoutineFast.c
+    SystemRoutine/SystemRoutineControl.c
+    SystemRoutine/SystemRoutineBackground.c
 )
 
 add_library(Platform::L03Serial ALIAS PlatformL03Serial)

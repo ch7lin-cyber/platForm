@@ -140,6 +140,12 @@ add_executable(test_warning_service
 target_link_libraries(test_warning_service PRIVATE Platform::L03Serial)
 add_test(NAME warning_service COMMAND test_warning_service)
 
+add_executable(test_system_routine
+    Unit/L03_SystemPlatform/test_system_routine.c
+)
+target_link_libraries(test_system_routine PRIVATE Platform::L03Serial)
+add_test(NAME system_routine COMMAND test_system_routine)
+
 add_executable(test_hal_dac
     Unit/L02_PlatformHAL/test_hal_dac.c
 )
