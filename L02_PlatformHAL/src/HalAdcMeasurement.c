@@ -140,6 +140,15 @@ bool HalAdcMeasurement_ApplyFactoryCalibration(
     const HalAdcFactoryCalibration_t *calibration,
     int32_t *calibrated_uv)
 {
+    return HalAdcMeasurement_ApplyFactoryCalibrationTargets(
+        uncalibrated_uv, calibration, HAL_ADC_FACTORY_ZERO_UV,
+        HAL_ADC_FACTORY_SPAN_UV, calibrated_uv);
+}
+
+bool HalAdcMeasurement_ApplyFactoryCalibrationTargets(
+    int32_t uncalibrated_uv, const HalAdcFactoryCalibration_t *calibration,
+    int32_t target_zero_uv, int32_t target_span_uv, int32_t *calibrated_uv)
+{
     int64_t numerator;
     int64_t denominator;
 
@@ -148,10 +157,16 @@ bool HalAdcMeasurement_ApplyFactoryCalibration(
     {
         return false;
     }
+    /* Keep the product within int64 even for arbitrary int32 endpoints. */
+    if (((int64_t)target_span_uv - target_zero_uv <= 0LL) ||
+        ((int64_t)target_span_uv - target_zero_uv > ADC_INT32_MAX_I64))
+    {
+        return false;
+    }
     numerator = ((int64_t)uncalibrated_uv -
                  (int64_t)calibration->measured_zero_uv) *
-                HAL_ADC_FACTORY_SPAN_UV;
+                ((int64_t)target_span_uv - target_zero_uv);
     denominator = (int64_t)calibration->measured_span_uv -
                   (int64_t)calibration->measured_zero_uv;
-    return StoreInt32(numerator / denominator, calibrated_uv);
+    return StoreInt32(target_zero_uv + numerator / denominator, calibrated_uv);
 }

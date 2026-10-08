@@ -58,6 +58,9 @@ bool HalAdcMeasurement_ApplyFactoryCalibration(
     int32_t uncalibrated_uv,
     const HalAdcFactoryCalibration_t *calibration,
     int32_t *calibrated_uv);
+bool HalAdcMeasurement_ApplyFactoryCalibrationTargets(
+    int32_t uncalibrated_uv, const HalAdcFactoryCalibration_t *calibration,
+    int32_t target_zero_uv, int32_t target_span_uv, int32_t *calibrated_uv);
 bool HalAdcMeasurement_ValidateFactoryCalibration(
     const HalAdcFactoryCalibration_t *calibration);
 

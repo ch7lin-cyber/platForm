@@ -13,6 +13,8 @@ static bool g_live_valid[FACTORY_CALIBRATION_INPUT_COUNT];
 /* One bit per profile avoids adding padding to every calibration record. */
 static uint16_t g_calibrated_profiles[FACTORY_CALIBRATION_INPUT_COUNT];
 static FactoryCalibrationSnapshot_t g_snapshot;
+static const FactoryCalibrationTargets_t *g_targets;
+static FactoryCalibrationSave_t g_save;
 static bool IsUnlocked(void)
 {
     return FactoryModeService_IsActive();
@@ -30,6 +32,8 @@ void FactoryCalibrationService_Initialize(void)
     uint8_t input;
     uint8_t profile;
 
+    g_targets = NULL;
+    g_save = NULL;
     (void)memset(g_live_valid, 0, sizeof(g_live_valid));
     (void)memset(g_calibrated_profiles, 0, sizeof(g_calibrated_profiles));
     (void)memset(&g_snapshot, 0, sizeof(g_snapshot));
@@ -44,6 +48,67 @@ void FactoryCalibrationService_Initialize(void)
             g_calibration[input][profile].valid = true;
         }
     }
+}
+
+bool FactoryCalibrationService_GetTargets(FactoryCalibrationProfile_t profile,
+                                         FactoryCalibrationTargets_t *targets)
+{
+    if (((unsigned int)profile >= FACTORY_CALIBRATION_PROFILE_COUNT) || (targets == NULL))
+        return false;
+    if (g_targets != NULL) *targets = g_targets[profile];
+    else { targets->zero_uv = 0L; targets->span_uv = 30000L; }
+    return true;
+}
+
+bool FactoryCalibrationService_SetTargets(const FactoryCalibrationTargets_t *targets,
+                                         uint8_t count)
+{
+    uint8_t input, profile;
+    if ((targets == NULL) || (count != FACTORY_CALIBRATION_PROFILE_COUNT)) return false;
+    for (profile = 0U; profile < count; profile++)
+    {
+        int64_t span = (int64_t)targets[profile].span_uv - targets[profile].zero_uv;
+        if ((span < 1000LL) || (span > 2147483647LL)) return false;
+    }
+    /* Target geometry cannot change underneath an already calibrated record. */
+    for (input = 0U; input < FACTORY_CALIBRATION_INPUT_COUNT; input++)
+        if (g_calibrated_profiles[input] != 0U) return false;
+    g_targets = targets;
+    for (input = 0U; input < FACTORY_CALIBRATION_INPUT_COUNT; input++)
+    for (profile = 0U; profile < count; profile++)
+    {
+        g_calibration[input][profile].measured_zero_uv = targets[profile].zero_uv;
+        g_calibration[input][profile].measured_span_uv = targets[profile].span_uv;
+    }
+    return true;
+}
+
+void FactoryCalibrationService_SetSaveCallback(FactoryCalibrationSave_t save)
+{
+    g_save = save;
+}
+
+bool FactoryCalibrationService_Restore(uint8_t input,
+    FactoryCalibrationProfile_t profile, const HalAdcFactoryCalibration_t *calibration)
+{
+    if ((input >= FACTORY_CALIBRATION_INPUT_COUNT) ||
+        ((unsigned int)profile >= FACTORY_CALIBRATION_PROFILE_COUNT) ||
+        !HalAdcMeasurement_ValidateFactoryCalibration(calibration) ||
+        (calibration->measured_span_uv <= calibration->measured_zero_uv)) return false;
+    g_calibration[input][profile] = *calibration;
+    g_calibrated_profiles[input] |= (uint16_t)(1U << (unsigned int)profile);
+    return true;
+}
+
+bool FactoryCalibrationService_Convert(uint8_t input,
+    FactoryCalibrationProfile_t profile, int32_t raw_uv, int32_t *calibrated_uv)
+{
+    HalAdcFactoryCalibration_t calibration;
+    FactoryCalibrationTargets_t targets;
+    return FactoryCalibrationService_GetCalibration(input, profile, &calibration) &&
+           FactoryCalibrationService_GetTargets(profile, &targets) &&
+           HalAdcMeasurement_ApplyFactoryCalibrationTargets(raw_uv, &calibration,
+               targets.zero_uv, targets.span_uv, calibrated_uv);
 }
 
 void FactoryCalibrationService_SetUnlockKey1(uint16_t key)
@@ -118,6 +183,7 @@ bool FactoryCalibrationService_CaptureSpan(void)
 {
     int64_t span;
 
+    if (!IsUnlocked()) return Fail(FACTORY_CAL_ERROR_LOCKED);
     if (g_snapshot.state != FACTORY_CAL_STATE_ZERO_CAPTURED)
     {
         return Fail(FACTORY_CAL_ERROR_SEQUENCE);
@@ -127,7 +193,7 @@ bool FactoryCalibrationService_CaptureSpan(void)
         return Fail(FACTORY_CAL_ERROR_NO_LIVE_SAMPLE);
     }
     span = (int64_t)g_snapshot.live_uv - g_snapshot.pending_zero_uv;
-    if ((span > -1000LL) && (span < 1000LL))
+    if (span < 1000LL)
     {
         return Fail(FACTORY_CAL_ERROR_SPAN_TOO_SMALL);
     }
@@ -152,6 +218,9 @@ bool FactoryCalibrationService_Apply(void)
     {
         return Fail(FACTORY_CAL_ERROR_SPAN_TOO_SMALL);
     }
+    if (!IsUnlocked()) return Fail(FACTORY_CAL_ERROR_LOCKED);
+    if ((g_save != NULL) && !g_save(g_snapshot.input, g_snapshot.profile, &pending))
+        return Fail(FACTORY_CAL_ERROR_STORAGE);
     g_calibration[g_snapshot.input][g_snapshot.profile] = pending;
     g_calibrated_profiles[g_snapshot.input] |=
         (uint16_t)(1U << (unsigned int)g_snapshot.profile);

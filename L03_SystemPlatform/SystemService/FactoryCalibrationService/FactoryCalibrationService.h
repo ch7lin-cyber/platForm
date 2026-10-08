@@ -54,8 +54,19 @@ typedef enum
     FACTORY_CAL_ERROR_LOCKED,
     FACTORY_CAL_ERROR_NO_LIVE_SAMPLE,
     FACTORY_CAL_ERROR_SEQUENCE,
-    FACTORY_CAL_ERROR_SPAN_TOO_SMALL
+    FACTORY_CAL_ERROR_SPAN_TOO_SMALL,
+    FACTORY_CAL_ERROR_STORAGE
 } FactoryCalibrationError_t;
+
+typedef struct
+{
+    int32_t zero_uv;
+    int32_t span_uv;
+} FactoryCalibrationTargets_t;
+
+typedef bool (*FactoryCalibrationSave_t)(uint8_t input,
+    FactoryCalibrationProfile_t profile,
+    const HalAdcFactoryCalibration_t *calibration);
 
 typedef struct
 {
@@ -71,6 +82,16 @@ typedef struct
 } FactoryCalibrationSnapshot_t;
 
 void FactoryCalibrationService_Initialize(void);
+/* Product owns the constant targets table for the lifetime of the service. */
+bool FactoryCalibrationService_SetTargets(const FactoryCalibrationTargets_t *targets,
+                                         uint8_t count);
+bool FactoryCalibrationService_GetTargets(FactoryCalibrationProfile_t profile,
+                                         FactoryCalibrationTargets_t *targets);
+void FactoryCalibrationService_SetSaveCallback(FactoryCalibrationSave_t save);
+bool FactoryCalibrationService_Restore(uint8_t input,
+    FactoryCalibrationProfile_t profile, const HalAdcFactoryCalibration_t *calibration);
+bool FactoryCalibrationService_Convert(uint8_t input,
+    FactoryCalibrationProfile_t profile, int32_t raw_uv, int32_t *calibrated_uv);
 void FactoryCalibrationService_SetUnlockKey1(uint16_t key);
 void FactoryCalibrationService_SetUnlockKey2(uint16_t key);
 bool FactoryCalibrationService_Select(uint8_t input,
