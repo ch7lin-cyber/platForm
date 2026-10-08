@@ -7,18 +7,34 @@
 #include "HalAdcMeasurement.h"
 #include "FactoryModeService.h"
 
+#ifndef FACTORY_CALIBRATION_INPUT_COUNT
 #define FACTORY_CALIBRATION_INPUT_COUNT   (16U)
-#define FACTORY_CALIBRATION_PROFILE_COUNT (7U)
+#endif
+#if (FACTORY_CALIBRATION_INPUT_COUNT < 1U) || (FACTORY_CALIBRATION_INPUT_COUNT > 16U)
+#error "FACTORY_CALIBRATION_INPUT_COUNT must be 1..16"
+#endif
+#define FACTORY_CALIBRATION_PROFILE_COUNT (10U)
 #define FACTORY_CALIBRATION_UNLOCK_KEY     FACTORY_MODE_UNLOCK_KEY
 typedef enum
 {
-    FACTORY_CAL_PROFILE_TC_GAIN1 = 0,
-    FACTORY_CAL_PROFILE_TC_GAIN2,
-    FACTORY_CAL_PROFILE_RTD,
-    FACTORY_CAL_PROFILE_MV50,
-    FACTORY_CAL_PROFILE_V5,
-    FACTORY_CAL_PROFILE_V10,
-    FACTORY_CAL_PROFILE_MA
+    FACTORY_CAL_PROFILE_TC_GAIN32 = 0,
+    FACTORY_CAL_PROFILE_TC_GAIN64 = 1,
+    FACTORY_CAL_PROFILE_RTD_GAIN8 = 2,
+    FACTORY_CAL_PROFILE_TC_GAIN16 = 3,
+    FACTORY_CAL_PROFILE_VOLTAGE_GAIN32 = 4,
+    FACTORY_CAL_PROFILE_RTD_GAIN16 = 5,
+    FACTORY_CAL_PROFILE_CURRENT_GAIN64 = 6,
+    FACTORY_CAL_PROFILE_TC_GAIN128 = 7,
+    FACTORY_CAL_PROFILE_RTD_GAIN1 = 8,
+    FACTORY_CAL_PROFILE_RTD_GAIN32 = 9,
+    /* Source aliases; external tools must use the explicit profile IDs above. */
+    FACTORY_CAL_PROFILE_TC_GAIN1 = FACTORY_CAL_PROFILE_TC_GAIN32,
+    FACTORY_CAL_PROFILE_TC_GAIN2 = FACTORY_CAL_PROFILE_TC_GAIN64,
+    FACTORY_CAL_PROFILE_RTD = FACTORY_CAL_PROFILE_RTD_GAIN8,
+    FACTORY_CAL_PROFILE_MV50 = FACTORY_CAL_PROFILE_TC_GAIN32,
+    FACTORY_CAL_PROFILE_V5 = FACTORY_CAL_PROFILE_VOLTAGE_GAIN32,
+    FACTORY_CAL_PROFILE_V10 = FACTORY_CAL_PROFILE_VOLTAGE_GAIN32,
+    FACTORY_CAL_PROFILE_MA = FACTORY_CAL_PROFILE_CURRENT_GAIN64
 } FactoryCalibrationProfile_t;
 
 typedef enum
@@ -68,6 +84,9 @@ void FactoryCalibrationService_Abort(void);
 bool FactoryCalibrationService_GetCalibration(
     uint8_t input, FactoryCalibrationProfile_t profile,
     HalAdcFactoryCalibration_t *calibration);
+/* False for identity defaults; true only after a successful Apply. */
+bool FactoryCalibrationService_IsCalibrated(
+    uint8_t input, FactoryCalibrationProfile_t profile);
 void FactoryCalibrationService_GetSnapshot(
     FactoryCalibrationSnapshot_t *snapshot);
 

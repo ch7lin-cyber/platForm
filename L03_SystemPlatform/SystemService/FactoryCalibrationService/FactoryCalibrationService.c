@@ -10,6 +10,8 @@ static HalAdcFactoryCalibration_t
                  [FACTORY_CALIBRATION_PROFILE_COUNT];
 static int32_t g_live_uv[FACTORY_CALIBRATION_INPUT_COUNT];
 static bool g_live_valid[FACTORY_CALIBRATION_INPUT_COUNT];
+/* One bit per profile avoids adding padding to every calibration record. */
+static uint16_t g_calibrated_profiles[FACTORY_CALIBRATION_INPUT_COUNT];
 static FactoryCalibrationSnapshot_t g_snapshot;
 static bool IsUnlocked(void)
 {
@@ -29,6 +31,7 @@ void FactoryCalibrationService_Initialize(void)
     uint8_t profile;
 
     (void)memset(g_live_valid, 0, sizeof(g_live_valid));
+    (void)memset(g_calibrated_profiles, 0, sizeof(g_calibrated_profiles));
     (void)memset(&g_snapshot, 0, sizeof(g_snapshot));
     g_snapshot.state = FACTORY_CAL_STATE_LOCKED;
     for (input = 0U; input < FACTORY_CALIBRATION_INPUT_COUNT; input++)
@@ -65,7 +68,7 @@ bool FactoryCalibrationService_Select(uint8_t input,
         return Fail(FACTORY_CAL_ERROR_LOCKED);
     }
     if ((input >= FACTORY_CALIBRATION_INPUT_COUNT) ||
-        (profile >= FACTORY_CALIBRATION_PROFILE_COUNT))
+        ((unsigned int)profile >= FACTORY_CALIBRATION_PROFILE_COUNT))
     {
         return Fail(FACTORY_CAL_ERROR_INVALID_ARGUMENT);
     }
@@ -150,6 +153,8 @@ bool FactoryCalibrationService_Apply(void)
         return Fail(FACTORY_CAL_ERROR_SPAN_TOO_SMALL);
     }
     g_calibration[g_snapshot.input][g_snapshot.profile] = pending;
+    g_calibrated_profiles[g_snapshot.input] |=
+        (uint16_t)(1U << (unsigned int)g_snapshot.profile);
     g_snapshot.revision++;
     if (g_snapshot.revision == 0U)
     {
@@ -174,13 +179,22 @@ bool FactoryCalibrationService_GetCalibration(
     HalAdcFactoryCalibration_t *calibration)
 {
     if ((input >= FACTORY_CALIBRATION_INPUT_COUNT) ||
-        (profile >= FACTORY_CALIBRATION_PROFILE_COUNT) ||
+        ((unsigned int)profile >= FACTORY_CALIBRATION_PROFILE_COUNT) ||
         (calibration == NULL))
     {
         return false;
     }
     *calibration = g_calibration[input][profile];
     return true;
+}
+
+bool FactoryCalibrationService_IsCalibrated(
+    uint8_t input, FactoryCalibrationProfile_t profile)
+{
+    return (input < FACTORY_CALIBRATION_INPUT_COUNT) &&
+           ((unsigned int)profile < FACTORY_CALIBRATION_PROFILE_COUNT) &&
+           ((g_calibrated_profiles[input] &
+             (uint16_t)(1U << (unsigned int)profile)) != 0U);
 }
 
 void FactoryCalibrationService_GetSnapshot(
