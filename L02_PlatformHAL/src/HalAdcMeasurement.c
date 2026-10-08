@@ -103,8 +103,21 @@ bool HalAdcMeasurement_CodeToMicrovolts(uint32_t raw_code,
                                         bool bipolar,
                                         int32_t *microvolts)
 {
-    return HalAdcMeasurement_CodeToMicrovoltsDiagnostic(
-        raw_code, reference_uv, gain, bipolar, microvolts, NULL);
+    int64_t numerator;
+    int64_t denominator;
+
+    /* Production path has no dependency on debug recording; section GC can
+     * remove CodeToMicrovoltsDiagnostic when no caller requests it. */
+    if ((raw_code > 0x00FFFFFFUL) || (reference_uv == 0UL) ||
+        (gain == 0U) || (microvolts == NULL))
+    {
+        return false;
+    }
+    numerator = (bipolar ? ((int64_t)raw_code - ADC_24BIT_HALF_SCALE) :
+                           (int64_t)raw_code) * (int64_t)reference_uv;
+    denominator = (bipolar ? ADC_24BIT_HALF_SCALE : ADC_24BIT_FULL_SCALE) *
+                  (int64_t)gain;
+    return StoreInt32(numerator / denominator, microvolts);
 }
 
 bool HalAdcMeasurement_ValidateFactoryCalibration(

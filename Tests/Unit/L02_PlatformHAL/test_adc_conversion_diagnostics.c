@@ -7,6 +7,29 @@ int main(void)
 {
     HalAdcConversionDiagnostics_t d;
     int32_t uv = 123;
+    /* Production and diagnostic entry points must agree for both polarities,
+     * invalid inputs, and int32 overflow, including unchanged failure output. */
+    {
+        const uint32_t raw[] = {0U, 0x800000UL, 0xFFFFFFUL, 0x1000000UL};
+        const uint32_t reference[] = {0UL, 2500000UL, UINT32_MAX};
+        const uint16_t gain[] = {0U, 1U, 32U, 128U};
+        size_t r, v, g;
+        unsigned int bipolar;
+        for (r = 0U; r < sizeof(raw) / sizeof(raw[0]); r++)
+        for (v = 0U; v < sizeof(reference) / sizeof(reference[0]); v++)
+        for (g = 0U; g < sizeof(gain) / sizeof(gain[0]); g++)
+        for (bipolar = 0U; bipolar < 2U; bipolar++)
+        {
+            int32_t production = 123, debug = 123;
+            bool ok = HalAdcMeasurement_CodeToMicrovolts(
+                raw[r], reference[v], gain[g], bipolar != 0U, &production);
+            bool debug_ok = HalAdcMeasurement_CodeToMicrovoltsDiagnostic(
+                raw[r], reference[v], gain[g], bipolar != 0U, &debug, &d);
+            assert(ok == debug_ok && production == debug);
+        }
+        assert(!HalAdcMeasurement_CodeToMicrovolts(
+            0U, 2500000UL, 32U, true, NULL));
+    }
     assert(HalAdcMeasurement_CodeToMicrovoltsDiagnostic(
         0x8955DDUL, 2500000UL, 32U, true, &uv, &d));
     assert(uv == 5697 && d.result == HAL_ADC_CONVERSION_OK);
