@@ -1,15 +1,18 @@
 #include "HalAdcMeasurement.h"
 
-#include <limits.h>
 #include <stddef.h>
 
 #define ADC_24BIT_HALF_SCALE (8388608LL)
 #define ADC_24BIT_FULL_SCALE (16777216LL)
 #define MIN_FACTORY_SPAN_UV  (1000L)
+/* Keep the bounds signed when the target headers define INT32_MIN unsigned. */
+#define ADC_INT32_MIN_I64 (-2147483647LL - 1LL)
+#define ADC_INT32_MAX_I64 (2147483647LL)
 
 static bool StoreInt32(int64_t value, int32_t *result)
 {
-    if ((result == NULL) || (value < INT32_MIN) || (value > INT32_MAX))
+    if ((result == NULL) || (value < ADC_INT32_MIN_I64) ||
+        (value > ADC_INT32_MAX_I64))
     {
         return false;
     }
@@ -37,8 +40,8 @@ bool HalAdcMeasurement_CodeToMicrovoltsDiagnostic(
         diagnostics->numerator = 0;
         diagnostics->denominator = 0;
         diagnostics->quotient = 0;
-        diagnostics->minimum = (int64_t)INT32_MIN;
-        diagnostics->maximum = (int64_t)INT32_MAX;
+        diagnostics->minimum = ADC_INT32_MIN_I64;
+        diagnostics->maximum = ADC_INT32_MAX_I64;
     }
     if (raw_code > 0x00FFFFFFUL)
     {

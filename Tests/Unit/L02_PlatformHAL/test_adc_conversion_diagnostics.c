@@ -43,5 +43,28 @@ int main(void)
     assert(d.quotient > INT32_MAX && uv == 123);
     assert(HalAdcMeasurement_CodeToMicrovolts(0x8955DDUL, 2500000UL, 32U, true, &uv));
     assert(uv == 5697);
+    assert(HalAdcMeasurement_CodeToMicrovoltsDiagnostic(
+        0x8948CCUL, 2500000UL, 32U, true, &uv, &d));
+    assert(uv == 5666);
+    assert(HalAdcMeasurement_CodeToMicrovoltsDiagnostic(
+        0xAED42EUL, 2500000UL, 32U, true, &uv, &d));
+    assert(uv == 28582);
+    {
+        HalAdcFactoryCalibration_t calibration = {0, 30000, true};
+        assert(HalAdcMeasurement_ApplyFactoryCalibration(
+            (int32_t)(-2147483647LL - 1LL), &calibration, &uv));
+        assert((int64_t)uv == -2147483648LL);
+        assert(HalAdcMeasurement_ApplyFactoryCalibration(
+            (int32_t)2147483647LL, &calibration, &uv));
+        assert((int64_t)uv == 2147483647LL);
+        calibration.measured_span_uv = 1000;
+        uv = 123;
+        assert(!HalAdcMeasurement_ApplyFactoryCalibration(
+            (int32_t)(-2147483647LL - 1LL), &calibration, &uv));
+        assert(uv == 123);
+        assert(!HalAdcMeasurement_ApplyFactoryCalibration(
+            (int32_t)2147483647LL, &calibration, &uv));
+        assert(uv == 123);
+    }
     return 0;
 }
