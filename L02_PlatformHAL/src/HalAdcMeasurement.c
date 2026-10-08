@@ -17,18 +17,51 @@ static bool StoreInt32(int64_t value, int32_t *result)
     return true;
 }
 
-bool HalAdcMeasurement_CodeToMicrovolts(uint32_t raw_code,
-                                        uint32_t reference_uv,
-                                        uint16_t gain,
-                                        bool bipolar,
-                                        int32_t *microvolts)
+bool HalAdcMeasurement_CodeToMicrovoltsDiagnostic(
+    uint32_t raw_code, uint32_t reference_uv, uint16_t gain, bool bipolar,
+    int32_t *microvolts, HalAdcConversionDiagnostics_t *diagnostics)
 {
     int64_t numerator;
     int64_t denominator;
+    int64_t quotient;
+    HalAdcConversionResult_t result = HAL_ADC_CONVERSION_OK;
 
-    if ((raw_code > 0x00FFFFFFUL) || (reference_uv == 0UL) ||
-        (gain == 0U) || (microvolts == NULL))
+    if (diagnostics != NULL)
     {
+        diagnostics->result = HAL_ADC_CONVERSION_NONE;
+        diagnostics->raw_code = raw_code;
+        diagnostics->reference_uv = reference_uv;
+        diagnostics->gain = gain;
+        diagnostics->bipolar = bipolar;
+        diagnostics->output_valid = (microvolts != NULL);
+        diagnostics->numerator = 0;
+        diagnostics->denominator = 0;
+        diagnostics->quotient = 0;
+        diagnostics->minimum = (int64_t)INT32_MIN;
+        diagnostics->maximum = (int64_t)INT32_MAX;
+    }
+    if (raw_code > 0x00FFFFFFUL)
+    {
+        result = HAL_ADC_CONVERSION_RAW_INVALID;
+    }
+    else if (reference_uv == 0UL)
+    {
+        result = HAL_ADC_CONVERSION_REFERENCE_ZERO;
+    }
+    else if (gain == 0U)
+    {
+        result = HAL_ADC_CONVERSION_GAIN_ZERO;
+    }
+    else if (microvolts == NULL)
+    {
+        result = HAL_ADC_CONVERSION_OUTPUT_NULL;
+    }
+    if (result != HAL_ADC_CONVERSION_OK)
+    {
+        if (diagnostics != NULL)
+        {
+            diagnostics->result = result;
+        }
         return false;
     }
 
@@ -43,7 +76,32 @@ bool HalAdcMeasurement_CodeToMicrovolts(uint32_t raw_code,
         numerator = (int64_t)raw_code * (int64_t)reference_uv;
         denominator = ADC_24BIT_FULL_SCALE * (int64_t)gain;
     }
-    return StoreInt32(numerator / denominator, microvolts);
+    quotient = numerator / denominator;
+    if (diagnostics != NULL)
+    {
+        diagnostics->numerator = numerator;
+        diagnostics->denominator = denominator;
+        diagnostics->quotient = quotient;
+    }
+    if (!StoreInt32(quotient, microvolts))
+    {
+        result = HAL_ADC_CONVERSION_OUT_OF_RANGE;
+    }
+    if (diagnostics != NULL)
+    {
+        diagnostics->result = result;
+    }
+    return result == HAL_ADC_CONVERSION_OK;
+}
+
+bool HalAdcMeasurement_CodeToMicrovolts(uint32_t raw_code,
+                                        uint32_t reference_uv,
+                                        uint16_t gain,
+                                        bool bipolar,
+                                        int32_t *microvolts)
+{
+    return HalAdcMeasurement_CodeToMicrovoltsDiagnostic(
+        raw_code, reference_uv, gain, bipolar, microvolts, NULL);
 }
 
 bool HalAdcMeasurement_ValidateFactoryCalibration(

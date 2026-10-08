@@ -18,6 +18,37 @@ typedef struct
     bool valid;
 } HalAdcFactoryCalibration_t;
 
+typedef enum
+{
+    HAL_ADC_CONVERSION_NONE = 0,
+    HAL_ADC_CONVERSION_OK,
+    HAL_ADC_CONVERSION_RAW_INVALID,
+    HAL_ADC_CONVERSION_REFERENCE_ZERO,
+    HAL_ADC_CONVERSION_GAIN_ZERO,
+    HAL_ADC_CONVERSION_OUTPUT_NULL,
+    HAL_ADC_CONVERSION_OUT_OF_RANGE
+} HalAdcConversionResult_t;
+
+typedef struct
+{
+    HalAdcConversionResult_t result;
+    uint32_t raw_code;
+    uint32_t reference_uv;
+    uint16_t gain;
+    bool bipolar;
+    bool output_valid;
+    int64_t numerator;
+    int64_t denominator;
+    int64_t quotient;
+    int64_t minimum;
+    int64_t maximum;
+} HalAdcConversionDiagnostics_t;
+
+/* Optional per-call diagnostics; caller owns storage (no shared global state). */
+bool HalAdcMeasurement_CodeToMicrovoltsDiagnostic(
+    uint32_t raw_code, uint32_t reference_uv, uint16_t gain, bool bipolar,
+    int32_t *microvolts, HalAdcConversionDiagnostics_t *diagnostics);
+
 bool HalAdcMeasurement_CodeToMicrovolts(uint32_t raw_code,
                                         uint32_t reference_uv,
                                         uint16_t gain,
