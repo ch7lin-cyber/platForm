@@ -1,11 +1,14 @@
 #include "SensorConversionService.h"
 
-#include <limits.h>
 #include <stddef.h>
 #include <string.h>
 
 #define ANALOG_OUTPUT_MIN (-1999L)
 #define ANALOG_OUTPUT_MAX (19999L)
+
+/* Explicit signed bounds also work with target headers defining an unsigned minimum. */
+#define SENSOR_INT32_MIN_I64 (-2147483647LL - 1LL)
+#define SENSOR_INT32_MAX_I64 (2147483647LL)
 
 bool SensorConversionService_IsThermocouple(SensorConversionType_t type)
 {
@@ -20,7 +23,8 @@ bool SensorConversionService_IsRtd(SensorConversionType_t type)
 
 static bool StoreInt32(int64_t value, int32_t *output)
 {
-    if ((output == NULL) || (value < INT32_MIN) || (value > INT32_MAX))
+    if ((output == NULL) || (value < SENSOR_INT32_MIN_I64) ||
+        (value > SENSOR_INT32_MAX_I64))
     {
         return false;
     }

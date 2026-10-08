@@ -72,6 +72,54 @@ static void TestRtdAndLimits(void)
     assert((result.flags & SENSOR_FLAG_OUT_OF_RANGE) != 0UL);
 }
 
+static void TestVoltageSamplesAndBounds(void)
+{
+    SensorConversionConfig_t config =
+    {
+        SENSOR_TYPE_VOLTAGE_0_5V, -1999L, 19999L, 0L,
+        NULL, NULL, 0UL, 0UL, 1026200UL, 6200UL
+    };
+    SensorConversionResult_t result;
+
+    assert(SensorConversionService_Convert(&config, 5698L, 0L, &result));
+    assert(result.physical_input == 943110L);
+    assert(result.engineering_value == 2150L);
+    assert(SensorConversionService_Convert(&config, 28610L, 0L, &result));
+    assert(result.physical_input == 4735416L);
+    assert(result.engineering_value == 18834L);
+
+    config.frontend_ratio_numerator = 1UL;
+    config.frontend_ratio_denominator = 1UL;
+    assert(SensorConversionService_Convert(&config, -2147483647L - 1L,
+                                           0L, &result));
+    assert(result.physical_input == (-2147483647L - 1L));
+    assert(SensorConversionService_Convert(&config, 2147483647L,
+                                           0L, &result));
+    assert(result.physical_input == 2147483647L);
+    config.frontend_ratio_numerator = 2UL;
+    assert(!SensorConversionService_Convert(&config, 2147483647L,
+                                            0L, &result));
+    assert(!SensorConversionService_Convert(&config, -2147483647L - 1L,
+                                            0L, &result));
+}
+
+static void TestTableSignedBounds(void)
+{
+    PiecewiseLinearSegment_t segment = {0L, 0L, 0L, -2147483647LL - 1LL};
+    PiecewiseLinearTable_t table = {&segment, 1U, 1UL};
+    int32_t value;
+
+    assert(PiecewiseLinearTable_Evaluate(&table, 0L, &value));
+    assert(value == (-2147483647L - 1L));
+    segment.intercept = 2147483647LL;
+    assert(PiecewiseLinearTable_Evaluate(&table, 0L, &value));
+    assert(value == 2147483647L);
+    segment.intercept = 2147483648LL;
+    assert(!PiecewiseLinearTable_Evaluate(&table, 0L, &value));
+    segment.intercept = -2147483649LL;
+    assert(!PiecewiseLinearTable_Evaluate(&table, 0L, &value));
+}
+
 static void TestFactoryFlow(void)
 {
     HalAdcFactoryCalibration_t calibration;
@@ -101,6 +149,8 @@ int main(void)
     TestCodeAndFactoryCalibration();
     TestTcCjcPipeline();
     TestRtdAndLimits();
+    TestVoltageSamplesAndBounds();
+    TestTableSignedBounds();
     TestFactoryFlow();
     return 0;
 }

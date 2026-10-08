@@ -1,7 +1,10 @@
 #include "PiecewiseLinearTable.h"
 
-#include <limits.h>
 #include <stddef.h>
+
+/* Keep the comparison signed regardless of the target's INT32_MIN macro. */
+#define TABLE_INT32_MIN_I64 (-2147483647LL - 1LL)
+#define TABLE_INT32_MAX_I64 (2147483647LL)
 
 bool PiecewiseLinearTable_IsValid(const PiecewiseLinearTable_t *table)
 {
@@ -59,7 +62,8 @@ bool PiecewiseLinearTable_Evaluate(const PiecewiseLinearTable_t *table,
             value = ((int64_t)segment->slope * (int64_t)x) +
                     segment->intercept;
             value /= (int64_t)table->coefficient_scale;
-            if ((value < INT32_MIN) || (value > INT32_MAX))
+            if ((value < TABLE_INT32_MIN_I64) ||
+                (value > TABLE_INT32_MAX_I64))
             {
                 return false;
             }
