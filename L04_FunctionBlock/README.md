@@ -31,3 +31,9 @@ L05 Application
 L04 must receive hardware values through L03 service interfaces or explicit
 input structures. It must not call `HalSerial`, NXP SDK functions, or hardware
 registers directly.
+
+## Planned standalone blocks
+
+See [implementation checklist](IMPLEMENTATION_CHECKLIST.md) for the control,
+utility, diagnostics, and recording scaffolds. These placeholders are
+unimplemented, excluded from builds, and have no upstream/downstream wiring.

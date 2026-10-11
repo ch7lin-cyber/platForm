@@ -1,0 +1,16 @@
+/*
+ * FbPid.h
+ * 狀態：尚未完成（空架構，無可執行功能）。
+ * 功能：PID 控制介面預留；實作前確認既有 PID 是否可沿用。
+ * 預計輸入：PV、SP、參數、模式、dt。
+ * 預計輸出：MV、狀態。
+ * 介面與資料型別尚未定案；不可視為已實作或已驗證。
+ * 不串接 L03/L05、Register Map、NVM 或硬體。
+ */
+
+#ifndef FB_PID_H
+#define FB_PID_H
+
+/* TODO：尚未完成；待定義 Config/Input/State/Output 與生命週期介面。 */
+
+#endif /* FB_PID_H */
