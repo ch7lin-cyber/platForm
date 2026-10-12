@@ -3,8 +3,8 @@
 #include <stddef.h>
 #include <string.h>
 
-#define ANALOG_OUTPUT_MIN (-1999L)
-#define ANALOG_OUTPUT_MAX (19999L)
+#define ANALOG_OUTPUT_MIN (-32000L)
+#define ANALOG_OUTPUT_MAX (32000L)
 
 /* Explicit signed bounds also work with target headers defining an unsigned minimum. */
 #define SENSOR_INT32_MIN_I64 (-2147483647LL - 1LL)
