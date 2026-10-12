@@ -38,9 +38,9 @@ static bool ResolveRange(
 static void TestEnabledSensorUpdatesSafetyRange(void)
 {
     EventTemperatureInputConfiguration_t old_configuration =
-        {0.5F, 62U};
+        {0.5F, 62U, EVENT_CJC_SOURCE_INTERNAL_TMP20};
     EventTemperatureInputConfiguration_t new_configuration =
-        {0.5F, 48U};
+        {0.5F, 48U, EVENT_CJC_SOURCE_INTERNAL_TMP20};
     SafetyConfigurationRange_t range;
 
     assert(SafetyConfigurationEventConsumer_IsOutputInhibited(0U));
@@ -66,9 +66,9 @@ static void TestEnabledSensorUpdatesSafetyRange(void)
 static void TestSensorOffInhibitsOutput(void)
 {
     EventTemperatureInputConfiguration_t old_configuration =
-        {0.5F, 48U};
+        {0.5F, 48U, EVENT_CJC_SOURCE_INTERNAL_TMP20};
     EventTemperatureInputConfiguration_t new_configuration =
-        {0.5F, 62U};
+        {0.5F, 62U, EVENT_CJC_SOURCE_INTERNAL_TMP20};
     SafetyConfigurationRange_t range;
 
     assert(EventService_RaiseTemperatureInputConfigurationChanged(
@@ -84,9 +84,9 @@ static void TestSensorOffInhibitsOutput(void)
 static void TestResolverFailureRetainsEventAndInhibitsOutput(void)
 {
     EventTemperatureInputConfiguration_t old_configuration =
-        {0.5F, 62U};
+        {0.5F, 62U, EVENT_CJC_SOURCE_INTERNAL_TMP20};
     EventTemperatureInputConfiguration_t new_configuration =
-        {0.5F, 48U};
+        {0.5F, 48U, EVENT_CJC_SOURCE_INTERNAL_TMP20};
 
     g_resolver_succeeds = false;
     assert(EventService_RaiseTemperatureInputConfigurationChanged(
@@ -141,3 +141,4 @@ int main(void)
     TestGlobalInterlockInhibitsEveryOutput();
     return 0;
 }
+

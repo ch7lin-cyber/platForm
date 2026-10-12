@@ -6,9 +6,9 @@
 static void TestTemperatureInputEventLifecycle(void)
 {
     EventTemperatureInputConfiguration_t old_configuration =
-        {0.5F, 62U};
+        {0.5F, 62U, EVENT_CJC_SOURCE_INTERNAL_TMP20};
     EventTemperatureInputConfiguration_t new_configuration =
-        {2.0F, 48U};
+        {2.0F, 48U, EVENT_CJC_SOURCE_INTERNAL_TMP20};
     TemperatureInputConfigurationChangedEvent_t event;
     uint32_t event_id;
 
@@ -57,7 +57,7 @@ static void TestTemperatureInputEventLifecycle(void)
 static void TestTemperatureInputEventValidation(void)
 {
     EventTemperatureInputConfiguration_t configuration =
-        {0.5F, 62U};
+        {0.5F, 62U, EVENT_CJC_SOURCE_INTERNAL_TMP20};
 
     assert(!EventService_RaiseTemperatureInputConfigurationChanged(
         EVENT_SERVICE_TEMPERATURE_INPUT_COUNT, 1U,
@@ -76,3 +76,4 @@ int main(void)
     TestTemperatureInputEventValidation();
     return 0;
 }
+

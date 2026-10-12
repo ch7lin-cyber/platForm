@@ -7,8 +7,8 @@
 
 #define NVM_DATA_MAGIC          (0x54494E31UL)
 #define NVM_COMMIT_MAGIC        (0xA5A55A5AUL)
-#define NVM_FORMAT_VERSION      (3U)
-#define NVM_ENTRY_LENGTH        (8U)
+#define NVM_FORMAT_VERSION      (4U)
+#define NVM_ENTRY_LENGTH        (10U)
 #define NVM_PAYLOAD_LENGTH      \
     (2U + (NVM_SERVICE_TEMPERATURE_INPUT_COUNT * NVM_ENTRY_LENGTH))
 #define NVM_DATA_CRC_OFFSET     \
@@ -108,6 +108,8 @@ static void BuildPages(void)
         PutU32(&g_data_page[offset + 2U], filter_bits);
         PutU16(&g_data_page[offset + 6U],
                g_pending_configuration[channel].sensor_type);
+        PutU16(&g_data_page[offset + 8U],
+               g_pending_configuration[channel].cjc_source);
     }
     PutU32(&g_data_page[NVM_DATA_CRC_OFFSET],
            Crc32(g_data_page, NVM_DATA_CRC_OFFSET));
@@ -128,6 +130,9 @@ static bool ReadValidSlot(
     uint8_t data_page[HAL_NVM_PAGE_SIZE];
     uint8_t commit_page[HAL_NVM_PAGE_SIZE];
     uint8_t channel;
+    uint16_t version;
+    uint32_t entry_length;
+    uint32_t crc_offset;
     if ((HalNvm_Read(slot, 0U, data_page, sizeof(data_page)) !=
          HAL_NVM_STATUS_OK) ||
         (HalNvm_Read(slot, HAL_NVM_PAGE_SIZE, commit_page,
@@ -135,13 +140,16 @@ static bool ReadValidSlot(
     {
         return false;
     }
+    version = GetU16(&data_page[4]);
+    entry_length = (version == 3U) ? 8U : NVM_ENTRY_LENGTH;
+    crc_offset = 16U + NVM_SERVICE_TEMPERATURE_INPUT_COUNT * entry_length;
     if ((GetU32(&data_page[0]) != NVM_DATA_MAGIC) ||
-        (GetU16(&data_page[4]) != NVM_FORMAT_VERSION) ||
-        (GetU16(&data_page[6]) != (uint16_t)NVM_PAYLOAD_LENGTH) ||
+        ((version != 3U) && (version != NVM_FORMAT_VERSION)) ||
+        (GetU16(&data_page[6]) != (uint16_t)(2U + NVM_SERVICE_TEMPERATURE_INPUT_COUNT * entry_length)) ||
         (GetU16(&data_page[12]) !=
          NVM_SERVICE_TEMPERATURE_INPUT_COUNT) ||
-        (GetU32(&data_page[NVM_DATA_CRC_OFFSET]) !=
-         Crc32(data_page, NVM_DATA_CRC_OFFSET)) ||
+        (GetU32(&data_page[crc_offset]) !=
+         Crc32(data_page, crc_offset)) ||
         (GetU32(&commit_page[0]) != NVM_COMMIT_MAGIC) ||
         (GetU32(&commit_page[NVM_COMMIT_CRC_OFFSET]) !=
          Crc32(commit_page, NVM_COMMIT_CRC_OFFSET)) ||
@@ -154,13 +162,20 @@ static bool ReadValidSlot(
     for (channel = 0U; channel < NVM_SERVICE_TEMPERATURE_INPUT_COUNT;
          channel++)
     {
-        uint32_t offset = 16U + ((uint32_t)channel * NVM_ENTRY_LENGTH);
+        uint32_t offset = 16U + ((uint32_t)channel * entry_length);
         uint32_t filter_bits = GetU32(&data_page[offset + 2U]);
         revisions[channel] = GetU16(&data_page[offset]);
         (void)memcpy(&configurations[channel].filter_time_constant_seconds,
                      &filter_bits, sizeof(filter_bits));
         configurations[channel].sensor_type =
             GetU16(&data_page[offset + 6U]);
+        configurations[channel].cjc_source = (version == 3U) ?
+            EVENT_CJC_SOURCE_INTERNAL_TMP20 : GetU16(&data_page[offset + 8U]);
+        if (((*valid_mask & (uint16_t)(1UL << channel)) != 0U) &&
+            (configurations[channel].cjc_source > EVENT_CJC_SOURCE_EXTERNAL_2))
+        {
+            return false;
+        }
     }
     return true;
 }
@@ -178,7 +193,8 @@ static bool ConfigurationsEqual(
         if (((valid_mask & (uint16_t)(1UL << channel)) != 0U) &&
             ((left[channel].filter_time_constant_seconds !=
               right[channel].filter_time_constant_seconds) ||
-             (left[channel].sensor_type != right[channel].sensor_type)))
+             (left[channel].sensor_type != right[channel].sensor_type) ||
+             (left[channel].cjc_source != right[channel].cjc_source)))
         {
             return false;
         }
@@ -252,7 +268,8 @@ bool NvmService_QueueTemperatureInputConfigurationForChannel(
 {
     if ((g_state != NVM_SERVICE_STATE_IDLE) ||
         (channel >= NVM_SERVICE_TEMPERATURE_INPUT_COUNT) ||
-        (configuration_revision == 0U) || (configuration == NULL))
+        (configuration_revision == 0U) || (configuration == NULL) ||
+        (configuration->cjc_source > EVENT_CJC_SOURCE_EXTERNAL_2))
     {
         return false;
     }
@@ -409,3 +426,4 @@ void NvmService_AcknowledgeCompletion(void)
         g_state = NVM_SERVICE_STATE_IDLE;
     }
 }
+

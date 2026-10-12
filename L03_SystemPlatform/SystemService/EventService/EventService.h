@@ -30,9 +30,11 @@ extern "C" {
 
 #define EVENT_TEMPERATURE_INPUT_CHANGE_FILTER_TIME_CONSTANT (1UL << 0)
 #define EVENT_TEMPERATURE_INPUT_CHANGE_SENSOR_TYPE          (1UL << 1)
+#define EVENT_TEMPERATURE_INPUT_CHANGE_CJC_SOURCE           (1UL << 2)
 #define EVENT_TEMPERATURE_INPUT_CHANGE_ALL                  \
     (EVENT_TEMPERATURE_INPUT_CHANGE_FILTER_TIME_CONSTANT |  \
-     EVENT_TEMPERATURE_INPUT_CHANGE_SENSOR_TYPE)
+     EVENT_TEMPERATURE_INPUT_CHANGE_SENSOR_TYPE | \
+     EVENT_TEMPERATURE_INPUT_CHANGE_CJC_SOURCE)
 
 typedef enum
 {
@@ -59,10 +61,19 @@ typedef struct
     uint32_t completed_ack_mask;
 } SerialConfigurationChangedEvent_t;
 
+typedef enum
+{
+    EVENT_CJC_SOURCE_DISABLED = 0,
+    EVENT_CJC_SOURCE_INTERNAL_TMP20 = 1,
+    EVENT_CJC_SOURCE_EXTERNAL_1 = 2,
+    EVENT_CJC_SOURCE_EXTERNAL_2 = 3
+} EventCjcSource_t;
+
 typedef struct
 {
     float filter_time_constant_seconds;
     uint16_t sensor_type;
+    uint16_t cjc_source;
 } EventTemperatureInputConfiguration_t;
 
 typedef struct
@@ -110,3 +121,4 @@ bool EventService_IsTemperatureInputConfigurationChangedPending(
 #endif
 
 #endif
+

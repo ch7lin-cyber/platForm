@@ -50,6 +50,8 @@ typedef struct
     uint32_t shunt_resistance_milliohm;
     uint32_t frontend_ratio_numerator;
     uint32_t frontend_ratio_denominator;
+    /* false preserves normal compensation; true adds exactly zero uV. */
+    bool cold_junction_compensation_disabled;
 } SensorConversionConfig_t;
 
 typedef struct
@@ -70,3 +72,4 @@ bool SensorConversionService_Convert(
     SensorConversionResult_t *result);
 
 #endif
+

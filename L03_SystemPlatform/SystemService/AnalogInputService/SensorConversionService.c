@@ -85,7 +85,8 @@ bool SensorConversionService_Convert(
 
     if (SensorConversionService_IsThermocouple(config->type))
     {
-        if (!PiecewiseLinearTable_Evaluate(config->cjc_table,
+        if (!config->cold_junction_compensation_disabled &&
+            !PiecewiseLinearTable_Evaluate(config->cjc_table,
                                            cold_junction_millicelsius,
                                            &result->cjc_uv))
         {
@@ -165,3 +166,4 @@ bool SensorConversionService_Convert(
     SetLimitFlags(config, result);
     return true;
 }
+

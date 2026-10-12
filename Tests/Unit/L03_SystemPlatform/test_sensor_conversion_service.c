@@ -32,7 +32,7 @@ static void TestTcCjcPipeline(void)
     SensorConversionConfig_t config =
     {
         SENSOR_TYPE_TC_K, -200000L, 1300000L, 20000L,
-        &measurement_table, &cjc_table, 0UL, 0UL, 1UL, 1UL
+        &measurement_table, &cjc_table, 0UL, 0UL, 1UL, 1UL, false
     };
     SensorConversionResult_t result;
 
@@ -53,7 +53,7 @@ static void TestRtdAndLimits(void)
     SensorConversionConfig_t config =
     {
         SENSOR_TYPE_RTD_PT100, -200000L, 850000L, 20000L,
-        &rtd_table, NULL, 1000UL, 0UL, 1UL, 1UL
+        &rtd_table, NULL, 1000UL, 0UL, 1UL, 1UL, false
     };
     SensorConversionResult_t result;
 
@@ -77,7 +77,7 @@ static void TestVoltageSamplesAndBounds(void)
     SensorConversionConfig_t config =
     {
         SENSOR_TYPE_VOLTAGE_0_5V, -1999L, 19999L, 0L,
-        NULL, NULL, 0UL, 0UL, 1026200UL, 6200UL
+        NULL, NULL, 0UL, 0UL, 1026200UL, 6200UL, false
     };
     SensorConversionResult_t result;
 
@@ -154,3 +154,4 @@ int main(void)
     TestFactoryFlow();
     return 0;
 }
+
