@@ -76,17 +76,17 @@ static void TestVoltageSamplesAndBounds(void)
 {
     SensorConversionConfig_t config =
     {
-        SENSOR_TYPE_VOLTAGE_0_5V, -1999L, 19999L, 0L,
+        SENSOR_TYPE_VOLTAGE_0_5V, -32000L, 32000L, 0L,
         NULL, NULL, 0UL, 0UL, 1026200UL, 6200UL, false
     };
     SensorConversionResult_t result;
 
     assert(SensorConversionService_Convert(&config, 5698L, 0L, &result));
     assert(result.physical_input == 943110L);
-    assert(result.engineering_value == 2150L);
+    assert(result.engineering_value == -19929L);
     assert(SensorConversionService_Convert(&config, 28610L, 0L, &result));
     assert(result.physical_input == 4735416L);
-    assert(result.engineering_value == 18834L);
+    assert(result.engineering_value == 28613L);
 
     config.frontend_ratio_numerator = 1UL;
     config.frontend_ratio_denominator = 1UL;
