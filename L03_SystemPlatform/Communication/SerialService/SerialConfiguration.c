@@ -4,6 +4,8 @@
 
 #define SERIAL_DEFAULT_BAUD_RATE          (115200UL)
 #define SERIAL_DEFAULT_RESPONSE_TIMEOUT   (1000UL)
+#define SERIAL_DEFAULT_RESPONSE_DELAY_US  (0UL)
+#define SERIAL_RESPONSE_DELAY_US_MAX      (60000UL)
 
 static bool SerialConfiguration_IsProtocolValid(SerialProtocol_t protocol)
 {
@@ -31,6 +33,7 @@ void SerialConfiguration_SetRtuDefault(SerialConfiguration_t *configuration,
         configuration->protocol = SERIAL_PROTOCOL_MODBUS_RTU;
         configuration->role = role;
         configuration->response_timeout_ms = SERIAL_DEFAULT_RESPONSE_TIMEOUT;
+        configuration->response_delay_us = SERIAL_DEFAULT_RESPONSE_DELAY_US;
     }
 }
 
@@ -46,6 +49,7 @@ void SerialConfiguration_SetAsciiDefault(SerialConfiguration_t *configuration,
         configuration->protocol = SERIAL_PROTOCOL_MODBUS_ASCII;
         configuration->role = role;
         configuration->response_timeout_ms = SERIAL_DEFAULT_RESPONSE_TIMEOUT;
+        configuration->response_delay_us = SERIAL_DEFAULT_RESPONSE_DELAY_US;
     }
 }
 
@@ -71,7 +75,9 @@ bool SerialConfiguration_IsValid(const SerialConfiguration_t *configuration)
         return false;
     }
 
-    return (configuration->response_timeout_ms > 0U);
+    return ((configuration->response_timeout_ms > 0U) &&
+            (configuration->response_delay_us <=
+             SERIAL_RESPONSE_DELAY_US_MAX));
 }
 
 uint32_t SerialConfiguration_GetCharacterTimeUs(

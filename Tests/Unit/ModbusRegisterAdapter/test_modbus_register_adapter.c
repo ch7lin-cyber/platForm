@@ -44,8 +44,10 @@ int main(void)
     assert(information.port == 1U);
     assert(information.field == MODBUS_SERIAL_REGISTER_APPLY);
     assert(information.access == MODBUS_REGISTER_ACCESS_WRITE_ONLY);
-    assert(!ModbusRegisterAdapter_ResolveSerialAddress(0x120BU,
-                                                        &information));
+    assert(ModbusRegisterAdapter_ResolveSerialAddress(0x120BU,
+                                                       &information));
+    assert(information.field ==
+           MODBUS_SERIAL_REGISTER_RESPONSE_DELAY_US);
     assert(!ModbusRegisterAdapter_ResolveSerialAddress(0x1220U,
                                                         &information));
 
@@ -74,6 +76,10 @@ int main(void)
     assert(!ModbusRegisterAdapter_IsSerialValueValid(
         MODBUS_SERIAL_REGISTER_UNIT_ID, 0U));
     assert(ModbusRegisterAdapter_IsSerialValueValid(
+        MODBUS_SERIAL_REGISTER_RESPONSE_DELAY_US, 0U));
+    assert(ModbusRegisterAdapter_IsSerialValueValid(
+        MODBUS_SERIAL_REGISTER_RESPONSE_DELAY_US, 60000U));
+    assert(ModbusRegisterAdapter_IsSerialValueValid(
         MODBUS_SERIAL_REGISTER_APPLY, MODBUS_SERIAL_APPLY_KEY));
     assert(!ModbusRegisterAdapter_IsSerialValueValid(
         MODBUS_SERIAL_REGISTER_STATUS, 0U));
@@ -88,6 +94,11 @@ int main(void)
     active.serial.line.baud_rate = 115200UL;
     assert(EventService_Initialize(EVENT_ACK_SERIAL_REQUIRED_DEFAULT));
     assert(ModbusRegisterAdapter_InitializeSerialPort(0U, &active));
+
+    assert(ModbusRegisterAdapter_WriteSingleRegister(
+        NULL, 0x120BU, 2500U) == MODBUS_EXCEPTION_NONE);
+    assert(ModbusRegisterAdapter_GetPendingSerialConfiguration(0U, &pending));
+    assert(pending.serial.response_delay_us == 2500U);
 
     request[0] = MODBUS_FUNCTION_WRITE_SINGLE_REGISTER;
     ModbusPdu_WriteU16(&request[1], 0x1200U);
@@ -120,6 +131,7 @@ int main(void)
 
     assert(ModbusRegisterAdapter_BeginApply(0U, &applied));
     assert(applied.serial.line.baud_rate == 38400UL);
+    assert(applied.serial.response_delay_us == 2500U);
     assert(ModbusRegisterAdapter_CompleteApply(0U, true));
     assert(ModbusRegisterAdapter_GetActiveSerialConfiguration(0U, &active));
     assert(active.serial.line.baud_rate == 38400UL);
@@ -131,6 +143,7 @@ int main(void)
     assert(event.configuration_revision == 1U);
     assert(event.old_configuration.serial.line.baud_rate == 115200UL);
     assert(event.new_configuration.serial.line.baud_rate == 38400UL);
+    assert(event.new_configuration.serial.response_delay_us == 2500U);
     assert(event.completed_ack_mask == EVENT_ACK_COMMUNICATION);
     assert(EventService_Acknowledge(event.event_id, EVENT_ACK_NVM));
     assert(EventService_Acknowledge(event.event_id, EVENT_ACK_HMI));

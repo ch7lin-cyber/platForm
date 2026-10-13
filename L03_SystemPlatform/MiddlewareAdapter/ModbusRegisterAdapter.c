@@ -23,7 +23,9 @@ static const SerialRegisterDefinition_t g_serial_register_definitions[] =
      MODBUS_REGISTER_ACCESS_READ_WRITE},
     {MODBUS_SERIAL_REGISTER_APPLY, MODBUS_REGISTER_ACCESS_WRITE_ONLY},
     {MODBUS_SERIAL_REGISTER_STATUS, MODBUS_REGISTER_ACCESS_READ_ONLY},
-    {MODBUS_SERIAL_REGISTER_REVISION, MODBUS_REGISTER_ACCESS_READ_ONLY}
+    {MODBUS_SERIAL_REGISTER_REVISION, MODBUS_REGISTER_ACCESS_READ_ONLY},
+    {MODBUS_SERIAL_REGISTER_RESPONSE_DELAY_US,
+     MODBUS_REGISTER_ACCESS_READ_WRITE}
 };
 
 static const uint32_t g_serial_baud_rates[] =
@@ -150,6 +152,8 @@ bool ModbusRegisterAdapter_IsSerialValueValid(
         case MODBUS_SERIAL_REGISTER_RESPONSE_TIMEOUT_MS:
             return ((value >= MODBUS_SERIAL_TIMEOUT_MS_MIN) &&
                     (value <= MODBUS_SERIAL_TIMEOUT_MS_MAX));
+        case MODBUS_SERIAL_REGISTER_RESPONSE_DELAY_US:
+            return (value <= MODBUS_SERIAL_RESPONSE_DELAY_US_MAX);
         case MODBUS_SERIAL_REGISTER_APPLY:
             return (value == MODBUS_SERIAL_APPLY_KEY);
         case MODBUS_SERIAL_REGISTER_STATUS:
@@ -240,6 +244,9 @@ static bool SetPendingField(
         case MODBUS_SERIAL_REGISTER_RESPONSE_TIMEOUT_MS:
             configuration->serial.response_timeout_ms = value;
             break;
+        case MODBUS_SERIAL_REGISTER_RESPONSE_DELAY_US:
+            configuration->serial.response_delay_us = value;
+            break;
         default:
             return false;
     }
@@ -281,6 +288,9 @@ static bool GetPendingField(
             break;
         case MODBUS_SERIAL_REGISTER_RESPONSE_TIMEOUT_MS:
             *value = (uint16_t)instance->pending.serial.response_timeout_ms;
+            break;
+        case MODBUS_SERIAL_REGISTER_RESPONSE_DELAY_US:
+            *value = (uint16_t)instance->pending.serial.response_delay_us;
             break;
         case MODBUS_SERIAL_REGISTER_STATUS:
             *value = (uint16_t)instance->status;

@@ -30,6 +30,7 @@ typedef struct
     SerialProtocol_t protocol;
     SerialRole_t role;
     uint32_t response_timeout_ms;
+    uint32_t response_delay_us;
 } SerialConfiguration_t;
 
 void SerialConfiguration_SetRtuDefault(SerialConfiguration_t *configuration,
