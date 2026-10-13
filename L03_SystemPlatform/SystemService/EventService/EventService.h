@@ -31,10 +31,15 @@ extern "C" {
 #define EVENT_TEMPERATURE_INPUT_CHANGE_FILTER_TIME_CONSTANT (1UL << 0)
 #define EVENT_TEMPERATURE_INPUT_CHANGE_SENSOR_TYPE          (1UL << 1)
 #define EVENT_TEMPERATURE_INPUT_CHANGE_CJC_SOURCE           (1UL << 2)
+#define EVENT_TEMPERATURE_INPUT_CHANGE_CJC_OFFSET           (1UL << 3)
 #define EVENT_TEMPERATURE_INPUT_CHANGE_ALL                  \
     (EVENT_TEMPERATURE_INPUT_CHANGE_FILTER_TIME_CONSTANT |  \
      EVENT_TEMPERATURE_INPUT_CHANGE_SENSOR_TYPE | \
-     EVENT_TEMPERATURE_INPUT_CHANGE_CJC_SOURCE)
+     EVENT_TEMPERATURE_INPUT_CHANGE_CJC_SOURCE | \
+     EVENT_TEMPERATURE_INPUT_CHANGE_CJC_OFFSET)
+
+#define EVENT_CJC_OFFSET_MIN_CENTI_C                        (-2000)
+#define EVENT_CJC_OFFSET_MAX_CENTI_C                        (2000)
 
 typedef enum
 {
@@ -74,6 +79,7 @@ typedef struct
     float filter_time_constant_seconds;
     uint16_t sensor_type;
     uint16_t cjc_source;
+    int16_t cjc_offset_centi_c;
 } EventTemperatureInputConfiguration_t;
 
 typedef struct

@@ -32,9 +32,9 @@ static bool ResolveRange(
 static void TestAlarmRangeUpdateAndAcknowledge(void)
 {
     EventTemperatureInputConfiguration_t old_configuration =
-        {0.5F, 62U, EVENT_CJC_SOURCE_INTERNAL_TMP20};
+        {0.5F, 62U, EVENT_CJC_SOURCE_INTERNAL_TMP20, 0};
     EventTemperatureInputConfiguration_t new_configuration =
-        {0.5F, 48U, EVENT_CJC_SOURCE_INTERNAL_TMP20};
+        {0.5F, 48U, EVENT_CJC_SOURCE_INTERNAL_TMP20, 0};
     AlarmConfigurationRange_t range;
 
     assert(EventService_Initialize(EVENT_ACK_SERIAL_REQUIRED_DEFAULT));
@@ -61,9 +61,9 @@ static void TestAlarmRangeUpdateAndAcknowledge(void)
 static void TestResolverFailureRetainsEvent(void)
 {
     EventTemperatureInputConfiguration_t old_configuration =
-        {0.5F, 48U, EVENT_CJC_SOURCE_INTERNAL_TMP20};
+        {0.5F, 48U, EVENT_CJC_SOURCE_INTERNAL_TMP20, 0};
     EventTemperatureInputConfiguration_t new_configuration =
-        {0.5F, 46U, EVENT_CJC_SOURCE_INTERNAL_TMP20};
+        {0.5F, 46U, EVENT_CJC_SOURCE_INTERNAL_TMP20, 0};
 
     g_resolver_succeeds = false;
     assert(EventService_RaiseTemperatureInputConfigurationChanged(
@@ -80,9 +80,9 @@ static void TestResolverFailureRetainsEvent(void)
 static void TestFilterOnlyChangeDoesNotResolveRangeAgain(void)
 {
     EventTemperatureInputConfiguration_t old_configuration =
-        {0.5F, 46U, EVENT_CJC_SOURCE_INTERNAL_TMP20};
+        {0.5F, 46U, EVENT_CJC_SOURCE_INTERNAL_TMP20, 0};
     EventTemperatureInputConfiguration_t new_configuration =
-        {2.0F, 46U, EVENT_CJC_SOURCE_INTERNAL_TMP20};
+        {2.0F, 46U, EVENT_CJC_SOURCE_INTERNAL_TMP20, 0};
     AlarmConfigurationRange_t range;
     uint32_t calls_before = g_resolver_call_count;
 

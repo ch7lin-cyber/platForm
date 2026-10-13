@@ -75,9 +75,9 @@ static void TestDualSlotAndPowerLoss(void)
     static const HalNvmDriverOps_t ops =
         {MockInitialize, MockRead, MockErase, MockProgram,
          NULL, NULL, NULL};
-    EventTemperatureInputConfiguration_t first = {0.5F, 48U, EVENT_CJC_SOURCE_INTERNAL_TMP20};
-    EventTemperatureInputConfiguration_t second = {2.0F, 46U, EVENT_CJC_SOURCE_INTERNAL_TMP20};
-    EventTemperatureInputConfiguration_t channel_three = {1.0F, 124U, EVENT_CJC_SOURCE_INTERNAL_TMP20};
+    EventTemperatureInputConfiguration_t first = {0.5F, 48U, EVENT_CJC_SOURCE_INTERNAL_TMP20, 0};
+    EventTemperatureInputConfiguration_t second = {2.0F, 46U, EVENT_CJC_SOURCE_INTERNAL_TMP20, 0};
+    EventTemperatureInputConfiguration_t channel_three = {1.0F, 124U, EVENT_CJC_SOURCE_INTERNAL_TMP20, 0};
     EventTemperatureInputConfiguration_t loaded;
     uint16_t revision;
 
@@ -141,9 +141,9 @@ static void TestDualSlotAndPowerLoss(void)
 static void TestEventAcknowledgedAfterVerifiedWrite(void)
 {
     EventTemperatureInputConfiguration_t old_configuration =
-        {2.0F, 46U, EVENT_CJC_SOURCE_INTERNAL_TMP20};
+        {2.0F, 46U, EVENT_CJC_SOURCE_INTERNAL_TMP20, 0};
     EventTemperatureInputConfiguration_t new_configuration =
-        {2.0F, 62U, EVENT_CJC_SOURCE_INTERNAL_TMP20};
+        {2.0F, 62U, EVENT_CJC_SOURCE_INTERNAL_TMP20, 0};
     uint8_t step;
 
     assert(EventService_Initialize(EVENT_ACK_SERIAL_REQUIRED_DEFAULT));
@@ -165,9 +165,9 @@ static void TestEventAcknowledgedAfterVerifiedWrite(void)
 static void TestEraseFailureRaisesFaultAndExplicitClearRetries(void)
 {
     EventTemperatureInputConfiguration_t old_configuration =
-        {2.0F, 62U, EVENT_CJC_SOURCE_INTERNAL_TMP20};
+        {2.0F, 62U, EVENT_CJC_SOURCE_INTERNAL_TMP20, 0};
     EventTemperatureInputConfiguration_t new_configuration =
-        {2.0F, 48U, EVENT_CJC_SOURCE_INTERNAL_TMP20};
+        {2.0F, 48U, EVENT_CJC_SOURCE_INTERNAL_TMP20, 0};
     TemperatureInputConfigurationChangedEvent_t event;
     FaultRecord_t fault;
     uint8_t step;
@@ -232,16 +232,19 @@ static void TestV3MigrationAndCjcPersistence(void)
     assert(NvmService_GetLoadedTemperatureInputConfiguration(&revision,&loaded));
     assert(revision==1U && loaded.sensor_type==48U && loaded.filter_time_constant_seconds==0.5F);
     assert(loaded.cjc_source==EVENT_CJC_SOURCE_INTERNAL_TMP20);
+    assert(loaded.cjc_offset_centi_c==0);
     loaded.cjc_source=EVENT_CJC_SOURCE_DISABLED;
     assert(NvmService_QueueTemperatureInputConfiguration(2U,&loaded)); ProcessToCompletion();
     NvmService_AcknowledgeCompletion(); assert(NvmService_Initialize());
     assert(NvmService_GetLoadedTemperatureInputConfiguration(&revision,&loaded));
     assert(revision==2U && loaded.cjc_source==EVENT_CJC_SOURCE_DISABLED);
     loaded.cjc_source=EVENT_CJC_SOURCE_EXTERNAL_2;
+    loaded.cjc_offset_centi_c=-529;
     assert(NvmService_QueueTemperatureInputConfiguration(3U,&loaded)); ProcessToCompletion();
     NvmService_AcknowledgeCompletion(); assert(NvmService_Initialize());
     assert(NvmService_GetLoadedTemperatureInputConfiguration(&revision,&loaded));
     assert(revision==3U && loaded.cjc_source==EVENT_CJC_SOURCE_EXTERNAL_2);
+    assert(loaded.cjc_offset_centi_c==-529);
 }
 
 int main(void)

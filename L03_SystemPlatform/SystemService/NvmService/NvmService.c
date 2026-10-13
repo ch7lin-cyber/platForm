@@ -7,8 +7,8 @@
 
 #define NVM_DATA_MAGIC          (0x54494E31UL)
 #define NVM_COMMIT_MAGIC        (0xA5A55A5AUL)
-#define NVM_FORMAT_VERSION      (4U)
-#define NVM_ENTRY_LENGTH        (10U)
+#define NVM_FORMAT_VERSION      (5U)
+#define NVM_ENTRY_LENGTH        (12U)
 #define NVM_PAYLOAD_LENGTH      \
     (2U + (NVM_SERVICE_TEMPERATURE_INPUT_COUNT * NVM_ENTRY_LENGTH))
 #define NVM_DATA_CRC_OFFSET     \
@@ -110,6 +110,8 @@ static void BuildPages(void)
                g_pending_configuration[channel].sensor_type);
         PutU16(&g_data_page[offset + 8U],
                g_pending_configuration[channel].cjc_source);
+        PutU16(&g_data_page[offset + 10U],
+               (uint16_t)g_pending_configuration[channel].cjc_offset_centi_c);
     }
     PutU32(&g_data_page[NVM_DATA_CRC_OFFSET],
            Crc32(g_data_page, NVM_DATA_CRC_OFFSET));
@@ -141,10 +143,12 @@ static bool ReadValidSlot(
         return false;
     }
     version = GetU16(&data_page[4]);
-    entry_length = (version == 3U) ? 8U : NVM_ENTRY_LENGTH;
+    entry_length = (version == 3U) ? 8U :
+                   ((version == 4U) ? 10U : NVM_ENTRY_LENGTH);
     crc_offset = 16U + NVM_SERVICE_TEMPERATURE_INPUT_COUNT * entry_length;
     if ((GetU32(&data_page[0]) != NVM_DATA_MAGIC) ||
-        ((version != 3U) && (version != NVM_FORMAT_VERSION)) ||
+        ((version != 3U) && (version != 4U) &&
+         (version != NVM_FORMAT_VERSION)) ||
         (GetU16(&data_page[6]) != (uint16_t)(2U + NVM_SERVICE_TEMPERATURE_INPUT_COUNT * entry_length)) ||
         (GetU16(&data_page[12]) !=
          NVM_SERVICE_TEMPERATURE_INPUT_COUNT) ||
@@ -171,8 +175,15 @@ static bool ReadValidSlot(
             GetU16(&data_page[offset + 6U]);
         configurations[channel].cjc_source = (version == 3U) ?
             EVENT_CJC_SOURCE_INTERNAL_TMP20 : GetU16(&data_page[offset + 8U]);
+        configurations[channel].cjc_offset_centi_c =
+            (version < 5U) ? 0 : (int16_t)GetU16(&data_page[offset + 10U]);
         if (((*valid_mask & (uint16_t)(1UL << channel)) != 0U) &&
-            (configurations[channel].cjc_source > EVENT_CJC_SOURCE_EXTERNAL_2))
+            ((configurations[channel].cjc_source >
+              EVENT_CJC_SOURCE_EXTERNAL_2) ||
+             (configurations[channel].cjc_offset_centi_c <
+              EVENT_CJC_OFFSET_MIN_CENTI_C) ||
+             (configurations[channel].cjc_offset_centi_c >
+              EVENT_CJC_OFFSET_MAX_CENTI_C)))
         {
             return false;
         }
@@ -194,7 +205,9 @@ static bool ConfigurationsEqual(
             ((left[channel].filter_time_constant_seconds !=
               right[channel].filter_time_constant_seconds) ||
              (left[channel].sensor_type != right[channel].sensor_type) ||
-             (left[channel].cjc_source != right[channel].cjc_source)))
+             (left[channel].cjc_source != right[channel].cjc_source) ||
+             (left[channel].cjc_offset_centi_c !=
+              right[channel].cjc_offset_centi_c)))
         {
             return false;
         }
@@ -269,7 +282,11 @@ bool NvmService_QueueTemperatureInputConfigurationForChannel(
     if ((g_state != NVM_SERVICE_STATE_IDLE) ||
         (channel >= NVM_SERVICE_TEMPERATURE_INPUT_COUNT) ||
         (configuration_revision == 0U) || (configuration == NULL) ||
-        (configuration->cjc_source > EVENT_CJC_SOURCE_EXTERNAL_2))
+        (configuration->cjc_source > EVENT_CJC_SOURCE_EXTERNAL_2) ||
+        (configuration->cjc_offset_centi_c <
+         EVENT_CJC_OFFSET_MIN_CENTI_C) ||
+        (configuration->cjc_offset_centi_c >
+         EVENT_CJC_OFFSET_MAX_CENTI_C))
     {
         return false;
     }

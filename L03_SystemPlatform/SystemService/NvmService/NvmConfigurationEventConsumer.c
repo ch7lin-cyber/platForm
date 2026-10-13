@@ -125,7 +125,9 @@ bool NvmConfigurationEventConsumer_Process(uint8_t channel,
             (loaded_configuration.sensor_type ==
              event.new_configuration.sensor_type) &&
             (loaded_configuration.cjc_source ==
-             event.new_configuration.cjc_source))
+             event.new_configuration.cjc_source) &&
+            (loaded_configuration.cjc_offset_centi_c ==
+             event.new_configuration.cjc_offset_centi_c))
         {
             return EventService_Acknowledge(event.event_id, EVENT_ACK_NVM);
         }
