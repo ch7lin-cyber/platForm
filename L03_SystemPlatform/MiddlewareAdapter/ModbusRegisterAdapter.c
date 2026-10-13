@@ -34,7 +34,8 @@ static const uint32_t g_serial_baud_rates[] =
     38400UL,
     57600UL,
     115200UL,
-    230400UL
+    230400UL,
+    921600UL
 };
 
 typedef struct
@@ -132,7 +133,7 @@ bool ModbusRegisterAdapter_IsSerialValueValid(
     switch (field)
     {
         case MODBUS_SERIAL_REGISTER_BAUD_CODE:
-            return (value <= (uint16_t)MODBUS_SERIAL_BAUD_230400);
+            return (value <= (uint16_t)MODBUS_SERIAL_BAUD_921600);
         case MODBUS_SERIAL_REGISTER_DATA_BITS:
             return ((value == 7U) || (value == 8U));
         case MODBUS_SERIAL_REGISTER_PARITY:

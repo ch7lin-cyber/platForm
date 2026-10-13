@@ -55,9 +55,14 @@ int main(void)
     assert(ModbusRegisterAdapter_BaudCodeToRate(
         MODBUS_SERIAL_BAUD_230400, &baud_rate));
     assert(baud_rate == 230400UL);
-    assert(!ModbusRegisterAdapter_BaudCodeToRate(7U, &baud_rate));
+    assert(ModbusRegisterAdapter_BaudCodeToRate(
+        MODBUS_SERIAL_BAUD_921600, &baud_rate));
+    assert(baud_rate == 921600UL);
+    assert(!ModbusRegisterAdapter_BaudCodeToRate(8U, &baud_rate));
     assert(ModbusRegisterAdapter_BaudRateToCode(38400UL, &baud_code));
     assert(baud_code == MODBUS_SERIAL_BAUD_38400);
+    assert(ModbusRegisterAdapter_BaudRateToCode(921600UL, &baud_code));
+    assert(baud_code == MODBUS_SERIAL_BAUD_921600);
     assert(!ModbusRegisterAdapter_BaudRateToCode(12345UL, &baud_code));
 
     assert(ModbusRegisterAdapter_IsSerialValueValid(
@@ -76,6 +81,11 @@ int main(void)
     SerialConfiguration_SetRtuDefault(&active.serial,
                                       SERIAL_ROLE_MODBUS_SLAVE);
     active.unit_id = 4U;
+    active.serial.line.baud_rate = 921600UL;
+    assert(SerialConfiguration_IsValid(&active.serial));
+    active.serial.line.baud_rate = 921601UL;
+    assert(!SerialConfiguration_IsValid(&active.serial));
+    active.serial.line.baud_rate = 115200UL;
     assert(EventService_Initialize(EVENT_ACK_SERIAL_REQUIRED_DEFAULT));
     assert(ModbusRegisterAdapter_InitializeSerialPort(0U, &active));
 
