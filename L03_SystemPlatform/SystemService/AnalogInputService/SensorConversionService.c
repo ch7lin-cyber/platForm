@@ -52,6 +52,68 @@ static void SetLimitFlags(const SensorConversionConfig_t *config,
     }
 }
 
+/* Some legacy measurement tables stop at the nominal endpoints. Continue the
+ * nearest integer linear segment outside its domain so the range flags, rather
+ * than a table lookup failure, classify the +/-20 C measurement margin.
+ * CJC tables remain strict. This is extrapolation, not additional calibration. */
+static bool EvaluateMeasurement(const PiecewiseLinearTable_t *table,
+                                int32_t input, int32_t *output)
+{
+    const PiecewiseLinearSegment_t *edge;
+    int64_t value;
+    if (PiecewiseLinearTable_Evaluate(table, input, output))
+    {
+        return true;
+    }
+    if (!PiecewiseLinearTable_IsValid(table) || (output == NULL))
+    {
+        return false;
+    }
+    if (input < table->segments[0].x_min)
+    {
+        edge = &table->segments[0];
+    }
+    else if (input > table->segments[table->segment_count - 1U].x_max)
+    {
+        edge = &table->segments[table->segment_count - 1U];
+    }
+    else
+    {
+        return false; /* Do not hide an internal gap in a malformed table. */
+    }
+    if (edge->slope <= 0L)
+    {
+        return false;
+    }
+    value = (int64_t)edge->slope * input;
+    if (((edge->intercept > 0LL) && (value > INT64_MAX - edge->intercept)) ||
+        ((edge->intercept < 0LL) && (value < INT64_MIN - edge->intercept)))
+    {
+        return false;
+    }
+    value = (value + edge->intercept) / table->coefficient_scale;
+    return StoreInt32(value, output);
+}
+
+/* Analog limits are physical signal limits, independent of PV scaling.
+ * numerator/denominator preserves fractional uA at the current boundaries. */
+static void SetAnalogLimitFlags(int64_t numerator, int64_t denominator,
+                               int32_t minimum, int32_t maximum,
+                               SensorConversionResult_t *result)
+{
+    int64_t margin = ((int64_t)maximum - minimum) * 2LL / 100LL;
+    if ((numerator < (int64_t)minimum * denominator) ||
+        (numerator > (int64_t)maximum * denominator))
+    {
+        result->flags |= SENSOR_FLAG_OUT_OF_SPEC;
+    }
+    if ((numerator < ((int64_t)minimum - margin) * denominator) ||
+        (numerator > ((int64_t)maximum + margin) * denominator))
+    {
+        result->flags |= SENSOR_FLAG_OUT_OF_RANGE;
+    }
+}
+
 static bool ScaleAnalog(int32_t signal, int32_t signal_min,
                         int32_t signal_max, int32_t *value)
 {
@@ -95,7 +157,7 @@ bool SensorConversionService_Convert(
         }
         if (!StoreInt32((int64_t)calibrated_uv + result->cjc_uv,
                         &table_input) ||
-            !PiecewiseLinearTable_Evaluate(config->measurement_table,
+            !EvaluateMeasurement(config->measurement_table,
                                            table_input,
                                            &result->engineering_value))
         {
@@ -110,7 +172,7 @@ bool SensorConversionService_Convert(
             !StoreInt32(((int64_t)calibrated_uv * 1000LL) /
                         config->excitation_current_ua,
                         &result->physical_input) ||
-            !PiecewiseLinearTable_Evaluate(config->measurement_table,
+            !EvaluateMeasurement(config->measurement_table,
                                            result->physical_input,
                                            &result->engineering_value))
         {
@@ -136,6 +198,10 @@ bool SensorConversionService_Convert(
             {
                 return false;
             }
+            SetAnalogLimitFlags(physical * 1000LL,
+                config->shunt_resistance_milliohm,
+                (config->type == SENSOR_TYPE_CURRENT_4_20MA) ? 4000L : 0L,
+                20000L, result);
             physical = (physical * 1000LL) /
                        config->shunt_resistance_milliohm;
             if (!StoreInt32(physical, &result->physical_input))
@@ -156,6 +222,7 @@ bool SensorConversionService_Convert(
                 (config->type == SENSOR_TYPE_VOLTAGE_0_5V) ? 5000000L :
                 (config->type == SENSOR_TYPE_VOLTAGE_0_10V) ? 10000000L :
                 50000L;
+            SetAnalogLimitFlags(physical, 1LL, 0L, full_scale, result);
             if (!ScaleAnalog(result->physical_input, 0L, full_scale,
                              &result->engineering_value))
             {
@@ -163,7 +230,11 @@ bool SensorConversionService_Convert(
             }
         }
     }
-    SetLimitFlags(config, result);
+    if (SensorConversionService_IsThermocouple(config->type) ||
+        SensorConversionService_IsRtd(config->type))
+    {
+        SetLimitFlags(config, result);
+    }
     return true;
 }
 

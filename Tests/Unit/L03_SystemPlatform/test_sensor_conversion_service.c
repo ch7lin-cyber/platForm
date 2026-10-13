@@ -144,6 +144,75 @@ static void TestFactoryFlow(void)
     assert(snapshot.revision == 1U);
 }
 
+static void TestNominalAndExtendedEndpoints(void)
+{
+    /* mC = input*1000; table only covers the nominal 0..100 C domain. */
+    const PiecewiseLinearSegment_t segment = {0L, 100L, 1000L, 0LL};
+    const PiecewiseLinearTable_t table = {&segment, 1U, 1UL};
+    SensorConversionConfig_t config = {0};
+    SensorConversionResult_t result;
+    const int32_t inputs[] = {-21L, -20L, -1L, 0L, 100L, 101L, 120L, 121L};
+    const uint32_t flags[] = {3UL, 1UL, 1UL, 0UL, 0UL, 1UL, 1UL, 3UL};
+    config.type = SENSOR_TYPE_TC_K;
+    config.nominal_min = 0L;
+    config.nominal_max = 100000L;
+    config.extended_margin = 20000L;
+    config.measurement_table = &table;
+    config.cold_junction_compensation_disabled = true;
+    for (unsigned int i = 0U; i < sizeof(inputs)/sizeof(inputs[0]); i++)
+    {
+        assert(SensorConversionService_Convert(&config, inputs[i], 0L, &result));
+        assert(result.engineering_value == inputs[i]*1000L);
+        assert(result.flags == flags[i]);
+    }
+    config.type = SENSOR_TYPE_RTD_PT100;
+    config.excitation_current_ua = 1000UL;
+    for (unsigned int i = 0U; i < sizeof(inputs)/sizeof(inputs[0]); i++)
+    {
+        assert(SensorConversionService_Convert(&config, inputs[i], 0L, &result));
+        assert(result.flags == flags[i]);
+    }
+}
+
+static void TestAnalogPhysicalLimits(void)
+{
+    const SensorConversionType_t types[] = {
+        SENSOR_TYPE_VOLTAGE_0_5V, SENSOR_TYPE_VOLTAGE_0_10V,
+        SENSOR_TYPE_VOLTAGE_0_50MV, SENSOR_TYPE_CURRENT_0_20MA,
+        SENSOR_TYPE_CURRENT_4_20MA};
+    const int32_t low[] = {0L, 0L, 0L, 0L, 4000L};
+    const int32_t high[] = {5000000L, 10000000L, 50000L, 20000L, 20000L};
+    SensorConversionConfig_t config = {0};
+    SensorConversionResult_t result;
+    config.frontend_ratio_numerator = 1UL;
+    config.frontend_ratio_denominator = 1UL;
+    config.shunt_resistance_milliohm = 1000UL; /* test fixture: uV == uA */
+    /* Deliberately unrelated engineering limits must not affect analog flags. */
+    config.nominal_min = 123L;
+    config.nominal_max = 124L;
+    for (unsigned int i = 0U; i < 5U; i++)
+    {
+        const int32_t margin = (high[i] - low[i]) / 50L;
+        const int32_t points[] = {low[i]-margin-1L, low[i]-margin,
+            low[i]-1L, low[i], high[i], high[i]+1L,
+            high[i]+margin, high[i]+margin+1L};
+        const uint32_t flags[] = {3UL, 1UL, 1UL, 0UL, 0UL, 1UL, 1UL, 3UL};
+        config.type = types[i];
+        for (unsigned int j = 0U; j < 8U; j++)
+        {
+            assert(SensorConversionService_Convert(&config, points[j], 0L, &result));
+            assert(result.flags == flags[j]);
+        }
+    }
+    /* Real 49.9 ohm shunt: do not truncate a fractional overrange uA. */
+    config.type = SENSOR_TYPE_CURRENT_4_20MA;
+    config.shunt_resistance_milliohm = 49900UL;
+    assert(SensorConversionService_Convert(&config, 1013968L, 0L, &result));
+    assert(result.flags == SENSOR_FLAG_OUT_OF_SPEC); /* exactly 20.32 mA */
+    assert(SensorConversionService_Convert(&config, 1013969L, 0L, &result));
+    assert(result.flags == (SENSOR_FLAG_OUT_OF_SPEC | SENSOR_FLAG_OUT_OF_RANGE));
+}
+
 int main(void)
 {
     TestCodeAndFactoryCalibration();
@@ -152,6 +221,8 @@ int main(void)
     TestVoltageSamplesAndBounds();
     TestTableSignedBounds();
     TestFactoryFlow();
+    TestNominalAndExtendedEndpoints();
+    TestAnalogPhysicalLimits();
     return 0;
 }
 
