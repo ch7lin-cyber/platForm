@@ -37,3 +37,7 @@ registers directly.
 See [implementation checklist](IMPLEMENTATION_CHECKLIST.md) for the control,
 utility, diagnostics, and recording scaffolds. These placeholders are
 unimplemented, excluded from builds, and have no upstream/downstream wiring.
+
+## C／C++ 共用介面規則
+
+含函式宣告的公開 `.h` 使用 `#ifdef __cplusplus` 包覆 `extern "C"` 頭尾宣告；include 放在連結宣告之外。對外型別與函式介面保持 C／C++ 相容。`.c` 以 C 編譯並包含自己的 Header，不需另外加 `extern "C"`。預留 FB 空架構亦遵守此規則；只有巨集、型別或 include 的 Header 不需要 C linkage。

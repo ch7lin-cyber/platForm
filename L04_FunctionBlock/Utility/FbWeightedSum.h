@@ -11,6 +11,14 @@
 #ifndef FB_WEIGHTED_SUM_H
 #define FB_WEIGHTED_SUM_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* TODO：尚未完成；待定義 Config/Input/State/Output 與生命週期介面。 */
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* FB_WEIGHTED_SUM_H */
