@@ -12,6 +12,11 @@ static FaultCode_t g_fault_code;
 static bool g_fault_raised;
 static bool g_service_available;
 
+static int32_t DiagnosticIndex(uint8_t value, uint8_t invalid_value)
+{
+    return (value == invalid_value) ? -1 : (int32_t)value;
+}
+
 static FaultCode_t MapError(NvmServiceError_t error)
 {
     switch (error)
@@ -33,9 +38,34 @@ static void RaiseFault(FaultCode_t code, uint16_t detail,
                        uint16_t revision, uint32_t event_id,
                        uint32_t timestamp_ms)
 {
+    NvmServiceDiagnostics_t diagnostics;
+    int32_t values[SNAPSHOT_SERVICE_VALUE_COUNT] = {0};
+
+    if (NvmService_GetDiagnostics(&diagnostics))
+    {
+        values[NVM_FAULT_SNAPSHOT_VALUE_STATE] =
+            (int32_t)diagnostics.state;
+        values[NVM_FAULT_SNAPSHOT_VALUE_ERROR] =
+            (int32_t)diagnostics.last_error;
+        values[NVM_FAULT_SNAPSHOT_VALUE_ACTIVE_SLOT] =
+            DiagnosticIndex(diagnostics.active_slot,
+                            NVM_SERVICE_INVALID_SLOT);
+        values[NVM_FAULT_SNAPSHOT_VALUE_TARGET_SLOT] =
+            DiagnosticIndex(diagnostics.target_slot,
+                            NVM_SERVICE_INVALID_SLOT);
+        values[NVM_FAULT_SNAPSHOT_VALUE_QUEUED_CHANNEL] =
+            DiagnosticIndex(diagnostics.queued_channel,
+                            NVM_SERVICE_INVALID_CHANNEL);
+        values[NVM_FAULT_SNAPSHOT_VALUE_SEQUENCE] =
+            (int32_t)diagnostics.sequence;
+        values[NVM_FAULT_SNAPSHOT_VALUE_LOADED_VALID_MASK] =
+            (int32_t)diagnostics.loaded_valid_mask;
+        values[NVM_FAULT_SNAPSHOT_VALUE_PENDING_VALID_MASK] =
+            (int32_t)diagnostics.pending_valid_mask;
+    }
     if (!g_fault_raised &&
         SystemFaultService_Raise(code, detail, revision, event_id,
-                                 timestamp_ms, NULL))
+                                 timestamp_ms, values))
     {
         g_fault_code = code;
         g_fault_raised = true;

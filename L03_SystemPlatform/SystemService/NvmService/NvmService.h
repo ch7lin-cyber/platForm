@@ -11,6 +11,8 @@ extern "C" {
 #endif
 
 #define NVM_SERVICE_TEMPERATURE_INPUT_COUNT (4U)
+#define NVM_SERVICE_INVALID_SLOT             (0xFFU)
+#define NVM_SERVICE_INVALID_CHANNEL          (0xFFU)
 
 typedef enum
 {
@@ -34,6 +36,18 @@ typedef enum
     NVM_SERVICE_ERROR_VERIFY
 } NvmServiceError_t;
 
+typedef struct
+{
+    NvmServiceState_t state;
+    NvmServiceError_t last_error;
+    uint8_t active_slot;
+    uint8_t target_slot;
+    uint8_t queued_channel;
+    uint32_t sequence;
+    uint16_t loaded_valid_mask;
+    uint16_t pending_valid_mask;
+} NvmServiceDiagnostics_t;
+
 bool NvmService_Initialize(void);
 bool NvmService_QueueTemperatureInputConfiguration(
     uint16_t configuration_revision,
@@ -45,6 +59,7 @@ bool NvmService_QueueTemperatureInputConfigurationForChannel(
 void NvmService_Process(void);
 NvmServiceState_t NvmService_GetState(void);
 NvmServiceError_t NvmService_GetLastError(void);
+bool NvmService_GetDiagnostics(NvmServiceDiagnostics_t *diagnostics);
 void NvmService_ResetError(void);
 bool NvmService_GetLoadedTemperatureInputConfiguration(
     uint16_t *configuration_revision,

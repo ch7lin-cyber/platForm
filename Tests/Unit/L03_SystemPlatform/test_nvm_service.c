@@ -9,15 +9,18 @@
 #include "HalNvm.h"
 #include "NvmConfigurationEventConsumer.h"
 #include "NvmService.h"
+#include "SnapshotService.h"
+#include "SystemEventService.h"
 
 #define MOCK_SLOT_SIZE (32768U)
 static uint8_t g_storage[HAL_NVM_SLOT_COUNT][MOCK_SLOT_SIZE];
+static bool g_fail_initialize;
 static bool g_fail_erase;
 
 static HalNvmStatus_t MockInitialize(void *context)
 {
     (void)context;
-    return HAL_NVM_STATUS_OK;
+    return g_fail_initialize ? HAL_NVM_STATUS_IO_ERROR : HAL_NVM_STATUS_OK;
 }
 
 static HalNvmStatus_t MockRead(void *context, uint8_t slot, uint32_t offset,
@@ -162,6 +165,34 @@ static void TestEventAcknowledgedAfterVerifiedWrite(void)
     assert(!EventService_IsTemperatureInputConfigurationChangedPending(0U));
 }
 
+static void TestInitializationFailureSnapshotUsesUnavailableSentinels(void)
+{
+    SnapshotRecord_t snapshot;
+
+    assert(EventService_Initialize(EVENT_ACK_SERIAL_REQUIRED_DEFAULT));
+    FaultService_Initialize();
+    SnapshotService_Initialize();
+    SystemEventService_Initialize();
+    g_fail_initialize = true;
+    assert(NvmConfigurationEventConsumer_Initialize());
+    g_fail_initialize = false;
+
+    assert(SnapshotService_GetNewest(0U, &snapshot));
+    assert(snapshot.source == SNAPSHOT_SOURCE_FAULT);
+    assert(snapshot.code == FAULT_CODE_NVM_INITIALIZATION_FAILED);
+    assert(snapshot.detail == NVM_SERVICE_ERROR_INITIALIZE);
+    assert(snapshot.values[NVM_FAULT_SNAPSHOT_VALUE_STATE] ==
+           NVM_SERVICE_STATE_ERROR);
+    assert(snapshot.values[NVM_FAULT_SNAPSHOT_VALUE_ERROR] ==
+           NVM_SERVICE_ERROR_INITIALIZE);
+    assert(snapshot.values[NVM_FAULT_SNAPSHOT_VALUE_ACTIVE_SLOT] == -1);
+    assert(snapshot.values[NVM_FAULT_SNAPSHOT_VALUE_TARGET_SLOT] == -1);
+    assert(snapshot.values[NVM_FAULT_SNAPSHOT_VALUE_QUEUED_CHANNEL] == -1);
+    assert(snapshot.values[NVM_FAULT_SNAPSHOT_VALUE_SEQUENCE] == 0);
+    assert(snapshot.values[NVM_FAULT_SNAPSHOT_VALUE_LOADED_VALID_MASK] == 0);
+    assert(snapshot.values[NVM_FAULT_SNAPSHOT_VALUE_PENDING_VALID_MASK] == 0);
+}
+
 static void TestEraseFailureRaisesFaultAndExplicitClearRetries(void)
 {
     EventTemperatureInputConfiguration_t old_configuration =
@@ -170,11 +201,15 @@ static void TestEraseFailureRaisesFaultAndExplicitClearRetries(void)
         {2.0F, 48U, EVENT_CJC_SOURCE_INTERNAL_TMP20, 0};
     TemperatureInputConfigurationChangedEvent_t event;
     FaultRecord_t fault;
+    SnapshotRecord_t snapshot;
+    NvmServiceDiagnostics_t diagnostics;
     uint8_t step;
 
     assert(EventService_Initialize(EVENT_ACK_SERIAL_REQUIRED_DEFAULT));
     assert(EventService_ConfigureTemperatureInputRequiredAckMask(EVENT_ACK_NVM));
     FaultService_Initialize();
+    SnapshotService_Initialize();
+    SystemEventService_Initialize();
     assert(NvmConfigurationEventConsumer_Initialize());
     assert(EventService_RaiseTemperatureInputConfigurationChanged(
         0U, 4U, EVENT_TEMPERATURE_INPUT_CHANGE_SENSOR_TYPE,
@@ -188,6 +223,29 @@ static void TestEraseFailureRaisesFaultAndExplicitClearRetries(void)
     assert(fault.first_configuration_revision == 4U);
     assert(fault.first_event_id == event.event_id);
     assert(fault.occurrence_count == 1U);
+    assert(SnapshotService_GetNewest(0U, &snapshot));
+    assert(snapshot.source == SNAPSHOT_SOURCE_FAULT);
+    assert(snapshot.code == FAULT_CODE_NVM_ERASE_FAILED);
+    assert(snapshot.detail == NVM_SERVICE_ERROR_ERASE);
+    assert(snapshot.configuration_revision == 4U);
+    assert(snapshot.event_id == event.event_id);
+    assert(NvmService_GetDiagnostics(&diagnostics));
+    assert(snapshot.values[NVM_FAULT_SNAPSHOT_VALUE_STATE] ==
+           (int32_t)diagnostics.state);
+    assert(snapshot.values[NVM_FAULT_SNAPSHOT_VALUE_ERROR] ==
+           (int32_t)diagnostics.last_error);
+    assert(snapshot.values[NVM_FAULT_SNAPSHOT_VALUE_ACTIVE_SLOT] ==
+           (int32_t)diagnostics.active_slot);
+    assert(snapshot.values[NVM_FAULT_SNAPSHOT_VALUE_TARGET_SLOT] ==
+           (int32_t)diagnostics.target_slot);
+    assert(snapshot.values[NVM_FAULT_SNAPSHOT_VALUE_QUEUED_CHANNEL] ==
+           (int32_t)diagnostics.queued_channel);
+    assert(snapshot.values[NVM_FAULT_SNAPSHOT_VALUE_SEQUENCE] ==
+           (int32_t)diagnostics.sequence);
+    assert(snapshot.values[NVM_FAULT_SNAPSHOT_VALUE_LOADED_VALID_MASK] ==
+           (int32_t)diagnostics.loaded_valid_mask);
+    assert(snapshot.values[NVM_FAULT_SNAPSHOT_VALUE_PENDING_VALID_MASK] ==
+           (int32_t)diagnostics.pending_valid_mask);
     assert(!NvmConfigurationEventConsumer_Process(0U, 0U));
     assert(FaultService_Get(FAULT_CODE_NVM_ERASE_FAILED, &fault));
     assert(fault.occurrence_count == 1U);
@@ -250,6 +308,7 @@ static void TestV3MigrationAndCjcPersistence(void)
 int main(void)
 {
     TestDualSlotAndPowerLoss();
+    TestInitializationFailureSnapshotUsesUnavailableSentinels();
     TestEventAcknowledgedAfterVerifiedWrite();
     TestEraseFailureRaisesFaultAndExplicitClearRetries();
     TestV3MigrationAndCjcPersistence();

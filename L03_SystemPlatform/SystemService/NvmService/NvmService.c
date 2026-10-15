@@ -25,12 +25,12 @@ static uint16_t g_pending_revision[NVM_SERVICE_TEMPERATURE_INPUT_COUNT];
 static uint16_t g_loaded_revision[NVM_SERVICE_TEMPERATURE_INPUT_COUNT];
 static uint16_t g_pending_valid_mask;
 static uint16_t g_loaded_valid_mask;
-static uint8_t g_queued_channel;
-static uint8_t g_completed_channel;
+static uint8_t g_queued_channel = NVM_SERVICE_INVALID_CHANNEL;
+static uint8_t g_completed_channel = NVM_SERVICE_INVALID_CHANNEL;
 static uint16_t g_completed_revision;
 static uint32_t g_sequence;
-static uint8_t g_active_slot;
-static uint8_t g_target_slot;
+static uint8_t g_active_slot = NVM_SERVICE_INVALID_SLOT;
+static uint8_t g_target_slot = NVM_SERVICE_INVALID_SLOT;
 typedef union
 {
     uint32_t alignment;
@@ -225,6 +225,17 @@ bool NvmService_Initialize(void)
         configurations[NVM_SERVICE_TEMPERATURE_INPUT_COUNT];
     bool loaded = false;
 
+    g_state = NVM_SERVICE_STATE_UNINITIALIZED;
+    g_last_error = NVM_SERVICE_ERROR_NONE;
+    g_pending_valid_mask = 0U;
+    g_loaded_valid_mask = 0U;
+    g_queued_channel = NVM_SERVICE_INVALID_CHANNEL;
+    g_completed_channel = NVM_SERVICE_INVALID_CHANNEL;
+    g_completed_revision = 0U;
+    g_sequence = 0U;
+    g_active_slot = NVM_SERVICE_INVALID_SLOT;
+    g_target_slot = NVM_SERVICE_INVALID_SLOT;
+
     if (HalNvm_Initialize() != HAL_NVM_STATUS_OK)
     {
         g_last_error = NVM_SERVICE_ERROR_INITIALIZE;
@@ -258,8 +269,8 @@ bool NvmService_Initialize(void)
     (void)memcpy(g_pending_configuration, g_loaded_configuration,
                  sizeof(g_pending_configuration));
     g_pending_valid_mask = g_loaded_valid_mask;
-    g_queued_channel = 0U;
-    g_completed_channel = 0U;
+    g_queued_channel = NVM_SERVICE_INVALID_CHANNEL;
+    g_completed_channel = NVM_SERVICE_INVALID_CHANNEL;
     g_completed_revision = 0U;
     g_last_error = NVM_SERVICE_ERROR_NONE;
     g_state = NVM_SERVICE_STATE_IDLE;
@@ -391,6 +402,23 @@ NvmServiceState_t NvmService_GetState(void) { return g_state; }
 
 NvmServiceError_t NvmService_GetLastError(void) { return g_last_error; }
 
+bool NvmService_GetDiagnostics(NvmServiceDiagnostics_t *diagnostics)
+{
+    if (diagnostics == NULL)
+    {
+        return false;
+    }
+    diagnostics->state = g_state;
+    diagnostics->last_error = g_last_error;
+    diagnostics->active_slot = g_active_slot;
+    diagnostics->target_slot = g_target_slot;
+    diagnostics->queued_channel = g_queued_channel;
+    diagnostics->sequence = g_sequence;
+    diagnostics->loaded_valid_mask = g_loaded_valid_mask;
+    diagnostics->pending_valid_mask = g_pending_valid_mask;
+    return true;
+}
+
 void NvmService_ResetError(void)
 {
     if (g_state == NVM_SERVICE_STATE_ERROR)
@@ -440,6 +468,9 @@ void NvmService_AcknowledgeCompletion(void)
     if (g_state == NVM_SERVICE_STATE_COMPLETE)
     {
         g_completed_revision = 0U;
+        g_completed_channel = NVM_SERVICE_INVALID_CHANNEL;
+        g_queued_channel = NVM_SERVICE_INVALID_CHANNEL;
+        g_target_slot = NVM_SERVICE_INVALID_SLOT;
         g_state = NVM_SERVICE_STATE_IDLE;
     }
 }
