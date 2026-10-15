@@ -1,11 +1,83 @@
-/*
- * FbDivide.c
- * 狀態：尚未完成（空架構，無可執行功能）。
- * 功能：除法及除零檢查。
- * 預計輸入：分子、分母。
- * 預計輸出：計算值、有效旗標。
- * 介面與資料型別尚未定案；不可視為已實作或已驗證。
- * 不串接 L03/L05、Register Map、NVM 或硬體。
- */
+#include "FbDivide.h"
 
-/* TODO：尚未完成；待實作及單元驗證。此檔暫不加入編譯。 */
+#include <math.h>
+#include <stddef.h>
+
+static void SetFailure(FbDivideOutput_t *output, FbDivideStatus_t status)
+{
+    output->quotient = 0.0F;
+    output->valid = false;
+    output->status = status;
+}
+
+void FbDivide_Initialize(FbDivideConfig_t *config)
+{
+    if (config != NULL)
+    {
+        config->denominator_epsilon = 0.0F;
+    }
+}
+
+void FbDivide_Reset(FbDivideOutput_t *output)
+{
+    if (output != NULL)
+    {
+        SetFailure(output, FB_DIVIDE_STATUS_DISABLED);
+    }
+}
+
+bool FbDivide_Run(const FbDivideConfig_t *config,
+                  const FbDivideInput_t *input,
+                  FbDivideOutput_t *output)
+{
+    float quotient;
+
+    if (output == NULL)
+    {
+        return false;
+    }
+
+    if ((config == NULL) || (input == NULL))
+    {
+        SetFailure(output, FB_DIVIDE_STATUS_INVALID_ARGUMENT);
+        return false;
+    }
+
+    if (!isfinite(config->denominator_epsilon) ||
+        (config->denominator_epsilon < 0.0F))
+    {
+        SetFailure(output, FB_DIVIDE_STATUS_INVALID_CONFIGURATION);
+        return false;
+    }
+
+    if (!input->enable)
+    {
+        SetFailure(output, FB_DIVIDE_STATUS_DISABLED);
+        return false;
+    }
+
+    if (!isfinite(input->numerator) || !isfinite(input->denominator))
+    {
+        SetFailure(output, FB_DIVIDE_STATUS_INVALID_INPUT);
+        return false;
+    }
+
+    if ((input->denominator >= -config->denominator_epsilon) &&
+        (input->denominator <= config->denominator_epsilon))
+    {
+        SetFailure(output, FB_DIVIDE_STATUS_DIVIDE_BY_ZERO);
+        return false;
+    }
+
+    quotient = input->numerator / input->denominator;
+    if (!isfinite(quotient))
+    {
+        SetFailure(output, FB_DIVIDE_STATUS_NONFINITE_RESULT);
+        return false;
+    }
+
+    output->quotient = quotient;
+    output->valid = true;
+    output->status = FB_DIVIDE_STATUS_OK;
+    return true;
+}

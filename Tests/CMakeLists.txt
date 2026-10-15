@@ -62,6 +62,12 @@ add_executable(test_fb_logic
 target_link_libraries(test_fb_logic PRIVATE Platform::L04FunctionBlock)
 add_test(NAME fb_logic COMMAND test_fb_logic)
 
+add_executable(test_fb_divide
+    Unit/L04_FunctionBlock/test_fb_divide.c
+)
+target_link_libraries(test_fb_divide PRIVATE Platform::L04FunctionBlock)
+add_test(NAME fb_divide COMMAND test_fb_divide)
+
 add_executable(test_fb_alarm
     Unit/L04_FunctionBlock/test_fb_alarm.c
 )

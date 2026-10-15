@@ -1,21 +1,53 @@
-/*
- * FbDivide.h
- * 狀態：尚未完成（空架構，無可執行功能）。
- * 功能：除法及除零檢查。
- * 預計輸入：分子、分母。
- * 預計輸出：計算值、有效旗標。
- * 介面與資料型別尚未定案；不可視為已實作或已驗證。
- * 不串接 L03/L05、Register Map、NVM 或硬體。
- */
-
 #ifndef FB_DIVIDE_H
 #define FB_DIVIDE_H
+
+#include <stdbool.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/* TODO：尚未完成；待定義 Config/Input/State/Output 與生命週期介面。 */
+typedef struct
+{
+    /* A denominator whose absolute value is <= this limit is rejected. */
+    float denominator_epsilon;
+} FbDivideConfig_t;
+
+typedef struct
+{
+    float numerator;
+    float denominator;
+    bool enable;
+} FbDivideInput_t;
+
+typedef enum
+{
+    FB_DIVIDE_STATUS_OK = 0,
+    FB_DIVIDE_STATUS_DISABLED,
+    FB_DIVIDE_STATUS_INVALID_ARGUMENT,
+    FB_DIVIDE_STATUS_INVALID_CONFIGURATION,
+    FB_DIVIDE_STATUS_INVALID_INPUT,
+    FB_DIVIDE_STATUS_DIVIDE_BY_ZERO,
+    FB_DIVIDE_STATUS_NONFINITE_RESULT
+} FbDivideStatus_t;
+
+typedef struct
+{
+    float quotient;
+    bool valid;
+    FbDivideStatus_t status;
+} FbDivideOutput_t;
+
+/* Set deterministic defaults: exact zero is the default divisor limit. */
+void FbDivide_Initialize(FbDivideConfig_t *config);
+
+/* Clear the published output to a disabled/invalid state. */
+void FbDivide_Reset(FbDivideOutput_t *output);
+
+/* Execute one stateless division; returns true only for a valid quotient. */
+bool FbDivide_Run(const FbDivideConfig_t *config,
+                  const FbDivideInput_t *input,
+                  FbDivideOutput_t *output);
 
 #ifdef __cplusplus
 }
