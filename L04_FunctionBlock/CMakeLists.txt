@@ -3,6 +3,7 @@ add_library(PlatformL04FunctionBlock STATIC
     Utility/FbLogic.c
     Utility/FbDivide.c
     Utility/FbWeightedSum.c
+    Utility/FbSelector.c
     src/FunctionBlockLifecycle.c
     src/AlarmConfigurationEventConsumer.c
     src/SafetyConfigurationEventConsumer.c

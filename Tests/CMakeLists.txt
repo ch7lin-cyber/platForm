@@ -74,6 +74,12 @@ add_executable(test_fb_weighted_sum
 target_link_libraries(test_fb_weighted_sum PRIVATE Platform::L04FunctionBlock)
 add_test(NAME fb_weighted_sum COMMAND test_fb_weighted_sum)
 
+add_executable(test_fb_selector
+    Unit/L04_FunctionBlock/test_fb_selector.c
+)
+target_link_libraries(test_fb_selector PRIVATE Platform::L04FunctionBlock)
+add_test(NAME fb_selector COMMAND test_fb_selector)
+
 add_executable(test_fb_alarm
     Unit/L04_FunctionBlock/test_fb_alarm.c
 )
