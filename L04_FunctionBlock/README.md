@@ -35,8 +35,7 @@ registers directly.
 ## Planned standalone blocks
 
 See [implementation checklist](IMPLEMENTATION_CHECKLIST.md) for the control,
-utility, diagnostics, and recording scaffolds. These placeholders are
-unimplemented, excluded from builds, and have no upstream/downstream wiring.
+utility, diagnostics, and recording scaffolds. Blocks marked unimplemented in the checklist remain excluded from builds and have no upstream/downstream wiring.
 
 ## C／C++ 共用介面規則
 
