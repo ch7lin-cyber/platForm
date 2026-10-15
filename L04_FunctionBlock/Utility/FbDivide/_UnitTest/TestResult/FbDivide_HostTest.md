@@ -7,7 +7,7 @@
 - **編譯標準：** C99
 - **警告選項：** `-Wall -Wextra -Werror -pedantic`
 - **執行結果：** Host 測試程式結束碼為 0。
-- **測試程式：** [test_fb_divide.c](../../../../../../Tests/Unit/L04_FunctionBlock/test_fb_divide.c)
+- **測試程式：** [test_fb_divide.c](../../../../../Tests/Unit/L04_FunctionBlock/test_fb_divide.c)
 
 ## 測試細則
 
