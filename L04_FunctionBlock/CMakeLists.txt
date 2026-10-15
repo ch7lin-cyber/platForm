@@ -2,6 +2,7 @@ add_library(PlatformL04FunctionBlock STATIC
     Alarm/FbAlarm.c
     Utility/FbLogic.c
     Utility/FbDivide.c
+    Utility/FbWeightedSum.c
     src/FunctionBlockLifecycle.c
     src/AlarmConfigurationEventConsumer.c
     src/SafetyConfigurationEventConsumer.c

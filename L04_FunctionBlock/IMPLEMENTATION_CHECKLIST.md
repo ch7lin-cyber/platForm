@@ -8,8 +8,8 @@
 - [ ] 定義各方塊的正式介面。
 - [ ] 完成功能實作與單元驗證。
 
-目前狀態以表格及各方塊完成條件為準；空架構建立不等於功能完成。FbLogic、FbAlarm 已有實作與單元測試；FbDivide 本次完成並加入單元測試。其餘標示尚未完成的方塊仍是佔位。
-目前不加入 CMake 或 MCU 專案編譯，不串接前後層。
+目前狀態以表格及各方塊完成條件為準；空架構建立不等於功能完成。FbLogic、FbAlarm 已有實作與單元測試；FbDivide、FbWeightedSum 均已實作並加入單元測試。其餘標示尚未完成的方塊仍是佔位。
+尚未完成的佔位方塊不加入 CMake／MCU 專案編譯，也不串接前後層；已完成且具單元測試的 FB 納入 CMake Host 驗證。
 
 ## 方塊清單
 
@@ -23,7 +23,7 @@ PID 實作前先檢查既有模組，避免重複開發。
 | 1 | [FbInBandTimer](Utility/FbInBandTimer.h) | 保證浸泡／區間內計時 | 尚未完成 |
 | 1 | [FbPid](Control/FbPid.h) | PID 控制介面預留；實作前確認既有 PID 是否可沿用 | 尚未完成 |
 | 1 | [FbOutputLimiter](Control/FbOutputLimiter.h) | 輸出限幅及變化率限制 | 尚未完成 |
-| 1 | [FbWeightedSum](Utility/FbWeightedSum.h) | 加權加總 | 尚未完成 |
+| 1 | [FbWeightedSum](Utility/FbWeightedSum.h) | 加權加總 | 已完成（實作與單元測試） |
 | 1 | [FbDivide](Utility/FbDivide.h) | 除法及除零檢查 | 已完成（實作與單元測試） |
 | 1 | [FbSelector](Utility/FbSelector.h) | 訊號選擇及最大／最小值 | 尚未完成 |
 | 2 | [FbMovingAverage](Utility/FbMovingAverage.h) | 移動平均 | 尚未完成 |
@@ -83,11 +83,11 @@ PID 實作前先檢查既有模組，避免重複開發。
 
 ### FbWeightedSum
 
-- [ ] 正式介面與單位／範圍定義完成。
-- [ ] 功能及異常輸入處理完成。
-- [ ] 單元驗證通過並留下測試報告。
-- [ ] 文件、記憶體需求及重設行為確認。
-- [ ] 已完成。
+- [x] 正式介面與單位／範圍定義完成。
+- [x] 功能及異常輸入處理完成。
+- [x] 單元驗證通過並留下測試報告。
+- [x] 文件、記憶體需求及重設行為確認。
+- [x] 已完成。
 
 ### FbDivide
 
