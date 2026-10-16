@@ -193,3 +193,11 @@ add_executable(test_digital_io_services
 )
 target_link_libraries(test_digital_io_services PRIVATE Platform::L03Serial)
 add_test(NAME digital_io_services COMMAND test_digital_io_services)
+
+add_executable(test_fb_setpoint_ramp Unit/L04_FunctionBlock/test_fb_setpoint_ramp.c)
+target_link_libraries(test_fb_setpoint_ramp PRIVATE Platform::L04FunctionBlock)
+add_test(NAME fb_setpoint_ramp COMMAND test_fb_setpoint_ramp)
+
+add_executable(test_fb_output_limiter Unit/L04_FunctionBlock/test_fb_output_limiter.c)
+target_link_libraries(test_fb_output_limiter PRIVATE Platform::L04FunctionBlock)
+add_test(NAME fb_output_limiter COMMAND test_fb_output_limiter)

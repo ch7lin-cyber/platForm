@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <math.h>
+#include <stddef.h>
 
 static void ExpectStatus(FbDivideConfig_t *config,
                          FbDivideInput_t *input,

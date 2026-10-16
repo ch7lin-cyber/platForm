@@ -1,4 +1,6 @@
 add_library(PlatformL04FunctionBlock STATIC
+    Control/FbSetpointRamp.c
+    Control/FbOutputLimiter.c
     Alarm/FbAlarm.c
     Utility/FbLogic.c
     Utility/FbDivide.c
@@ -15,6 +17,7 @@ add_library(Platform::L04FunctionBlock ALIAS PlatformL04FunctionBlock)
 target_include_directories(PlatformL04FunctionBlock
     PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}/include
+        ${CMAKE_CURRENT_LIST_DIR}/Control
         ${CMAKE_CURRENT_LIST_DIR}/Alarm
         ${CMAKE_CURRENT_LIST_DIR}/Safety
         ${CMAKE_CURRENT_LIST_DIR}/Utility
