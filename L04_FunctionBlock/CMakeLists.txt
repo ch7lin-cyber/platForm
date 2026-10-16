@@ -7,6 +7,8 @@ add_library(PlatformL04FunctionBlock STATIC
     Utility/FbWeightedSum.c
     Utility/FbSelector.c
     Utility/FbInBandTimer.c
+    Utility/FbDeadTime.c
+    Utility/FbLeadLag.c
     Utility/FbLinearization.c
     Utility/FbMovingAverage.c
     src/FunctionBlockLifecycle.c

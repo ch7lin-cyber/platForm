@@ -8,7 +8,7 @@
 - [ ] 定義各方塊的正式介面。
 - [ ] 完成功能實作與單元驗證。
 
-目前狀態以表格及各方塊完成條件為準；空架構建立不等於功能完成。FbLogic、FbAlarm 已有實作與單元測試；FbDivide、FbWeightedSum、FbSelector、FbMovingAverage 均已實作並加入單元測試。FbSetpointRamp、FbOutputLimiter、FbInBandTimer、FbLinearization 已完成實作與 Host 單元測試。其餘標示尚未完成的方塊仍是佔位。
+目前狀態以表格及各方塊完成條件為準；空架構建立不等於功能完成。FbLogic、FbAlarm 已有實作與單元測試；FbDivide、FbWeightedSum、FbSelector、FbMovingAverage 均已實作並加入單元測試。FbSetpointRamp、FbOutputLimiter、FbInBandTimer、FbLinearization 已完成實作與 Host 單元測試。FbDeadTime、FbLeadLag 已完成明確契約與 Host 單元測試（不代表產品專用演算法）。其餘標示尚未完成的方塊仍是佔位。
 尚未完成的佔位方塊不加入 CMake／MCU 專案編譯，也不串接前後層；已完成且具單元測試的 FB 納入 CMake Host 驗證。
 
 ## 方塊清單
@@ -28,8 +28,8 @@ PID 實作前先檢查既有模組，避免重複開發。
 | 1 | [FbSelector](Utility/FbSelector.h) | 訊號選擇及最大／最小值 | 已完成（實作與單元測試） |
 | 2 | [FbMovingAverage](Utility/FbMovingAverage.h) | 移動平均 | 已完成（host 驗證） |
 | 2 | [FbLinearization](Utility/FbLinearization.h) | 分段線性轉換 | 已完成（Host 驗證） |
-| 2 | [FbLeadLag](Utility/FbLeadLag.h) | 超前／落後處理 | 尚未完成 |
-| 2 | [FbDeadTime](Utility/FbDeadTime.h) | 純延遲 | 尚未完成 |
+| 2 | [FbLeadLag](Utility/FbLeadLag.h) | 超前／落後處理 | 已完成（Host 驗證） |
+| 2 | [FbDeadTime](Utility/FbDeadTime.h) | 純延遲 | 已完成（Host 驗證） |
 | 2 | [FbPowerVoltageCompensation](Control/FbPowerVoltageCompensation.h) | 電源電壓補償 | 尚未完成 |
 | 2 | [FbHeaterResistance](Diagnostics/FbHeaterResistance.h) | 加熱器電阻估算 | 尚未完成 |
 | 1 | [FbBatchMetrics](Diagnostics/FbBatchMetrics.h) | 批次製程統計 | 尚未完成 |
@@ -127,19 +127,23 @@ PID 實作前先檢查既有模組，避免重複開發。
 
 ### FbLeadLag
 
-- [ ] 正式介面與單位／範圍定義完成。
-- [ ] 功能及異常輸入處理完成。
-- [ ] 單元驗證通過並留下測試報告。
-- [ ] 文件、記憶體需求及重設行為確認。
-- [ ] 已完成。
+- [x] 正式介面與單位／範圍定義完成。
+- [x] 功能及異常輸入處理完成。
+- [x] 單元驗證通過並留下測試報告。
+- [x] 文件、記憶體需求及重設行為確認。
+- [x] 已完成。
+
+- Host 測試報告：[FbLeadLag_HostTest.md](Utility/FbLeadLag/_UnitTest/TestResult/FbLeadLag_HostTest.md)。
 
 ### FbDeadTime
 
-- [ ] 正式介面與單位／範圍定義完成。
-- [ ] 功能及異常輸入處理完成。
-- [ ] 單元驗證通過並留下測試報告。
-- [ ] 文件、記憶體需求及重設行為確認。
-- [ ] 已完成。
+- [x] 正式介面與單位／範圍定義完成。
+- [x] 功能及異常輸入處理完成。
+- [x] 單元驗證通過並留下測試報告。
+- [x] 文件、記憶體需求及重設行為確認。
+- [x] 已完成。
+
+- Host 測試報告：[FbDeadTime_HostTest.md](Utility/FbDeadTime/_UnitTest/TestResult/FbDeadTime_HostTest.md)。
 
 ### FbPowerVoltageCompensation
 
