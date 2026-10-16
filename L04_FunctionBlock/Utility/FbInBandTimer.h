@@ -1,24 +1,66 @@
-/*
- * FbInBandTimer.h
- * 狀態：尚未完成（空架構，無可執行功能）。
- * 功能：保證浸泡／區間內計時。
- * 預計輸入：PV、SP、允許偏差、保持時間、dt。
- * 預計輸出：區間內時間、完成旗標。
- * 介面與資料型別尚未定案；不可視為已實作或已驗證。
- * 不串接 L03/L05、Register Map、NVM 或硬體。
- */
-
 #ifndef FB_IN_BAND_TIMER_H
 #define FB_IN_BAND_TIMER_H
-
+#include <stdbool.h>
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/* TODO：尚未完成；待定義 Config/Input/State/Output 與生命週期介面。 */
+typedef enum {
+    FB_IN_BAND_TIMER_OK = 0,
+    FB_IN_BAND_TIMER_DISABLED,
+    FB_IN_BAND_TIMER_INVALID_ARGUMENT,
+    FB_IN_BAND_TIMER_INVALID_CONFIGURATION,
+    FB_IN_BAND_TIMER_INVALID_INPUT,
+    FB_IN_BAND_TIMER_INVALID_STATE
+} FbInBandTimerStatus;
+typedef enum {
+    FB_IN_BAND_TIMER_PAUSE = 0,
+    FB_IN_BAND_TIMER_RESET
+} FbInBandTimerOutOfBandPolicy;
+typedef struct {
+    float tolerance; /* finite >= 0, same units as pv/sp; inclusive band */
+    float dwell_seconds; /* finite >= 0; elapsed saturates at this value */
+    FbInBandTimerOutOfBandPolicy out_of_band_policy;
+} FbInBandTimerConfig;
+typedef struct {
+    float pv;
+    float sp;
+    float dt_seconds; /* finite >= 0; current sample represents whole interval */
+    bool enable;
+    bool input_valid; /* caller measurement quality; false freezes with INVALID_INPUT */
+} FbInBandTimerInput;
+typedef struct {
+    double elapsed_seconds;
+    double compensation; /* Kahan correction: elapsed - compensation */
+    bool initialized;
+} FbInBandTimerState;
+typedef struct {
+    float elapsed_seconds; /* rounded diagnostic value; use done, not float equality */
+    bool in_band;
+    bool done; /* current sample in band AND dwell reached; not latched */
+    bool valid;
+    FbInBandTimerStatus status;
+} FbInBandTimerOutput;
 
+/* Zero-initialize state before first Execute; Init/Reset clears time and residual.
+ * State fields are implementation-owned. No heap, clock, hardware or global state. */
+FbInBandTimerStatus FbInBandTimer_Init(FbInBandTimerState *state);
+FbInBandTimerStatus FbInBandTimer_Reset(FbInBandTimerState *state);
+/* Null arguments and state checked before enable. Disabled ignores numeric
+ * config/input and freezes all state. Errors also freeze state. Invalid outputs
+ * have false flags and a finite elapsed diagnostic (zero if invalid state).
+ * Enabled calls validate all numerics even out of band. Zero dt still evaluates
+ * band/reset and caps elapsed to a lowered dwell. PAUSE retains elapsed outside
+ * band; RESET clears it. Completion is non-latching. SP/config changes never
+ * implicitly start a new process: call Reset explicitly. Lowering dwell caps
+ * history; raising it resumes accumulation without restoring discarded time.
+ * Distinct correctly typed storage required; no concurrent mutation. Requires
+ * wider double (compile-time checked), round-to-nearest, no unsafe floating
+ * reassociation or flush-to-zero. Finite precision, not an exact clock. */
+FbInBandTimerStatus FbInBandTimer_Execute(const FbInBandTimerConfig *config,
+    const FbInBandTimerInput *input, FbInBandTimerState *state,
+    FbInBandTimerOutput *output);
 #ifdef __cplusplus
 }
 #endif
-
-#endif /* FB_IN_BAND_TIMER_H */
+#endif
