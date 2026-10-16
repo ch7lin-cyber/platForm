@@ -1,5 +1,25 @@
 # FbSelector Host Unit Test
 
+## FB 介面方塊圖
+
+```mermaid
+flowchart LR
+    C["參數設定：mode、input_count、selected_index"] --> FB["FbSelector：索引／最小／最大選取"]
+    I["輸入：values[4]、enable"] --> FB
+    FB --> O["輸出：value、selected_index、valid、status；Run 回傳值"]
+```
+
+| 類別 | 欄位 | 用途／規則 |
+|---|---|---|
+| 參數設定 | `mode` | 選擇指定索引、最小值或最大值。 |
+| 參數設定 | `input_count` | 有效輸入路數，範圍為 1 至 4。 |
+| 參數設定 | `selected_index` | `INDEX` 模式使用，必須小於 `input_count`；極值模式不依此欄位選取。 |
+| 輸入 | `values[4]` | 候選數值；僅檢查有效路數內的槽位。 |
+| 輸入 | `enable` | false 時回報 `DISABLED` 並清除輸出有效旗標。 |
+| 輸出 | `value`、`selected_index`、`valid` | 選取數值、來源索引及有效狀態；同值時採較小索引。 |
+| 輸出 | `status`、Run 回傳值 | 狀態列出錯誤類型；Run 只有有效選取才回傳 true。 |
+
+
 ## 摘要
 
 - **測試結果：** PASS

@@ -1,5 +1,23 @@
 # FbDivide Host Unit Test
 
+## FB 介面方塊圖
+
+```mermaid
+flowchart LR
+    C["參數設定：denominator_epsilon"] --> FB["FbDivide：單次除法；無跨週期狀態"]
+    I["輸入：numerator、denominator、enable"] --> FB
+    FB --> O["輸出：quotient、valid、status；Run 回傳值"]
+```
+
+| 類別 | 欄位 | 用途／規則 |
+|---|---|---|
+| 參數設定 | `denominator_epsilon` | 分母絕對值小於或等於此值時拒絕運算；預設為 0。 |
+| 輸入 | `numerator`、`denominator` | 被除數及除數；須為有限浮點數。 |
+| 輸入 | `enable` | false 時回報 `DISABLED` 並清除輸出有效旗標。 |
+| 輸出 | `quotient`、`valid` | 計算商及有效狀態。 |
+| 輸出 | `status`、Run 回傳值 | 狀態列出錯誤類型；Run 只有有效商才回傳 true。 |
+
+
 ## 摘要
 
 - **測試結果：** PASS

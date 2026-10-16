@@ -1,5 +1,23 @@
 # FbWeightedSum Host Unit Test
 
+## FB 介面方塊圖
+
+```mermaid
+flowchart LR
+    C["參數設定：input_count (1..4)"] --> FB["FbWeightedSum：Σ(value × weight)"]
+    I["輸入：values[4]、weights[4]、enable"] --> FB
+    FB --> O["輸出：sum、valid、status；Run 回傳值"]
+```
+
+| 類別 | 欄位 | 用途／規則 |
+|---|---|---|
+| 參數設定 | `input_count` | 設定參與加總的前 N 路，合法範圍為 1 至 4。 |
+| 輸入 | `values[4]`、`weights[4]` | 各路數值與權重；僅檢查及計算前 `input_count` 路。 |
+| 輸入 | `enable` | false 時回報 `DISABLED` 並清除輸出有效旗標。 |
+| 輸出 | `sum`、`valid` | 加權和與有效狀態。 |
+| 輸出 | `status`、Run 回傳值 | 狀態列出錯誤類型；Run 只有有效加總才回傳 true。 |
+
+
 ## 摘要
 
 - **測試結果：** PASS
