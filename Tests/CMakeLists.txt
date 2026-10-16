@@ -80,6 +80,12 @@ add_executable(test_fb_selector
 target_link_libraries(test_fb_selector PRIVATE Platform::L04FunctionBlock)
 add_test(NAME fb_selector COMMAND test_fb_selector)
 
+add_executable(test_fb_moving_average
+    Unit/L04_FunctionBlock/test_fb_moving_average.c
+)
+target_link_libraries(test_fb_moving_average PRIVATE Platform::L04FunctionBlock)
+add_test(NAME fb_moving_average COMMAND test_fb_moving_average)
+
 add_executable(test_fb_alarm
     Unit/L04_FunctionBlock/test_fb_alarm.c
 )
