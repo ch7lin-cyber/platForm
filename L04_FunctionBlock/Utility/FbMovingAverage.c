@@ -1,7 +1,14 @@
 #include "FbMovingAverage.h"
 
-#include <math.h>
+#include <float.h>
 #include <string.h>
+
+/* Ordered comparisons reject NaN and both infinities without requiring
+ * a C library classification symbol (Redlib's isfinite uses __isfinited). */
+static int sample_is_finite(double value)
+{
+    return value >= -DBL_MAX && value <= DBL_MAX;
+}
 
 static void clear_window(FbMovingAverageState *state)
 {
@@ -42,7 +49,7 @@ FbMovingAverageStatus FbMovingAverage_Execute(
         config->window_size > state->buffer_capacity) {
         return FB_MOVING_AVERAGE_INVALID_ARGUMENT;
     }
-    if (input->sample_valid && !isfinite(input->sample)) {
+    if (input->sample_valid && !sample_is_finite(input->sample)) {
         return FB_MOVING_AVERAGE_INVALID_INPUT;
     }
 
@@ -66,7 +73,7 @@ FbMovingAverageStatus FbMovingAverage_Execute(
     output->sample_count = state->sample_count;
     output->valid = state->sample_count > 0U;
     output->average = output->valid ? (double)(state->sum / (long double)state->sample_count) : 0.0;
-    if (!isfinite(output->average)) {
+    if (!sample_is_finite(output->average)) {
         return FB_MOVING_AVERAGE_INVALID_INPUT;
     }
     return FB_MOVING_AVERAGE_OK;
