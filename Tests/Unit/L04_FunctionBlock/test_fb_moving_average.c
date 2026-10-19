@@ -15,7 +15,7 @@ int main(void)
     double buffer[4] = {0.0};
     FbMovingAverageState state;
     FbMovingAverageConfig config = {3U};
-    FbMovingAverageInput input = {0.0, 0, 0};
+    FbMovingAverageInput input = {0.0, 1, 0, 0};
     FbMovingAverageOutput output;
 
     assert(FbMovingAverage_Init(&state, buffer, 4U) == FB_MOVING_AVERAGE_OK);
@@ -72,8 +72,20 @@ int main(void)
 
     config.window_size = 0U;
     assert(FbMovingAverage_Execute(&config, &input, &state, &output) == FB_MOVING_AVERAGE_INVALID_ARGUMENT);
+
     config.window_size = 5U;
     assert(FbMovingAverage_Execute(&config, &input, &state, &output) == FB_MOVING_AVERAGE_INVALID_ARGUMENT);
+
+    config.window_size = 3U;
+    input.enable = 0;
+    input.sample_valid = 1;
+    assert(FbMovingAverage_Execute(&config, &input, &state, &output) == FB_MOVING_AVERAGE_DISABLED);
+    assert(!output.valid && output.sample_count == 0U);
+    input.enable = 1;
+    input.sample = 10.0;
+    assert(FbMovingAverage_Execute(&config, &input, &state, &output) == FB_MOVING_AVERAGE_OK);
+    assert(output.sample_count == 1U);
+    expect_near(output.average, 10.0);
 
     assert(FbMovingAverage_Init(NULL, buffer, 4U) == FB_MOVING_AVERAGE_INVALID_ARGUMENT);
     assert(FbMovingAverage_Init(&state, NULL, 4U) == FB_MOVING_AVERAGE_INVALID_ARGUMENT);

@@ -49,6 +49,13 @@ FbMovingAverageStatus FbMovingAverage_Execute(
         config->window_size > state->buffer_capacity) {
         return FB_MOVING_AVERAGE_INVALID_ARGUMENT;
     }
+    if (!input->enable) {
+        clear_window(state);
+        output->sample_count = 0U;
+        output->valid = 0;
+        output->average = 0.0;
+        return FB_MOVING_AVERAGE_DISABLED;
+    }
     if (input->sample_valid && !sample_is_finite(input->sample)) {
         return FB_MOVING_AVERAGE_INVALID_INPUT;
     }

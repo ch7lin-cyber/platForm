@@ -9,6 +9,7 @@ extern "C" {
 
 typedef enum {
     FB_MOVING_AVERAGE_OK = 0,
+    FB_MOVING_AVERAGE_DISABLED,
     FB_MOVING_AVERAGE_INVALID_ARGUMENT,
     FB_MOVING_AVERAGE_INVALID_INPUT
 } FbMovingAverageStatus;
@@ -19,6 +20,7 @@ typedef struct {
 
 typedef struct {
     double sample;
+    int enable;        /* 0 clears history/output and reports DISABLED */
     int sample_valid; /* 0 skips this cycle without changing the window */
     int reset;        /* clears the window before processing this cycle */
 } FbMovingAverageInput;
