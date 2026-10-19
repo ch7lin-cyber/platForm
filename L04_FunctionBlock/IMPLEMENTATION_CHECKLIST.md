@@ -8,7 +8,7 @@
 - [ ] 定義各方塊的正式介面。
 - [ ] 完成功能實作與單元驗證。
 
-目前狀態以表格及各方塊完成條件為準；空架構建立不等於功能完成。FbLogic、FbAlarm 已有實作與單元測試；FbDivide、FbWeightedSum、FbSelector、FbMovingAverage 均已實作並加入單元測試。FbSetpointRamp、FbOutputLimiter、FbInBandTimer、FbLinearization 已完成實作與 Host 單元測試。FbDeadTime、FbLeadLag 已完成明確契約與 Host 單元測試（不代表產品專用演算法）。其餘標示尚未完成的方塊仍是佔位。
+目前狀態以表格及各方塊完成條件為準；空架構建立不等於功能完成。FbLogic、FbAlarm 已有實作與單元測試，並支援 ENABLE 停用時輸出 0 及 DISABLED 狀態；FbDivide、FbWeightedSum、FbSelector、FbMovingAverage 均已實作並加入單元測試。FbSetpointRamp、FbOutputLimiter、FbInBandTimer、FbLinearization 已完成實作與 Host 單元測試。FbDeadTime、FbLeadLag 已完成明確契約與 Host 單元測試（不代表產品專用演算法）。其餘標示尚未完成的方塊仍是佔位。
 尚未完成的佔位方塊不加入 CMake／MCU 專案編譯，也不串接前後層；已完成且具單元測試的 FB 納入 CMake Host 驗證。
 
 ## 方塊清單

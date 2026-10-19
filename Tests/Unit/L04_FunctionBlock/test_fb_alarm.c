@@ -16,9 +16,25 @@ static bool Execute(FbAlarm_t *alarm,
                     uint16_t options,
                     FbAlarmOutput_t *output)
 {
-    return FbAlarm_Execute(alarm, process_value, setpoint, mode,
+    return FbAlarm_Execute(alarm, true, process_value, setpoint, mode,
                            alarm_high, alarm_low, clear_request,
-                           options, output);
+                           options, output) == FB_ALARM_STATUS_OK;
+}
+
+static void TestDisabledOutput(void)
+{
+    FbAlarm_t alarm;
+    FbAlarmOutput_t output = {true, 0, 0};
+
+    FbAlarm_Initialize(&alarm, 42);
+    alarm.hold_latched = true;
+    assert(FbAlarm_Execute(&alarm, false, 100, 100,
+                           (FbAlarmMode_t)99, -1, -1, 0U,
+                           FB_ALARM_OPTION_INVERT, &output) ==
+           FB_ALARM_STATUS_DISABLED);
+    assert(!output.alarm_active);
+    assert(output.peak_high == 42 && output.peak_low == 42);
+    assert(!alarm.hold_latched && !alarm.hysteresis_active);
 }
 
 static void TestRelativeAndAbsoluteModes(void)
@@ -157,6 +173,7 @@ static void TestValidationAndOverflowSafeComparisons(void)
 
 int main(void)
 {
+    TestDisabledOutput();
     TestRelativeAndAbsoluteModes();
     TestHighAndLowHysteresis();
     TestStandbyHoldInvertAndClear();

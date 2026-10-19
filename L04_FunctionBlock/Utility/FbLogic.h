@@ -18,16 +18,32 @@ typedef enum
     FB_LOGIC_OPERATOR_XOR
 } FbLogicOperator_t;
 
+typedef enum
+{
+    FB_LOGIC_STATUS_OK = 0,
+    FB_LOGIC_STATUS_DISABLED,
+    FB_LOGIC_STATUS_INVALID_ARGUMENT
+} FbLogicStatus_t;
+
+typedef struct
+{
+    uint16_t value; /* 0 or 1 */
+    FbLogicStatus_t status;
+} FbLogicOutput_t;
+
 /*
  * Evaluate four logical inputs. Only bit 0 of each input and inversion value
- * is used. The input arrays are never modified. The return value is always
- * normalized to 0U or 1U.
+ * is used. The input arrays are never modified. When disabled, value is forced
+ * to 0 and DISABLED is returned regardless of output_inverted. On enabled
+ * calls, value is normalized to 0 or 1 and status reports success/error.
  */
-uint16_t FbLogic_Execute(
+FbLogicStatus_t FbLogic_Execute(
+    bool enable,
     FbLogicOperator_t operator_type,
     const uint16_t inputs[FB_LOGIC_INPUT_COUNT],
     const uint16_t input_inversions[FB_LOGIC_INPUT_COUNT],
-    bool output_inverted);
+    bool output_inverted,
+    FbLogicOutput_t *output);
 
 #ifdef __cplusplus
 }

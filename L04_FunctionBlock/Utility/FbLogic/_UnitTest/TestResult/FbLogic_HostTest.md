@@ -5,24 +5,25 @@
 ```mermaid
 flowchart LR
     C["參數設定：operator_type、output_inverted"] --> FB["FbLogic：OFF／AND／OR／XOR"]
-    I["輸入：inputs[4]、input_inversions[4]"] --> FB
-    FB --> O["輸出：uint16_t 邏輯結果 (0 或 1)"]
+    I["輸入：enable、inputs[4]、input_inversions[4]"] --> FB
+    FB --> O["輸出：value (0 或 1)、status"]
 ```
 
 | 類別 | 欄位 | 用途／規則 |
 |---|---|---|
 | 參數設定 | `operator_type` | 選擇 OFF、AND、OR 或 XOR。 |
 | 參數設定 | `output_inverted` | 對運算結果做輸出反相。 |
+| 輸入 | `enable` | false 時強制輸出 0、狀態為 DISABLED；不受輸出反相影響。 |
 | 輸入 | `inputs[4]` | 四路 16 位元輸入；每路只取 bit 0。 |
 | 輸入 | `input_inversions[4]` | 四路輸入反相設定；每路只取 bit 0。 |
-| 輸出 | `uint16_t` 回傳值 | 正規化為 0 或 1；無效操作碼或空指標回傳 0。 |
+| 輸出 | `FbLogicOutput_t` | `value` 正規化為 0 或 1；`status` 表示 OK、DISABLED 或輸入錯誤。 |
 
 ## 摘要
 
 - **測試結果：** PASS
 - **測試方式：** GCC 嚴格 C99 編譯並執行 host test。
 - **編譯選項：** `-std=c99 -Wall -Wextra -Werror -pedantic`
-- **測試範圍：** 4 組測試，涵蓋四種運算、輸入／輸出反相、bit 0 規則及輸入不修改、無效操作碼與空指標。
+- **測試範圍：** 涵蓋四種運算、輸入／輸出反相、bit 0 規則及輸入不修改、停用輸出為 0、無效操作碼與空指標。
 - **測試程式：** [test_fb_logic.c](../../../../../Tests/Unit/L04_FunctionBlock/test_fb_logic.c)
 
 ## 測試細則
@@ -34,6 +35,7 @@ flowchart LR
 | UT-03 | 各輸入反相設定及輸出反相。 | PASS |
 | UT-04 | 輸入及反相值僅使用 bit 0；執行前後輸入陣列不變。 | PASS |
 | UT-05 | 無效運算碼、輸入陣列為 NULL、反相陣列為 NULL 時安全回傳 0。 | PASS |
+| UT-06 | 停用時即使輸入為真且輸出反相開啟，仍輸出 0 並回報 DISABLED。 | PASS |
 
 ## 重現方式
 

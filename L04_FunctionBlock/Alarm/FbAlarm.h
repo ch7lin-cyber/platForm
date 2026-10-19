@@ -49,17 +49,28 @@ typedef struct
     int16_t peak_low;
 } FbAlarmOutput_t;
 
+typedef enum
+{
+    FB_ALARM_STATUS_OK = 0,
+    FB_ALARM_STATUS_DISABLED,
+    FB_ALARM_STATUS_INVALID_ARGUMENT,
+    FB_ALARM_STATUS_INVALID_CONFIGURATION
+} FbAlarmStatus_t;
+
 void FbAlarm_Initialize(FbAlarm_t *instance,
                         int16_t initial_process_value);
 
 /*
- * Executes one cyclic alarm evaluation.
+ * Executes one cyclic alarm evaluation. When disabled, alarm_active is forced
+ * to false and DISABLED is returned regardless of the invert option. Hold,
+ * standby, and hysteresis runtime state are cleared; peak values are retained.
  *
  * Relative and hysteresis thresholds must be non-negative. Absolute limits
  * may be signed. Intermediate comparisons use 32-bit arithmetic so int16_t
  * setpoint/offset combinations cannot overflow.
  */
-bool FbAlarm_Execute(FbAlarm_t *instance,
+FbAlarmStatus_t FbAlarm_Execute(FbAlarm_t *instance,
+                     bool enable,
                      int16_t process_value,
                      int16_t setpoint,
                      FbAlarmMode_t mode,
