@@ -1,4 +1,5 @@
 add_library(PlatformL04FunctionBlock STATIC
+    Control/FbPid.c
     Control/FbSetpointRamp.c
     Control/FbOutputLimiter.c
     Alarm/FbAlarm.c
@@ -25,6 +26,11 @@ target_include_directories(PlatformL04FunctionBlock
         ${CMAKE_CURRENT_LIST_DIR}/Alarm
         ${CMAKE_CURRENT_LIST_DIR}/Safety
         ${CMAKE_CURRENT_LIST_DIR}/Utility
+)
+
+target_include_directories(PlatformL04FunctionBlock
+    PRIVATE
+        ${CMAKE_CURRENT_LIST_DIR}/CKLIB/Include
 )
 
 target_link_libraries(PlatformL04FunctionBlock PUBLIC Platform::L03Serial)
