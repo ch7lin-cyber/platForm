@@ -13,6 +13,12 @@
 
 ## 方塊清單
 
+**FbAlarm：單一警報已實作並通過 13 組 Host 驗證（2026-10-22）。** 包含八種比較、0.001°C 刻度、可調待機帶（預設 ±0.100°C）、0～100 秒成立延遲、模式 0 強制 OFF、AUTO／MANUAL 解除及獨立峰值清除。MANUAL 僅在條件正常時接受 Reset，控制 STOP 不清除鎖存；這些行為為專案契約，與 DTDM04 原 HOLD 語意不同。產品 branch2_ver1 已建立 L05 Alarm／Logic adapter 並通過 Host 整合驗證；尚未完成設備對照、MCU 實測、Alarm Register 與 NVM 整合。詳見 [FbAlarm 規格與限制](Alarm/FbAlarm/README.md)。
+
+**FbLogic：單一 L04 實例契約已完成。** 2026-10-22 已補齊 OFF 強制零的優先規則、預設設定、設定錯誤分類、ON／OFF 計時方向及高位元忽略規則；2048 組真值與 9 組時間／狀態測試通過。OFF＋反向優先序為專案契約，不代表設備相容或 MCU 實測完成。L05 來源選擇、多組配置及排程不列入 L04 完成條件。詳見 [FbLogic 手冊功能對照](Utility/FbLogic/MANUAL_COMPLIANCE.md)。
+
+**FbC7gLogic：獨立規劃，尚未實作。** 2026-10-21 決定將 C7G 邏輯功能與 FbLogic 分開；C7G 功能不再列為 FbLogic 缺項。規格與完成條件見 [FbC7gLogic 規劃](Utility/FbC7gLogic/README.md)。
+
 第一批：基本控制、程序與批次統計。第二批：進階運算、補償與診斷。第三批：串級協調。
 PID 實作前先檢查既有模組，避免重複開發。
 

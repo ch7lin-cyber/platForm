@@ -1,225 +1,230 @@
 #include "FbAlarm.h"
 
 #include <stddef.h>
+#include <string.h>
 
-static bool IsRelativeMode(FbAlarmMode_t mode)
+static void ClearRuntime(FbAlarm_t *instance)
 {
-    return (mode == FB_ALARM_MODE_RELATIVE_HIGH_LOW) ||
-           (mode == FB_ALARM_MODE_RELATIVE_HIGH) ||
-           (mode == FB_ALARM_MODE_RELATIVE_LOW) ||
-           (mode == FB_ALARM_MODE_HYSTERESIS_HIGH) ||
-           (mode == FB_ALARM_MODE_HYSTERESIS_LOW);
+    instance->alarm_latched = false;
+    instance->standby_ready = false;
+    instance->hysteresis_active = false;
+    instance->delay_active = false;
+    instance->delay_elapsed_ms = 0U;
 }
 
-static bool IsConfigurationValid(FbAlarmMode_t mode,
-                                 int16_t alarm_high,
-                                 int16_t alarm_low)
+static void ClearPeak(FbAlarm_t *instance)
 {
-    if ((mode < FB_ALARM_MODE_DISABLED) || (mode >= FB_ALARM_MODE_COUNT))
+    instance->peak_valid = false;
+    instance->peak_high = 0;
+    instance->peak_low = 0;
+}
+
+void FbAlarm_Initialize(FbAlarm_t *instance)
+{
+    if (instance != NULL) (void)memset(instance, 0, sizeof(*instance));
+}
+
+void FbAlarm_DefaultConfig(FbAlarmConfig_t *config)
+{
+    if (config != NULL)
     {
-        return false;
+        (void)memset(config, 0, sizeof(*config));
+        config->standby_band = FB_ALARM_STANDBY_BAND_DEFAULT;
     }
-    if (IsRelativeMode(mode) &&
-        ((alarm_high < 0) || (alarm_low < 0)))
-    {
+}
+
+static bool ValidConfig(const FbAlarmConfig_t *config)
+{
+    if (config == NULL || config->mode < FB_ALARM_MODE_DISABLED ||
+        config->mode >= FB_ALARM_MODE_COUNT ||
+        (config->options & (uint16_t)~FB_ALARM_OPTION_MASK) != 0U ||
+        config->delay_ms > FB_ALARM_DELAY_MAX_MS ||
+        config->reset_mode < FB_ALARM_RESET_AUTO ||
+        config->reset_mode >= FB_ALARM_RESET_MODE_COUNT) return false;
+    if ((config->options & FB_ALARM_OPTION_STANDBY) != 0U &&
+        (config->standby_band < 0 ||
+         config->standby_band > FB_ALARM_STANDBY_BAND_MAX)) return false;
+    if (config->mode == FB_ALARM_MODE_DISABLED) return true;
+    if (config->alarm_high < FB_ALARM_LIMIT_MIN || config->alarm_high > FB_ALARM_LIMIT_MAX ||
+        config->alarm_low < FB_ALARM_LIMIT_MIN || config->alarm_low > FB_ALARM_LIMIT_MAX)
         return false;
-    }
-    if ((mode == FB_ALARM_MODE_ABSOLUTE_HIGH_LOW) &&
-        (alarm_low > alarm_high))
-    {
-        return false;
-    }
+    if ((config->mode == FB_ALARM_MODE_ABSOLUTE_HIGH_LOW ||
+         config->mode == FB_ALARM_MODE_HYSTERESIS_HIGH ||
+         config->mode == FB_ALARM_MODE_HYSTERESIS_LOW) &&
+        config->alarm_low > config->alarm_high) return false;
+    if (config->mode == FB_ALARM_MODE_RELATIVE_HIGH_LOW &&
+        (int64_t)config->alarm_high + config->alarm_low < 0) return false;
     return true;
 }
 
-static bool EvaluateAlarm(FbAlarm_t *instance,
-                          int32_t process_value,
-                          int32_t setpoint,
-                          FbAlarmMode_t mode,
-                          int32_t alarm_high,
-                          int32_t alarm_low)
+static bool ConfigChanged(const FbAlarmConfig_t *a, const FbAlarmConfig_t *b)
 {
-    switch (mode)
+    return a->mode != b->mode || a->reset_mode != b->reset_mode || a->alarm_high != b->alarm_high ||
+           a->alarm_low != b->alarm_low || a->delay_ms != b->delay_ms ||
+           a->options != b->options || a->standby_band != b->standby_band;
+}
+
+static bool Evaluate(FbAlarm_t *instance, const FbAlarmInput_t *input)
+{
+    int64_t pv = input->process_value;
+    int64_t sv = input->setpoint;
+    int64_t high = instance->config.alarm_high;
+    int64_t low = instance->config.alarm_low;
+    switch (instance->config.mode)
     {
-        case FB_ALARM_MODE_RELATIVE_HIGH_LOW:
-            return (process_value > (setpoint + alarm_high)) ||
-                   (process_value < (setpoint - alarm_low));
-
-        case FB_ALARM_MODE_RELATIVE_HIGH:
-            return process_value > (setpoint + alarm_high);
-
-        case FB_ALARM_MODE_RELATIVE_LOW:
-            return process_value < (setpoint - alarm_low);
-
-        case FB_ALARM_MODE_ABSOLUTE_HIGH_LOW:
-            return (process_value > alarm_high) ||
-                   (process_value < alarm_low);
-
-        case FB_ALARM_MODE_ABSOLUTE_HIGH:
-            return process_value > alarm_high;
-
-        case FB_ALARM_MODE_ABSOLUTE_LOW:
-            return process_value < alarm_low;
-
+        case FB_ALARM_MODE_RELATIVE_HIGH_LOW: return pv > sv + high || pv < sv - low;
+        case FB_ALARM_MODE_RELATIVE_HIGH: return pv > sv + high;
+        case FB_ALARM_MODE_RELATIVE_LOW: return pv < sv - low;
+        case FB_ALARM_MODE_ABSOLUTE_HIGH_LOW: return pv > high || pv < low;
+        case FB_ALARM_MODE_ABSOLUTE_HIGH: return pv > high;
+        case FB_ALARM_MODE_ABSOLUTE_LOW: return pv < low;
         case FB_ALARM_MODE_HYSTERESIS_HIGH:
             if (instance->hysteresis_active)
             {
-                if (process_value < (setpoint + alarm_low))
-                {
-                    instance->hysteresis_active = false;
-                }
+                if (pv < sv + low) instance->hysteresis_active = false;
             }
-            else if (process_value > (setpoint + alarm_high))
-            {
-                instance->hysteresis_active = true;
-            }
+            else if (pv > sv + high) instance->hysteresis_active = true;
             return instance->hysteresis_active;
-
         case FB_ALARM_MODE_HYSTERESIS_LOW:
             if (instance->hysteresis_active)
             {
-                if (process_value > (setpoint - alarm_low))
-                {
-                    instance->hysteresis_active = false;
-                }
+                if (pv > sv - low) instance->hysteresis_active = false;
             }
-            else if (process_value < (setpoint - alarm_high))
-            {
-                instance->hysteresis_active = true;
-            }
+            else if (pv < sv - high) instance->hysteresis_active = true;
             return instance->hysteresis_active;
-
-        case FB_ALARM_MODE_DISABLED:
-        default:
-            instance->hysteresis_active = false;
-            return false;
+        default: return false;
     }
 }
 
-void FbAlarm_Initialize(FbAlarm_t *instance,
-                        int16_t initial_process_value)
+static bool Qualify(FbAlarm_t *instance, bool condition, uint32_t elapsed_ms)
 {
-    if (instance == NULL)
+    uint32_t limit = instance->config.delay_ms;
+    if (!condition)
     {
-        return;
+        instance->delay_active = false;
+        instance->delay_elapsed_ms = 0U;
+        return false;
     }
+    if (limit == 0U) return true;
+    if (!instance->delay_active)
+    {
+        instance->delay_active = true;
+        instance->delay_elapsed_ms = 0U;
+    }
+    else if (elapsed_ms >= limit - instance->delay_elapsed_ms)
+        instance->delay_elapsed_ms = limit;
+    else instance->delay_elapsed_ms += elapsed_ms;
+    return instance->delay_elapsed_ms == limit;
+}
 
-    instance->hold_latched = false;
-    instance->standby_ready = false;
-    instance->hysteresis_active = false;
-    instance->peak_initialized = true;
-    instance->peak_high = initial_process_value;
-    instance->peak_low = initial_process_value;
+static FbAlarmStatus_t Publish(const FbAlarm_t *instance,
+                               FbAlarmOutput_t *output, FbAlarmStatus_t status)
+{
+    output->alarm_latched = instance->alarm_latched;
+    output->standby_ready = instance->standby_ready;
+    output->delay_active = instance->delay_active &&
+                           instance->delay_elapsed_ms < instance->config.delay_ms;
+    output->delay_elapsed_ms = instance->delay_elapsed_ms;
+    output->peak_valid = instance->peak_valid;
+    output->peak_high = instance->peak_high;
+    output->peak_low = instance->peak_low;
+    output->status = status;
+    return status;
 }
 
 FbAlarmStatus_t FbAlarm_Execute(FbAlarm_t *instance,
-                     bool enable,
-                     int16_t process_value,
-                     int16_t setpoint,
-                     FbAlarmMode_t mode,
-                     int16_t alarm_high,
-                     int16_t alarm_low,
-                     uint16_t clear_request,
-                     uint16_t options,
-                     FbAlarmOutput_t *output)
+                                const FbAlarmConfig_t *config,
+                                const FbAlarmInput_t *input,
+                                FbAlarmOutput_t *output)
 {
-    bool alarm_active;
-    bool standby_enabled;
-    bool hold_enabled;
-    int32_t process_value_32 = process_value;
-    int32_t setpoint_32 = setpoint;
-
-    if ((instance == NULL) || (output == NULL))
+    bool reset_edge;
+    bool peak_edge;
+    bool qualified;
+    bool active;
+    FbAlarmStatus_t status = FB_ALARM_STATUS_OK;
+    if (output != NULL)
     {
+        (void)memset(output, 0, sizeof(*output));
+        output->status = FB_ALARM_STATUS_INVALID_ARGUMENT;
+    }
+    if (instance == NULL) return FB_ALARM_STATUS_INVALID_ARGUMENT;
+    if (input == NULL || output == NULL)
+    {
+        ClearRuntime(instance);
+        instance->reset_previous = false;
+        instance->clear_peak_previous = false;
+        if (output != NULL) (void)Publish(instance, output, FB_ALARM_STATUS_INVALID_ARGUMENT);
         return FB_ALARM_STATUS_INVALID_ARGUMENT;
     }
-
-    if (!enable)
+    reset_edge = input->reset && !instance->reset_previous;
+    peak_edge = input->clear_peak && !instance->clear_peak_previous;
+    instance->reset_previous = input->reset;
+    instance->clear_peak_previous = input->clear_peak;
+    if (peak_edge) ClearPeak(instance);
+    if (!input->enable)
     {
-        instance->hold_latched = false;
-        instance->standby_ready = false;
-        instance->hysteresis_active = false;
-        output->alarm_active = false;
-        output->peak_high = instance->peak_high;
-        output->peak_low = instance->peak_low;
-        return FB_ALARM_STATUS_DISABLED;
+        ClearRuntime(instance);
+        return Publish(instance, output, FB_ALARM_STATUS_DISABLED);
     }
-    if (!IsConfigurationValid(mode, alarm_high, alarm_low))
+    if (!ValidConfig(config))
     {
-        return FB_ALARM_STATUS_INVALID_CONFIGURATION;
+        ClearRuntime(instance);
+        return Publish(instance, output, FB_ALARM_STATUS_INVALID_CONFIGURATION);
     }
-
-    if ((clear_request & FB_ALARM_CLEAR_LATCH) != 0U)
+    if (!instance->configured || ConfigChanged(&instance->config, config))
     {
-        instance->hold_latched = false;
-        instance->hysteresis_active = false;
+        ClearRuntime(instance);
+        ClearPeak(instance);
+        instance->config = *config;
+        instance->configured = true;
     }
-    if (((clear_request & FB_ALARM_CLEAR_PEAK) != 0U) ||
-        !instance->peak_initialized)
+    if (!input->valid)
     {
-        instance->peak_high = process_value;
-        instance->peak_low = process_value;
-        instance->peak_initialized = true;
+        ClearRuntime(instance);
+        return Publish(instance, output, FB_ALARM_STATUS_INVALID_INPUT);
     }
-
-    if ((options & FB_ALARM_OPTION_PEAK) != 0U)
+    if (config->mode == FB_ALARM_MODE_DISABLED)
     {
-        if (process_value > instance->peak_high)
-        {
-            instance->peak_high = process_value;
-        }
-        if (process_value < instance->peak_low)
-        {
-            instance->peak_low = process_value;
-        }
+        ClearRuntime(instance);
+        return Publish(instance, output, FB_ALARM_STATUS_DISABLED);
     }
-
-    standby_enabled = (options & FB_ALARM_OPTION_STANDBY) != 0U;
-    if (!standby_enabled)
-    {
+    if ((config->options & FB_ALARM_OPTION_STANDBY) == 0U ||
+        ((int64_t)input->process_value >= (int64_t)input->setpoint - config->standby_band &&
+         (int64_t)input->process_value <= (int64_t)input->setpoint + config->standby_band))
         instance->standby_ready = true;
-    }
-    else if (!instance->standby_ready &&
-             (process_value_32 >=
-              (setpoint_32 - FB_ALARM_STANDBY_BAND)) &&
-             (process_value_32 <=
-              (setpoint_32 + FB_ALARM_STANDBY_BAND)))
+    output->condition_active = instance->standby_ready && Evaluate(instance, input);
+    qualified = Qualify(instance, output->condition_active, input->elapsed_ms);
+    output->qualified_active = qualified;
+    if (config->reset_mode == FB_ALARM_RESET_MANUAL)
     {
-        instance->standby_ready = true;
+        if (qualified) instance->alarm_latched = true;
     }
-
-    if (instance->standby_ready)
+    else instance->alarm_latched = false;
+    if (reset_edge)
     {
-        alarm_active = EvaluateAlarm(instance, process_value_32, setpoint_32,
-                                     mode, alarm_high, alarm_low);
-    }
-    else
-    {
-        alarm_active = false;
-        instance->hysteresis_active = false;
-    }
-
-    hold_enabled = (options & FB_ALARM_OPTION_HOLD) != 0U;
-    if (hold_enabled)
-    {
-        if (alarm_active)
+        if (output->condition_active)
+            status = FB_ALARM_STATUS_RESET_REJECTED;
+        else
         {
-            instance->hold_latched = true;
+            instance->alarm_latched = false;
+            status = FB_ALARM_STATUS_RESET;
         }
-        alarm_active = instance->hold_latched;
     }
-    else
+    if ((config->options & FB_ALARM_OPTION_PEAK) != 0U && qualified)
     {
-        instance->hold_latched = false;
+        if (!instance->peak_valid)
+        {
+            instance->peak_high = input->process_value;
+            instance->peak_low = input->process_value;
+            instance->peak_valid = true;
+        }
+        else
+        {
+            if (input->process_value > instance->peak_high) instance->peak_high = input->process_value;
+            if (input->process_value < instance->peak_low) instance->peak_low = input->process_value;
+        }
     }
-
-    if ((options & FB_ALARM_OPTION_INVERT) != 0U)
-    {
-        alarm_active = !alarm_active;
-    }
-
-    output->alarm_active = alarm_active;
-    output->peak_high = instance->peak_high;
-    output->peak_low = instance->peak_low;
-    return FB_ALARM_STATUS_OK;
+    active = qualified || instance->alarm_latched;
+    output->alarm_active = (config->options & FB_ALARM_OPTION_INVERT) != 0U ? !active : active;
+    return Publish(instance, output, status);
 }
