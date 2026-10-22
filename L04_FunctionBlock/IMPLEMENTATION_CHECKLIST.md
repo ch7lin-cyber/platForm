@@ -2,6 +2,8 @@
 
 參考 C7G／C7S 功能需求建立的獨立方塊規劃，不代表其專用演算法。
 
+2026-10-22 盤點：20 個具有 .c／.h 的運算 FB 中，12 項已實作並有 Host 測試、1 項 FbPid 已有 CKLIB 封裝與 mock 驗證但實體驗證待完成、7 項仍為佔位；另有僅文件規劃的 FbC7gLogic。完整 DTDM04 缺項與產品分層對照記錄於主專案 _Product/Docs/FB_DTDM04_GAP_REVIEW.md。**正式 PID callback、Register、實體輸出與 MCU 實測仍待接入。**
+
 - [x] 建立分類目錄及 `.c／.h` 空架構。
 - [x] 每個佔位檔標示「尚未完成」。
 - [x] 建立功能與驗證進度清單。
@@ -27,7 +29,7 @@ PID 實作前先檢查既有模組，避免重複開發。
 | 1 | [FbSetpointRamp](Control/FbSetpointRamp.h) | 設定值升降斜率 | 已完成（Host 驗證） |
 | 1 | [FbProfileSequencer](Control/FbProfileSequencer.h) | 分段程序控制 | 尚未完成 |
 | 1 | [FbInBandTimer](Utility/FbInBandTimer.h) | 保證浸泡／區間內計時 | 已完成（Host 驗證） |
-| 1 | [FbPid](Control/FbPid.h) | PID 控制介面預留；實作前確認既有 PID 是否可沿用 | 尚未完成 |
+| 1 | [FbPid](Control/FbPid.h) | L04 CKLIB 封裝：AUTO_TUNE／ON_OFF／PID／PID_FB | 封裝及 mock 驗證已做；實體庫與正式整合待完成 |
 | 1 | [FbOutputLimiter](Control/FbOutputLimiter.h) | 輸出限幅及變化率限制 | 已完成（Host 驗證） |
 | 1 | [FbWeightedSum](Utility/FbWeightedSum.h) | 加權加總 | 已完成（實作與單元測試） |
 | 1 | [FbDivide](Utility/FbDivide.h) | 除法及除零檢查 | 已完成（實作與單元測試） |
@@ -42,6 +44,9 @@ PID 實作前先檢查既有模組，避免重複開發。
 | 2 | [FbProcessResponse](Diagnostics/FbProcessResponse.h) | 製程響應評估 | 尚未完成 |
 | 2 | [FbRecordTrigger](Recording/FbRecordTrigger.h) | 資料記錄觸發判定 | 尚未完成 |
 | 3 | [FbCascadeCoordinator](Control/FbCascadeCoordinator.h) | 串級協調介面預留 | 尚未完成 |
+| 1 | [FbAlarm](Alarm/FbAlarm.h) | 單一警報、延遲、待機、手動鎖存與峰值 | 已實作（Host 驗證）；與 DTDM04 有明訂差異 |
+| 1 | [FbLogic](Utility/FbLogic.h) | 四輸入邏輯、反向與 ON／OFF 延遲 | 已實作（Host 驗證）；OFF 優先規則為專案契約 |
+| 獨立 | [FbC7gLogic](Utility/FbC7gLogic/README.md) | C7G 邏輯 | 僅文件規劃，尚未實作；不列入 DTDM04 缺項 |
 
 ## 各方塊完成條件
 
@@ -75,11 +80,12 @@ PID 實作前先檢查既有模組，避免重複開發。
 
 ### FbPid
 
-- [ ] 正式介面與單位／範圍定義完成。
-- [ ] 功能及異常輸入處理完成。
-- [ ] 單元驗證通過並留下測試報告。
-- [ ] 文件、記憶體需求及重設行為確認。
-- [ ] 已完成。
+- [x] 已建立正式 L04 封裝介面與單位定義（PV／SV 目前為 0.1°C）。
+- [x] 四種 CKLIB 模式、生命週期及錯誤狀態封裝已實作。
+- [x] 產品 adapter 的 CKLIB mock Host 測試已建立。
+- [ ] 實體 CKLIB 數值行為、backend 資源及 MCU 建置／實測驗證。
+- [ ] 正式 PID callback、參數組管理與產品輸出鏈整合完成。
+- [ ] 完整完成；不得以 mock 測試宣稱實體控制效果已驗證。
 
 ### FbOutputLimiter
 
