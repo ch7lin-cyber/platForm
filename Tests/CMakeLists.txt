@@ -182,6 +182,16 @@ add_executable(test_system_fault_service
 target_link_libraries(test_system_fault_service PRIVATE Platform::L03Serial)
 add_test(NAME system_fault_service COMMAND test_system_fault_service)
 
+add_executable(test_system_safety_fault_injection
+    Unit/L03_SystemPlatform/test_system_safety_fault_injection.c
+)
+target_link_libraries(test_system_safety_fault_injection
+    PRIVATE Platform::L03Serial
+)
+add_test(NAME system_safety_fault_injection
+    COMMAND test_system_safety_fault_injection
+)
+
 add_executable(test_hal_dac
     Unit/L02_PlatformHAL/test_hal_dac.c
 )
