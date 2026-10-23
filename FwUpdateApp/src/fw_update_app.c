@@ -62,13 +62,18 @@ uint8_t FwUpdateApp_Write(FwUpdateApp_t *self, uint16_t address, uint16_t value)
         return 0;
     }
     if (address != BOOT_REQUEST_REGISTER) return 2;
-    uint16_t requested = value == BOOT_REQUEST_USB_KEY ? BOOT_REQUEST_USB :
-                         value == BOOT_REQUEST_RS485_KEY ? BOOT_REQUEST_RS485 : 0;
+    uint16_t requested =
+#if !defined(FW_UPDATE_APP_DISABLE_USB_ROUTE)
+        value == BOOT_REQUEST_USB_KEY ? BOOT_REQUEST_USB :
+#endif
+        value == BOOT_REQUEST_RS485_KEY ? BOOT_REQUEST_RS485 : 0;
     if (!requested || self->context_route != requested ||
         !(self->config->allowed_routes & (1u << requested)) ||
         self->context_unit < 1u || self->context_unit > 247u) return 3;
     if (self->state) return 6;
+#if !defined(FW_UPDATE_APP_DISABLE_USB_ROUTE)
     if (requested == BOOT_REQUEST_USB) self->baud = 115200u;
+#endif
     self->route = requested;
     self->unit = self->context_unit;
     self->state = FW_UPDATE_APP_QUIESCE;
