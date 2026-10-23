@@ -2,6 +2,13 @@
 
 #include <stddef.h>
 
+/* Keep runtime-built tables out of the constrained main SRAM bank. */
+#if defined(__GNUC__)
+#define SENSOR_TABLE_SRAMX __attribute__((section(".bss.$SRAMX")))
+#else
+#define SENSOR_TABLE_SRAMX
+#endif
+
 #if TC_C_TABLE_COMPLETE
 
 #if (TC_C_MEASUREMENT_SEGMENT_COUNT == 0U)
@@ -78,9 +85,10 @@ static const TcCCjcCoefficient_t
 };
 
 static PiecewiseLinearSegment_t
-    s_tc_c_measurement_segments[TC_C_MEASUREMENT_SEGMENT_COUNT];
+    s_tc_c_measurement_segments[TC_C_MEASUREMENT_SEGMENT_COUNT]
+        SENSOR_TABLE_SRAMX;
 static PiecewiseLinearSegment_t
-    s_tc_c_cjc_segments[TC_C_CJC_SEGMENT_COUNT];
+    s_tc_c_cjc_segments[TC_C_CJC_SEGMENT_COUNT] SENSOR_TABLE_SRAMX;
 static bool s_tables_initialized;
 
 static const PiecewiseLinearTable_t s_tc_c_measurement_table =
