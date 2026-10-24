@@ -2,7 +2,7 @@
 
 參考 C7G／C7S 功能需求建立的獨立方塊規劃，不代表其專用演算法。
 
-2026-10-22 盤點：20 個具有 .c／.h 的運算 FB 中，12 項已實作並有 Host 測試、1 項 FbPid 已有 CKLIB 封裝與 mock 驗證但實體驗證待完成、7 項仍為佔位；另有僅文件規劃的 FbC7gLogic。完整 DTDM04 缺項與產品分層對照記錄於主專案 _Product/Docs/FB_DTDM04_GAP_REVIEW.md。**正式 PID callback、Register、實體輸出與 MCU 實測仍待接入。**
+2026-10-25 更新：25個具有.c／.h的運算模組中，24個已有專案核心與Host測試，1個FbPid為CKLIB封裝／mock驗證；原七個佔位均已補核心。FbSignalLinearization含輸入／輸出兩入口，統計為一個共用模組；另有僅文件規劃的FbC7gLogic。完整產品串接／設備相容性不是L04核心完成的同義詞。**正式PID callback、Register／NVM、實體輸出與MCU實測仍待接入。** 本輪以Git提交保存核心與驗證文件，產品整合狀態仍依下列未完成項目判定。
 
 - [x] 建立分類目錄及 `.c／.h` 空架構。
 - [x] 每個佔位檔標示「尚未完成」。
@@ -14,6 +14,16 @@
 尚未完成的佔位方塊不加入 CMake／MCU 專案編譯，也不串接前後層；已完成且具單元測試的 FB 納入 CMake Host 驗證。
 
 ## 方塊清單
+
+新增 FbFeedforward：事件前饋曲線、三階段、Force與取消／重觸發生命週期已通過Host／ASan／UBSan。SYSTEM／L05、PID加總、anti-windup及Register／NVM／MCU未接。詳見 [規格與方塊圖](Control/FbFeedforward/README.md)。
+
+新增 FbPidGroupSelector：四組候選參數包裝、全組驗證、固定／依SV選組及外部鎖組，Host／ASan／UBSan通過；後端整組套用、AT結果／NVM與MCU未完成。詳見 [規格與方塊圖](Control/FbPidGroupSelector/README.md)。不以選組成功當作PID已實際套用。
+
+新增 FbMultiChannelAlarm：可變來源極值溫差、成立延遲、Hold／Reset、單次動作請求及品質失效去重已通過 Host／ASan／UBSan。L05／SYSTEM 命令／Register／NVM／MCU 未整合。詳見 [規格與方塊圖](Alarm/FbMultiChannelAlarm/README.md)。此為原盤點後新增項目。
+
+新增 FbInputSwitchOver：單實例雙來源切換／平均、故障策略、有效性與 ENABLE／Reset 已通過 Host／ASan／UBSan 驗證；L05／Register／NVM／MCU 未整合。詳見 [規格與方塊圖](Utility/FbInputSwitchOver/README.md)。此為原日期盤點後新增項目。
+
+新增折線包裝：FbSignalLinearization 提供單訊號輸入／輸出兩入口，已完成 BYPASS／VALUE／DEVIATION、OFF／內插／左端步階、Offset 與最終限制，Host 測試通過；以共用核心加包裝計，不更改下列原盤點日期的數量。產品 L05／Register／NVM／MCU 仍未整合。規格及方塊圖見 [折線包裝](Utility/FbSignalLinearization/README.md)。
 
 **FbAlarm：單一警報已實作並通過 13 組 Host 驗證（2026-10-22）。** 包含八種比較、0.001°C 刻度、可調待機帶（預設 ±0.100°C）、0～100 秒成立延遲、模式 0 強制 OFF、AUTO／MANUAL 解除及獨立峰值清除。MANUAL 僅在條件正常時接受 Reset，控制 STOP 不清除鎖存；這些行為為專案契約，與 DTDM04 原 HOLD 語意不同。產品 branch2_ver1 已建立 L05 Alarm／Logic adapter 並通過 Host 整合驗證；尚未完成設備對照、MCU 實測、Alarm Register 與 NVM 整合。詳見 [FbAlarm 規格與限制](Alarm/FbAlarm/README.md)。
 
@@ -27,7 +37,7 @@ PID 實作前先檢查既有模組，避免重複開發。
 | 批次 | 方塊 | 功能 | 狀態 |
 |---|---|---|---|
 | 1 | [FbSetpointRamp](Control/FbSetpointRamp.h) | 設定值升降斜率 | 已完成（Host 驗證） |
-| 1 | [FbProfileSequencer](Control/FbProfileSequencer.h) | 分段程序控制 | 尚未完成 |
+| 1 | [FbProfileSequencer](Control/FbProfileSequencer.h) | 分段程序控制 | L04核心已實作／Host驗證；持久化及產品串接待接 |
 | 1 | [FbInBandTimer](Utility/FbInBandTimer.h) | 保證浸泡／區間內計時 | 已完成（Host 驗證） |
 | 1 | [FbPid](Control/FbPid.h) | L04 CKLIB 封裝：AUTO_TUNE／ON_OFF／PID／PID_FB | 封裝及 mock 驗證已做；實體庫與正式整合待完成 |
 | 1 | [FbOutputLimiter](Control/FbOutputLimiter.h) | 輸出限幅及變化率限制 | 已完成（Host 驗證） |
@@ -38,12 +48,12 @@ PID 實作前先檢查既有模組，避免重複開發。
 | 2 | [FbLinearization](Utility/FbLinearization.h) | 分段線性轉換 | 已完成（Host 驗證） |
 | 2 | [FbLeadLag](Utility/FbLeadLag.h) | 超前／落後處理 | 已完成（Host 驗證） |
 | 2 | [FbDeadTime](Utility/FbDeadTime.h) | 純延遲 | 已完成（Host 驗證） |
-| 2 | [FbPowerVoltageCompensation](Control/FbPowerVoltageCompensation.h) | 電源電壓補償 | 尚未完成 |
-| 2 | [FbHeaterResistance](Diagnostics/FbHeaterResistance.h) | 加熱器電阻估算 | 尚未完成 |
-| 1 | [FbBatchMetrics](Diagnostics/FbBatchMetrics.h) | 批次製程統計 | 尚未完成 |
-| 2 | [FbProcessResponse](Diagnostics/FbProcessResponse.h) | 製程響應評估 | 尚未完成 |
-| 2 | [FbRecordTrigger](Recording/FbRecordTrigger.h) | 資料記錄觸發判定 | 尚未完成 |
-| 3 | [FbCascadeCoordinator](Control/FbCascadeCoordinator.h) | 串級協調介面預留 | 尚未完成 |
+| 2 | [FbPowerVoltageCompensation](Control/FbPowerVoltageCompensation.h) | 電源電壓補償 | L04平方補償已實作／Host驗證；產品輸出鏈待接 |
+| 2 | [FbHeaterResistance](Diagnostics/FbHeaterResistance.h) | 加熱器電阻估算 | L04比值診斷已實作／Host驗證；RMS來源與產品處置待接 |
+| 1 | [FbBatchMetrics](Diagnostics/FbBatchMetrics.h) | 批次製程統計 | L04核心已實作／Host驗證；產品整合未完成 |
+| 2 | [FbProcessResponse](Diagnostics/FbProcessResponse.h) | 已知步階響應觀測 | L04核心已實作／Host驗證；產品實驗串接待接 |
+| 2 | [FbRecordTrigger](Recording/FbRecordTrigger.h) | 資料記錄觸發判定 | L04核心已實作／Host驗證；產品記錄服務未接 |
+| 3 | [FbCascadeCoordinator](Control/FbCascadeCoordinator.h) | 串級SV換算 | L04換算核心已實作／Host驗證；雙PID協調待接 |
 | 1 | [FbAlarm](Alarm/FbAlarm.h) | 單一警報、延遲、待機、手動鎖存與峰值 | 已實作（Host 驗證）；與 DTDM04 有明訂差異 |
 | 1 | [FbLogic](Utility/FbLogic.h) | 四輸入邏輯、反向與 ON／OFF 延遲 | 已實作（Host 驗證）；OFF 優先規則為專案契約 |
 | 獨立 | [FbC7gLogic](Utility/FbC7gLogic/README.md) | C7G 邏輯 | 僅文件規劃，尚未實作；不列入 DTDM04 缺項 |
@@ -62,11 +72,14 @@ PID 實作前先檢查既有模組，避免重複開發。
 
 ### FbProfileSequencer
 
-- [ ] 正式介面與單位／範圍定義完成。
-- [ ] 功能及異常輸入處理完成。
-- [ ] 單元驗證通過並留下測試報告。
-- [ ] 文件、記憶體需求及重設行為確認。
-- [ ] 已完成。
+已完成程序核心、循環／連接、命令及等待／逾時，Host／ASan／UBSan通過。正式規格見 [方塊圖與契約](Control/FbProfileSequencer/README.md)。
+
+- [x] 正式介面與單位／範圍定義完成。
+- [x] L04核心功能及異常輸入處理完成。
+- [x] 單元驗證通過並留下測試報告。
+- [x] 文件、借用記憶體與重設行為確認。
+- [x] L04專案契約完成；不宣稱完整DTDM04相容。
+- [ ] L05／Register／NVM斷電接續與MCU整合完成。
 
 ### FbInBandTimer
 
@@ -159,51 +172,57 @@ PID 實作前先檢查既有模組，避免重複開發。
 
 ### FbPowerVoltageCompensation
 
-- [ ] 正式介面與單位／範圍定義完成。
-- [ ] 功能及異常輸入處理完成。
-- [ ] 單元驗證通過並留下測試報告。
-- [ ] 文件、記憶體需求及重設行為確認。
-- [ ] 已完成。
+- [x] 正式介面與單位／範圍定義完成。
+- [x] 平方補償、旁路及異常輸入處理完成。
+- [x] 單元驗證通過並留下測試報告。
+- [x] 無狀態契約及文件完成；見 [規格與方塊圖](Control/FbPowerVoltageCompensation/README.md)。
+- [x] L04專案補償契約完成。
+- [ ] L05／輸出鏈／anti-windup、Register／NVM及MCU完成。
 
 ### FbHeaterResistance
 
-- [ ] 正式介面與單位／範圍定義完成。
-- [ ] 功能及異常輸入處理完成。
-- [ ] 單元驗證通過並留下測試報告。
-- [ ] 文件、記憶體需求及重設行為確認。
-- [ ] 已完成。
+- [x] 正式介面與單位／範圍定義完成。
+- [x] 比值估算與品質／時間檢查完成。
+- [x] 單元驗證通過並留下測試報告。
+- [x] 無狀態契約及文件完成；見 [規格與方塊圖](Diagnostics/FbHeaterResistance/README.md)。
+- [x] L04專案診斷契約完成。
+- [ ] L05／RMS來源／產品處置與MCU整合完成。
 
 ### FbBatchMetrics
 
-- [ ] 正式介面與單位／範圍定義完成。
-- [ ] 功能及異常輸入處理完成。
-- [ ] 單元驗證通過並留下測試報告。
-- [ ] 文件、記憶體需求及重設行為確認。
-- [ ] 已完成。
+- [x] 正式介面與單位／範圍定義完成。
+- [x] 批次統計核心及異常輸入處理完成。
+- [x] 單元驗證通過並留下測試報告。
+- [x] 文件、記憶體需求及重設行為確認；見 [規格與方塊圖](Diagnostics/FbBatchMetrics/README.md)。
+- [x] L04專案契約完成。
+- [ ] L05／資料保存／UI及MCU整合完成。
 
 ### FbProcessResponse
 
-- [ ] 正式介面與單位／範圍定義完成。
-- [ ] 功能及異常輸入處理完成。
-- [ ] 單元驗證通過並留下測試報告。
-- [ ] 文件、記憶體需求及重設行為確認。
-- [ ] 已完成。
+- [x] 正式介面與單位／範圍定義完成。
+- [x] 已知基準觀測及異常輸入處理完成。
+- [x] 單元驗證通過並留下測試報告。
+- [x] 文件、記憶體需求及重設行為確認；見 [規格與方塊圖](Diagnostics/FbProcessResponse/README.md)。
+- [x] L04專案觀測契約完成，不宣稱模型自動辨識或PID整定。
+- [ ] L05／實驗品質與結果保存／UI、MCU整合完成。
 
 ### FbRecordTrigger
 
-- [ ] 正式介面與單位／範圍定義完成。
-- [ ] 功能及異常輸入處理完成。
-- [ ] 單元驗證通過並留下測試報告。
-- [ ] 文件、記憶體需求及重設行為確認。
-- [ ] 已完成。
+- [x] 正式介面與單位／範圍定義完成。
+- [x] 週期／事件觸發及異常輸入處理完成。
+- [x] 單元驗證通過並留下測試報告。
+- [x] 文件、記憶體需求及重設行為確認；見 [規格與方塊圖](Recording/FbRecordTrigger/README.md)。
+- [x] L04專案觸發契約完成。
+- [ ] L05／實際記錄服務與保存回報、Register／NVM／MCU完成。
 
 ### FbCascadeCoordinator
 
-- [ ] 正式介面與單位／範圍定義完成。
-- [ ] 功能及異常輸入處理完成。
-- [ ] 單元驗證通過並留下測試報告。
-- [ ] 文件、記憶體需求及重設行為確認。
-- [ ] 已完成。
+- [x] 正式介面與單位／範圍定義完成。
+- [x] MV→SV換算核心及異常輸入處理完成。
+- [x] 單元驗證通過並留下測試報告。
+- [x] 文件、記憶體需求及重設行為確認；見 [規格與方塊圖](Control/FbCascadeCoordinator/README.md)。
+- [x] L04專案換算契約完成，非完整DTDM04相容結論。
+- [ ] 雙PID／L05、AT／校準、anti-windup與保護協調、Register／NVM／MCU完成。
 
 ## 共用設計約束
 

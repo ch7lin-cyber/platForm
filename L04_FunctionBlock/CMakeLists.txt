@@ -1,8 +1,18 @@
 add_library(PlatformL04FunctionBlock STATIC
     Control/FbPid.c
+    Control/FbPidGroupSelector.c
+    Control/FbProfileSequencer.c
+    Control/FbCascadeCoordinator.c
+    Control/FbFeedforward.c
+    Control/FbPowerVoltageCompensation.c
+    Diagnostics/FbBatchMetrics.c
+    Diagnostics/FbProcessResponse.c
+    Diagnostics/FbHeaterResistance.c
+    Recording/FbRecordTrigger.c
     Control/FbSetpointRamp.c
     Control/FbOutputLimiter.c
     Alarm/FbAlarm.c
+    Alarm/FbMultiChannelAlarm.c
     Utility/FbLogic.c
     Utility/FbDivide.c
     Utility/FbWeightedSum.c
@@ -11,6 +21,8 @@ add_library(PlatformL04FunctionBlock STATIC
     Utility/FbDeadTime.c
     Utility/FbLeadLag.c
     Utility/FbLinearization.c
+    Utility/FbSignalLinearization.c
+    Utility/FbInputSwitchOver.c
     Utility/FbMovingAverage.c
     src/FunctionBlockLifecycle.c
     src/AlarmConfigurationEventConsumer.c
@@ -26,6 +38,8 @@ target_include_directories(PlatformL04FunctionBlock
         ${CMAKE_CURRENT_LIST_DIR}/Alarm
         ${CMAKE_CURRENT_LIST_DIR}/Safety
         ${CMAKE_CURRENT_LIST_DIR}/Utility
+        ${CMAKE_CURRENT_LIST_DIR}/Diagnostics
+        ${CMAKE_CURRENT_LIST_DIR}/Recording
 )
 
 target_include_directories(PlatformL04FunctionBlock
