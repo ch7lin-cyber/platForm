@@ -93,7 +93,7 @@ PID 實作前先檢查既有模組，避免重複開發。
 
 ### FbPid
 
-- [x] 已建立正式 L04 封裝介面與單位定義（PV／SV 目前為 0.1°C）。
+- [x] L04公開PV／SV為0.001°C，CKLIB邊界暫轉0.1°C；下一版Colin統一後端後須移除轉換，見 [PID單位待辦](Control/FbPid/README.md)。
 - [x] 四種 CKLIB 模式、生命週期及錯誤狀態封裝已實作。
 - [x] 產品 adapter 的 CKLIB mock Host 測試已建立。
 - [ ] 實體 CKLIB 數值行為、backend 資源及 MCU 建置／實測驗證。

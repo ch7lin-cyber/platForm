@@ -78,8 +78,8 @@ typedef struct
 
 typedef struct
 {
-    int32_t pv; /* CKLIB temperature unit: 0.1 degree C */
-    int32_t sv; /* CKLIB temperature unit: 0.1 degree C */
+    int32_t pv; /* public temperature unit: 0.001 degree C */
+    int32_t sv; /* public temperature unit: 0.001 degree C */
     uint32_t elapsed_ms;
     bool enable;
     bool reset; /* rising-edge reset command */
@@ -96,7 +96,11 @@ typedef struct
     int32_t backend_error; /* CKLIB error value; zero on success */
 } FbPidOutput_t;
 
-/* CKLIB-backed implementation. CKLIB types remain private to FbPid.c. */
+/* CKLIB-backed implementation. CKLIB types remain private to FbPid.c.
+ * Current CKLIB uses 0.1 C: PV/SV are rounded once in the L04 backend.
+ * TODO(Colin, next CKLIB version): unify backend to 0.001 C and remove the
+ * temporary conversion after version/capability verification. MV stays 0.1%.
+ * SetParameter units are NOT changed by the PV/SV pin conversion. */
 typedef struct
 {
     void *controller;

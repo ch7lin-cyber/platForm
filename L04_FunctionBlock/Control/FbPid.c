@@ -11,6 +11,17 @@
 #include "cklib/inc/dt_pid_controller.h"
 #include "cklib/inc/dt_pid_fb_controller.h"
 
+/* Temporary compatibility boundary: public milli-C -> current CKLIB 0.1 C.
+ * Round nearest; exact half away from zero. int64 avoids INT32_MIN overflow.
+ * TODO(Colin, next CKLIB): backend unified to 0.001 C. Verify its actual API
+ * version, then remove this conversion in BOTH controller and AutoTune paths.
+ * Do not also divide in L05. This does not convert SetParameter values. */
+static int32_t ToCklibTemperature(int32_t millicelsius)
+{
+    int64_t value=millicelsius;
+    return (int32_t)(value>=0 ? (value+50)/100 : -((-value+50)/100));
+}
+
 static bool IsPidMode(FbPidMode_t mode)
 {
     return mode == FB_PID_MODE_PID || mode == FB_PID_MODE_PID_FB;
@@ -245,8 +256,8 @@ static CK_ERROR RunController(FbPid_t *instance, const FbPidInput_t *input)
     if ((input->elapsed_ms % 10U) >= 5U) ++step;
     if (input->elapsed_ms < 5U || step == 0U || step > (uint32_t)INT32_MAX)
         return CK_ERROR_INVALID_PARAMETER;
-    error = ckControllerSetPV(Controller(instance), input->pv);
-    if (CK_SUCCESS(error)) error = ckControllerSetSV(Controller(instance), input->sv);
+    error = ckControllerSetPV(Controller(instance), ToCklibTemperature(input->pv));
+    if (CK_SUCCESS(error)) error = ckControllerSetSV(Controller(instance), ToCklibTemperature(input->sv));
     if (CK_SUCCESS(error)) error = ckControllerSetStepTime(Controller(instance), (int32_t)step);
     if (CK_SUCCESS(error))
     {
@@ -326,12 +337,12 @@ FbPidStatus_t FbPid_Execute(FbPid_t *instance,
     if (instance->config.mode == FB_PID_MODE_AUTO_TUNE &&
         !instance->auto_tune_completed)
     {
-        error = ckAutoTuneSetSV(AutoTune(instance), input->sv);
+        error = ckAutoTuneSetSV(AutoTune(instance), ToCklibTemperature(input->sv));
         if (CK_SUCCESS(error))
         {
             CK_OUTPUT tune_output;
             (void)memset(&tune_output, 0, sizeof(tune_output));
-            error = ckAutoTuneCollectAndSignal(AutoTune(instance), input->pv,
+            error = ckAutoTuneCollectAndSignal(AutoTune(instance), ToCklibTemperature(input->pv),
                                                &tune_output);
             if (CK_SUCCESS(error) && tune_output.mv_count == 0U)
             {
