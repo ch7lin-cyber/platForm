@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="960" viewBox="0 0 1440 960" role="img" aria-labelledby="title desc">
+  <title id="title">FbPid single-instance function block: inputs, outputs and parameters</title>
+  <desc id="desc">Six execution inputs enter L04 FbPid from the left. Temperature conversion and CKLIB control are inside the block. Six output fields leave on the right. Configuration and SetParameter are separate API settings. Current CKLIB uses 0.1 degrees Celsius; the public interface uses 0.001 degrees Celsius.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#34536b"/></marker>
+    <style>
+      text { font-family: DejaVu Sans, sans-serif; fill: #173247; font-size: 17px; }
+      .title { font-size: 30px; font-weight: bold; }
+      .heading { font-size: 20px; font-weight: bold; }
+      .small { font-size: 15px; }
+      .pin { font-family: DejaVu Sans Mono, monospace; font-size: 18px; }
+      .frame { fill: #f5f9fc; stroke: #173247; stroke-width: 2.5; }
+      .group { fill: #fff; stroke: #7b93a5; stroke-width: 1.5; stroke-dasharray: 7 5; }
+      .box { fill: #e6f0f7; stroke: #34536b; stroke-width: 1.5; }
+      .wire { fill: none; stroke: #34536b; stroke-width: 2; marker-end: url(#arrow); }
+      .setting { fill: none; stroke: #677f91; stroke-width: 1.5; stroke-dasharray: 5 4; marker-end: url(#arrow); }
+      .port { fill: #fff; stroke: #173247; stroke-width: 2; }
+    </style>
+  </defs>
+  <rect width="1440" height="960" fill="#fff"/>
+  <text x="40" y="49" class="title">FbPid | L04 FUNCTION BLOCK</text>
+  <text x="40" y="80">Single instance / one control loop</text>
+  <text x="40" y="132" class="heading">INPUT · FbPidInput_t</text>
+  <text x="1130" y="132" class="heading">OUTPUT · FbPidOutput_t</text>
+  <rect x="300" y="110" width="790" height="700" rx="8" class="frame"/>
+  <text x="325" y="145" class="heading">FbPid_Execute(instance, input, output)</text>
+
+  <text x="40" y="196" class="pin">pv : int32</text><text x="40" y="219" class="small">0.001 °C</text>
+  <text x="40" y="266" class="pin">sv : int32</text><text x="40" y="289" class="small">0.001 °C</text>
+  <text x="40" y="336" class="pin">enable : bool</text>
+  <text x="40" y="406" class="pin">reset : bool</text><text x="40" y="429" class="small">Rising-edge command</text>
+  <text x="40" y="476" class="pin">valid : bool</text><text x="40" y="499" class="small">Input quality</text>
+  <text x="40" y="546" class="pin">elapsed_ms : uint32</text>
+
+  <rect x="330" y="170" width="270" height="140" rx="4" class="group"/>
+  <text x="350" y="199" style="font-size:18px;font-weight:bold">Temperature boundary</text>
+  <text x="350" y="235">0.001 °C → 0.1 °C</text>
+  <text x="350" y="262">÷100, nearest rounding</text>
+  <text x="350" y="287" class="small">Exact half: away from zero</text>
+  <path d="M240 200 H330" class="wire"/><path d="M240 270 H330" class="wire"/>
+  <rect x="296" y="196" width="8" height="8" class="port"/><rect x="296" y="266" width="8" height="8" class="port"/>
+
+  <rect x="330" y="325" width="270" height="255" rx="4" class="group"/>
+  <text x="350" y="357" class="heading">Execution / state</text>
+  <text x="350" y="390">ENABLE / DISABLE</text>
+  <text x="350" y="420">RESET / input validity</text>
+  <text x="350" y="450">Timing validation</text>
+  <text x="350" y="492" class="small">Disabled / invalid input:</text>
+  <text x="350" y="517" class="small">MV = 0, output.valid = false</text>
+  <text x="350" y="555" class="small">State belongs to this instance</text>
+  <path d="M260 340 H330" class="wire"/><path d="M260 410 H330" class="wire"/><path d="M260 480 H330" class="wire"/><path d="M275 550 H330" class="wire"/>
+  <rect x="296" y="336" width="8" height="8" class="port"/><rect x="296" y="406" width="8" height="8" class="port"/>
+  <rect x="296" y="476" width="8" height="8" class="port"/><rect x="296" y="546" width="8" height="8" class="port"/>
+
+  <rect x="650" y="170" width="410" height="410" rx="4" class="group"/>
+  <text x="675" y="203" class="heading">CKLIB backend (private to L04)</text>
+  <rect x="675" y="225" width="360" height="160" rx="4" class="box"/>
+  <text x="695" y="257" class="heading">Mode selection</text>
+  <text x="695" y="290">ON_OFF / PID / PID_FB</text>
+  <text x="695" y="321">AUTO_TUNE → target PID mode</text>
+  <text x="695" y="355" class="small">AT completion applies tuned parameters</text>
+  <rect x="675" y="425" width="360" height="125" rx="4" class="box"/>
+  <text x="695" y="456" class="heading">Output / diagnostics</text>
+  <text x="695" y="487">MV values / validity / status</text>
+  <text x="695" y="518">AT completion / backend error</text>
+  <path d="M600 240 H675" class="wire"/><path d="M600 450 H675" class="wire"/><path d="M855 385 V425" class="wire"/>
+
+  <path d="M1060 210 H1120" class="wire"/><path d="M1060 280 H1120" class="wire"/><path d="M1060 350 H1120" class="wire"/><path d="M1060 420 H1120" class="wire"/><path d="M1060 490 H1120" class="wire"/><path d="M1060 560 H1120" class="wire"/>
+  <rect x="1086" y="206" width="8" height="8" class="port"/><rect x="1086" y="276" width="8" height="8" class="port"/>
+  <rect x="1086" y="346" width="8" height="8" class="port"/><rect x="1086" y="416" width="8" height="8" class="port"/>
+  <rect x="1086" y="486" width="8" height="8" class="port"/><rect x="1086" y="556" width="8" height="8" class="port"/>
+  <text x="1130" y="205" class="pin">mv[2] : int32</text><text x="1130" y="228" class="small">MV1 / MV2, 0.1% (0…1000)</text>
+  <text x="1130" y="275" class="pin">mv_count : uint8</text><text x="1130" y="298" class="small">Number of returned MV values</text>
+  <text x="1130" y="345" class="pin">valid : bool</text>
+  <text x="1130" y="415" class="pin">auto_tune_completed</text><text x="1130" y="438" class="small">bool</text>
+  <text x="1130" y="485" class="pin">status</text><text x="1130" y="508" class="small">FbPidStatus_t</text>
+  <text x="1130" y="555" class="pin">backend_error : int32</text>
+
+  <rect x="330" y="615" width="730" height="170" rx="4" class="group"/>
+  <text x="350" y="646" class="heading">PARAMETER SETTINGS · separate API calls</text>
+  <text x="350" y="678" class="small">Init(config): mode / control_action / auto_tune_target_mode</text>
+  <text x="350" y="702" class="small">auto_tune_period_ms / auto_tune_period_tolerance_ms</text>
+  <text x="350" y="734" class="small">SetParameter(): PB / Ti / Td / cooling PID / MV limits / 2DOF / AT …</text>
+  <text x="350" y="759" class="small">Parameter values retain CKLIB units; PV/SV conversion does not apply here.</text>
+  <path d="M855 615 V580" class="setting"/>
+  <text x="40" y="852" class="heading">Temporary unit compatibility</text>
+  <text x="40" y="882">TODO (Colin, next CKLIB): unify temperature interfaces to 0.001 °C after version / capability verification.</text>
+  <text x="40" y="910" class="small">Remove the conversion in both control and AutoTune paths. L05 must not divide PV/SV again. MV remains 0.1%.</text>
+  <text x="40" y="938" class="small">Wrapper / mock tests only. Real CKLIB library, formal product integration and MCU validation remain pending.</text>
+</svg>

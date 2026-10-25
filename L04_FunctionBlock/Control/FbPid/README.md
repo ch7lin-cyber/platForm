@@ -1,10 +1,4 @@
-```mermaid
-flowchart TD
-    I["L05／公開引腳：PV、SV 0.001°C"] --> F["L04 FbPid"]
-    F --> U["暫時轉換：÷100，半格離零取整"]
-    U --> C["目前CKLIB：PV、SV 0.1°C"]
-    C --> O["L04輸出：MV 0.1%、valid、status"]
-```
+![FbPid 方塊圖：輸入、輸出、內部功能與參數設定](FbPid_BlockDiagram.svg)
 
 # FbPid 溫度單位相容邊界
 
@@ -13,6 +7,26 @@ flowchart TD
 2026-10-25：公開FbPidInput_t與L05 provider的PV／SV統一採int32、0.001°C。目前CKLIB仍使用0.1°C，暫時在FbPid.c的ToCklibTemperature單一邊界轉換，L05不得先除100。MV保持0.1%，時間與SetParameter設定值不因這次PV／SV引腳變更而自動改刻度。
 
 **下一版待Colin將CKLIB的溫度介面統一為0.001°C；實際版本／能力確認後才移除相容轉換。** 此為待辦，不是目前後端已支援或可達0.001°C控制解析度的宣告。
+
+## 方塊圖與引腳
+
+2026-10-26：SVG 範例依 `FbPid.h` 的正式介面繪製。外框代表單一 `FbPid_t` 實例，左側為每次 Execute 的輸入，右側為輸出；內部虛線框為功能分組。底部設定框對應 Init／SetParameter API，並非每次執行的輸入引腳。內部線條表示功能關係，詳細執行順序仍以程式為準。
+
+| 方向 | 欄位 | 型別／單位 | 說明 |
+|---|---|---|---|
+| 輸入 | pv、sv | int32；0.001°C | 量測值、設定值；L04 暫轉 CKLIB 0.1°C |
+| 輸入 | enable | bool | 禁能時 MV 歸零，輸出 valid=false |
+| 輸入 | reset | bool | 上升沿重置命令 |
+| 輸入 | valid | bool | 輸入資料有效性 |
+| 輸入 | elapsed_ms | uint32；ms | 本次執行的時間步長 |
+| 輸出 | mv[2] | int32；0.1% | MV1／MV2，0～1000 |
+| 輸出 | mv_count | uint8 | 後端回傳的有效 MV 數量 |
+| 輸出 | valid | bool | 運算輸出有效性 |
+| 輸出 | auto_tune_completed | bool | 自整定完成並移交控制器 |
+| 輸出 | status | FbPidStatus_t | FB 執行狀態 |
+| 輸出 | backend_error | int32 | CKLIB 錯誤碼 |
+
+設定包含四種模式、控制方向、AT 目標 PID 模式與週期／容許誤差；個別 PID／ON_OFF／AT 參數透過 `FbPid_SetParameter()` 設定，其適用模式與刻度須依 CKLIB 規格。SVG 可隨程式版本一起維護；修改公開介面時須同步更新圖與本表。
 
 ## 目前轉換規則
 
