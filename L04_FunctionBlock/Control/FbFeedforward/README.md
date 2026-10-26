@@ -1,11 +1,4 @@
-```mermaid
-flowchart TD
-    I["Input：trigger、trigger_valid、enable、reset、elapsed_ms"] --> F["FbFeedforward：單實例"]
-    C["Config：Delay、FF1／FF2、Decay、Force"] --> F
-    F --> O["Output：有號FF、valid、phase、active、完成／取消脈衝"]
-    O --> A["L05：與PID形成候選MV，待接入"]
-    A --> S["既有SYSTEM／Safety／輸出服務"]
-```
+![FbFeedforward FBD：輸入、輸出、功能與參數設定](FbFeedforward_BlockDiagram.svg)
 
 # FbFeedforward
 
@@ -69,3 +62,7 @@ SYSTEM提供事件來源，L05決定通道與實例。FF加PID時保留有號及
 輸出completed／aborted不等於命令已被SYSTEM受理，必要時由外層佇列與回報。Register時間100ms轉固定ms，曲線tau為專案新參數，不能直接沿用未定義位址；Pending／Apply與NVM由既有服務處理。MCU數學庫、資源及實際波形仍待驗證。
 
 [Host測試細則](HOST_TEST.md)。
+
+## SVG FBD 維護說明
+
+2026-10-26：方塊圖已依 [公開 Header](../FbFeedforward.h) 核對。左側為輸入、右側為輸出，外框內為功能分組與參數設定；Init／Reset 的資源與初值另列，不代表新增執行引腳。標示 API result 的列是函式回傳值，非 Output 結構成員。內部箭頭表示功能關係，精確優先序與錯誤行為以程式及本文契約為準。圖面使用英文介面名稱，說明沿用本頁繁體中文文件。

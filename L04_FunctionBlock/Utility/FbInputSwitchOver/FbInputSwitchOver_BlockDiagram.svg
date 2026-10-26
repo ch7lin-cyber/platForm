@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1840" height="909" viewBox="0 0 1840 909" role="img" aria-labelledby="title desc">
+<title id="title">FbInputSwitchOver function block diagram</title>
+<desc id="desc">Inputs on the left, outputs on the right, functional groups and parameter settings inside the L04 boundary. Pins mirror the public header. Functional relationships do not specify instruction order.</desc>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#34536b"/></marker>
+<style>text {font-family:DejaVu Sans,sans-serif;fill:#173247;font-size:18px}.title{font-size:29px;font-weight:bold}.heading{font-size:21px;font-weight:bold}.small{font-size:15px}.pin{font-family:DejaVu Sans Mono,monospace;font-size:18px}.param{font-family:DejaVu Sans Mono,monospace;font-size:14px}.frame{fill:#f5f9fc;stroke:#173247;stroke-width:2.5}.group{fill:white;stroke:#7b93a5;stroke-width:1.5;stroke-dasharray:7 5}.box{fill:#e6f0f7;stroke:#34536b;stroke-width:1.5}.wire{fill:none;stroke:#34536b;stroke-width:2;marker-end:url(#arrow)}.setting{fill:none;stroke:#677f91;stroke-width:1.5;stroke-dasharray:5 4;marker-end:url(#arrow)}.port{fill:white;stroke:#173247;stroke-width:2}</style></defs>
+<rect width="1840" height="909" fill="white"/>
+<text id="t0" x="40" y="48" class="title">FbInputSwitchOver | L04 FUNCTION BLOCK</text>
+<text id="t1" x="40" y="81">Dual-source PV selection</text>
+<text id="t2" x="40" y="131" class="heading">INPUT</text>
+<text id="t3" x="40" y="156" class="small">FbInputSwitchOverInput</text>
+<text id="t4" x="1450" y="131" class="heading">OUTPUT</text>
+<text id="t5" x="1450" y="156" class="small">FbInputSwitchOverOutput</text>
+<rect x="430" y="110" width="980" height="674" rx="5" class="frame"/>
+<text id="t6" x="455" y="148" class="heading">FbInputSwitchOver_Execute</text>
+<text id="t7" x="40" y="205" class="pin">value[2]</text>
+<text id="t8" x="40" y="226" class="small">int32_t</text>
+<path d="M350 210 L460 210" class="wire"/>
+<rect x="426" y="206" width="8" height="8" class="port"/>
+<text id="t9" x="40" y="254" class="pin">valid[2]</text>
+<text id="t10" x="40" y="275" class="small">bool</text>
+<path d="M350 259 L460 259" class="wire"/>
+<rect x="426" y="255" width="8" height="8" class="port"/>
+<text id="t11" x="40" y="303" class="pin">enable</text>
+<text id="t12" x="40" y="324" class="small">bool</text>
+<path d="M350 308 L460 308" class="wire"/>
+<rect x="426" y="304" width="8" height="8" class="port"/>
+<text id="t13" x="40" y="352" class="pin">reset</text>
+<text id="t14" x="40" y="373" class="small">bool</text>
+<path d="M350 357 L460 357" class="wire"/>
+<rect x="426" y="353" width="8" height="8" class="port"/>
+<text id="t15" x="1450" y="205" class="pin">value</text>
+<text id="t16" x="1450" y="226" class="small">int32_t</text>
+<path d="M1380 210 L1440 210" class="wire"/>
+<rect x="1406" y="206" width="8" height="8" class="port"/>
+<text id="t17" x="1450" y="254" class="pin">valid</text>
+<text id="t18" x="1450" y="275" class="small">bool</text>
+<path d="M1380 259 L1440 259" class="wire"/>
+<rect x="1406" y="255" width="8" height="8" class="port"/>
+<text id="t19" x="1450" y="303" class="pin">degraded</text>
+<text id="t20" x="1450" y="324" class="small">bool</text>
+<path d="M1380 308 L1440 308" class="wire"/>
+<rect x="1406" y="304" width="8" height="8" class="port"/>
+<text id="t21" x="1450" y="352" class="pin">error_mask</text>
+<text id="t22" x="1450" y="373" class="small">uint8_t</text>
+<path d="M1380 357 L1440 357" class="wire"/>
+<rect x="1406" y="353" width="8" height="8" class="port"/>
+<text id="t23" x="1450" y="401" class="pin">selected</text>
+<text id="t24" x="1450" y="422" class="small">FbSwitchSource</text>
+<path d="M1380 406 L1440 406" class="wire"/>
+<rect x="1406" y="402" width="8" height="8" class="port"/>
+<text id="t25" x="1450" y="450" class="pin">status</text>
+<text id="t26" x="1450" y="471" class="small">FbSwitchStatus</text>
+<path d="M1380 455 L1440 455" class="wire"/>
+<rect x="1406" y="451" width="8" height="8" class="port"/>
+<rect x="460" y="180" width="920" height="345" rx="5" class="group"/>
+<text id="t27" x="485" y="214" class="heading">FUNCTION / SIGNAL PROCESSING</text>
+<rect x="580" y="237" width="680" height="52" rx="5" class="box"/>
+<text id="t28" x="602" y="269">Validate sources and sensor range</text>
+<path d="M920 289 L920 308" class="wire"/>
+<rect x="580" y="308" width="680" height="52" rx="5" class="box"/>
+<text id="t29" x="602" y="340">Low source / high source / average</text>
+<path d="M920 360 L920 378" class="wire"/>
+<rect x="580" y="378" width="680" height="52" rx="5" class="box"/>
+<text id="t30" x="602" y="410">Failure action: USE_OTHER / KEEP_SOURCE</text>
+<text id="t31" x="485" y="483" class="heading">STATE / LIFECYCLE</text>
+<text id="t32" x="485" y="510" class="small">Independent source-selection history</text>
+<rect x="460" y="565" width="920" height="159" rx="5" class="group"/>
+<text id="t33" x="485" y="598" class="heading">PARAMETER SETTINGS / INITIALIZATION</text>
+<text id="t34" x="485" y="631" class="param">sensor_low : int32_t</text>
+<text id="t35" x="485" y="658" class="param">sensor_high : int32_t</text>
+<text id="t36" x="485" y="685" class="param">switch_low : int32_t</text>
+<text id="t37" x="930" y="631" class="param">switch_high : int32_t</text>
+<text id="t38" x="930" y="658" class="param">fail_action : FbSwitchFailAction</text>
+<path d="M920 565 L920 525" class="setting"/>
+<text id="t39" x="40" y="819">Same source units; temperature: 0.001 C | RESET is level-sensitive</text>
+<text id="t40" x="40" y="849" class="small">Solid lines: signal / result relationships. Dashed line: configuration. See README for units, ranges and exact timing.</text>
+<text id="t41" x="40" y="878" class="small">L04 computation only; source routing, scheduling, final output authority and project integration remain outside this diagram.</text>
+</svg>

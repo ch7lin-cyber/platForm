@@ -1,14 +1,6 @@
+![FbMovingAverage FBD：輸入、輸出、功能與參數設定](../../FbMovingAverage_BlockDiagram.svg)
+
 # FbMovingAverage Host Test
-
-## FB 介面方塊圖
-
-```mermaid
-flowchart LR
-    C["參數設定：Config.window_size"] --> FB["FbMovingAverage：滑動平均；保留環形緩衝區狀態"]
-    I["週期輸入：sample、sample_valid、reset"] --> FB
-    S["實例記憶體：State + buffer；Init(buffer, buffer_capacity)"] <--> FB
-    FB --> O["輸出：average、sample_count、valid、Status"]
-```
 
 ### 介面欄位與設定
 

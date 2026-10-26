@@ -1,14 +1,6 @@
+![FbLogic FBD：輸入、輸出、功能與參數設定](../../FbLogic_BlockDiagram.svg)
+
 # FbLogic Host Unit Test
-
-## FB 介面方塊圖
-
-```mermaid
-flowchart LR
-    C["設定：運算、各輸入反向、結果反向、ON／OFF 延遲 ms"] --> FB["L04 FbLogic：布林運算與延遲狀態"]
-    I["輸入：ENABLE、RESET、A／B／C／D、elapsed_ms"] --> FB
-    S["各實例獨立狀態 FbLogic_t"] <--> FB
-    FB --> O["輸出：value、raw_value、status、ON／OFF delay_active、delay_elapsed_ms"]
-```
 
 ## 摘要
 

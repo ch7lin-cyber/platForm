@@ -1,10 +1,4 @@
-```mermaid
-flowchart TD
-    I["Input：Vrms／Irms、有效性、資料年齡"] --> F["FbHeaterResistance：單負載"]
-    C["Config：最低量測、時效／時間差、界限／基準"] --> F
-    E["enable、energized"] --> F
-    F --> O["Output：mΩ估值、視在功率、偏移、診斷旗標"]
-```
+![FbHeaterResistance FBD：輸入、輸出、功能與參數設定](FbHeaterResistance_BlockDiagram.svg)
 
 # FbHeaterResistance
 
@@ -54,3 +48,7 @@ DefaultConfig：最低100mV／10mA、最大年齡100ms、最大時間差10ms，�
 LOW_CURRENT只代表不足以穩定估算，不能直接判定加熱器開路；上下限亦可能受溫度係數、配線或校正影響。若需故障成立延遲、鎖存或保護動作，另用Alarm／SYSTEM／Safety處理，不把診斷FB變成第二套輸出控制。
 
 本FB不提供RMS擷取、斷電保存、校正或濾波歷史；可由外層串接獨立濾波／記錄，但要保留各自單位與有效性。[Host細則](HOST_TEST.md)。
+
+## SVG FBD 維護說明
+
+2026-10-26：方塊圖已依 [公開 Header](../FbHeaterResistance.h) 核對。左側為輸入、右側為輸出，外框內為功能分組與參數設定；Init／Reset 的資源與初值另列，不代表新增執行引腳。標示 API result 的列是函式回傳值，非 Output 結構成員。內部箭頭表示功能關係，精確優先序與錯誤行為以程式及本文契約為準。圖面使用英文介面名稱，說明沿用本頁繁體中文文件。

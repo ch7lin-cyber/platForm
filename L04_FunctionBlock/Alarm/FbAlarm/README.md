@@ -1,14 +1,6 @@
+![FbAlarm FBD：輸入、輸出、功能與參數設定](FbAlarm_BlockDiagram.svg)
+
 # FbAlarm：單通道警報
-
-## FB 介面方塊圖
-
-```mermaid
-flowchart LR
-    C["設定：比較模式、AUTO／MANUAL、H／L、待機帶、成立延遲、選項"] --> FB["L04 FbAlarm"]
-    I["輸入：PV、SV、elapsed_ms、ENABLE、valid、Reset、Peak Clear"] --> FB
-    S["FbAlarm_t 獨立狀態"] <--> FB
-    FB --> O["最終警報、比較／延遲結果、鎖存、峰值、status"]
-```
 
 ## 摘要
 
@@ -122,3 +114,7 @@ input.elapsed_ms = 20U;
 命令寫入即提出、不需要 Apply，讀回 0；未知 bit 拒絕。每次有效寫入都是新命令，L05 須將各 bit 轉成獨立單次脈波，連續命令也須確保 L04 觀察到兩次上升緣。命令接受不等同警報一定清除，執行結果須由 status／診斷回報。
 
 產品 L05 adapter 已提供單組命令及狀態查詢；尚無 Alarm Register 群組，上述位址、Modbus 命令解碼與 NVM 未實作。FB 不直接讀 Register、不發布 SYSTEM 事件，也不操作 GPIO。最終輸出須經產品／Safety／輸出服務許可。
+
+## SVG FBD 維護說明
+
+2026-10-26：方塊圖已依 [公開 Header](../FbAlarm.h) 核對。左側為輸入、右側為輸出，外框內為功能分組與參數設定；Init／Reset 的資源與初值另列，不代表新增執行引腳。標示 API result 的列是函式回傳值，非 Output 結構成員。內部箭頭表示功能關係，精確優先序與錯誤行為以程式及本文契約為準。圖面使用英文介面名稱，說明沿用本頁繁體中文文件。

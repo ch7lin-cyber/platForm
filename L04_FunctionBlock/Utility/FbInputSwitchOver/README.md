@@ -1,9 +1,4 @@
-```mermaid
-flowchart TD
-    I["Input：PV1、PV2、valid1、valid2、enable、reset"] --> F["FbInputSwitchOver：單實例"]
-    C["Config：Sensor 範圍、切換門檻、故障策略"] --> F
-    F --> O["Output：PV、valid、selected、error_mask、degraded、status"]
-```
+![FbInputSwitchOver FBD：輸入、輸出、功能與參數設定](FbInputSwitchOver_BlockDiagram.svg)
 
 # FbInputSwitchOver
 
@@ -65,3 +60,7 @@ L05 提供兩個已對齊單位與品質的 Snapshot；在必要的輸入折線�
 參數驗證在每次執行都做，但 Register Pending／Apply、設定持久化及來源一致性不在 L04。無預設硬體量程，應依產品 Sensor 與工程量配置；不得把 DTDM04 sentinel 當 int32 溫度傳入。
 
 [Host 測試摘要及細則](HOST_TEST.md)。
+
+## SVG FBD 維護說明
+
+2026-10-26：方塊圖已依 [公開 Header](../FbInputSwitchOver.h) 核對。左側為輸入、右側為輸出，外框內為功能分組與參數設定；Init／Reset 的資源與初值另列，不代表新增執行引腳。標示 API result 的列是函式回傳值，非 Output 結構成員。內部箭頭表示功能關係，精確優先序與錯誤行為以程式及本文契約為準。圖面使用英文介面名稱，說明沿用本頁繁體中文文件。

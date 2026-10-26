@@ -1,14 +1,6 @@
+![FbLogic FBD：輸入、輸出、功能與參數設定](FbLogic_BlockDiagram.svg)
+
 # FbLogic：單一邏輯運算實例
-
-## FB 介面方塊圖
-
-```mermaid
-flowchart LR
-    C["設定：OFF／AND／OR／XOR、輸入反向、結果反向、ON／OFF 延遲"] --> FB["L04 FbLogic"]
-    I["輸入：A／B／C／D、ENABLE、RESET、elapsed_ms"] --> FB
-    S["獨立實例 FbLogic_t"] <--> FB
-    FB --> O["輸出：value、raw_value、status、延遲方向與累積時間"]
-```
 
 ## 摘要
 
@@ -77,3 +69,7 @@ input.elapsed_ms = 20U; /* 實際呼叫間隔；每次更新 */
 狀態資料庫來源、固定 0／1、實例數、結果發布、DO 分派、Register、NVM 及 PID 前後排程由外層負責，不列為單一 L04 缺項。手冊的 16 組配置不應寫死在本 FB。若採用手冊時間格式（0.1 秒），外層先以足夠位寬乘以 100 並驗證範圍，再傳入毫秒。
 
 產品 branch2_ver1 已建立 L05 Logic adapter 與 Host 整合驗證，來源含常數、Alarm、Logic 及 DI，詳見產品 _Product/Docs/L05_ALARM_LOGIC.md；MCU 驗證尚未完成。輸入來源失效時應由 L05 明確停用 FB，避免沿用過期來源值。完整細則見[功能對照](MANUAL_COMPLIANCE.md)與[測試報告](_UnitTest/TestResult/FbLogic_HostTest.md)。
+
+## SVG FBD 維護說明
+
+2026-10-26：方塊圖已依 [公開 Header](../FbLogic.h) 核對。左側為輸入、右側為輸出，外框內為功能分組與參數設定；Init／Reset 的資源與初值另列，不代表新增執行引腳。標示 API result 的列是函式回傳值，非 Output 結構成員。內部箭頭表示功能關係，精確優先序與錯誤行為以程式及本文契約為準。圖面使用英文介面名稱，說明沿用本頁繁體中文文件。

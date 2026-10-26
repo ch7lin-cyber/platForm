@@ -1,13 +1,6 @@
+![FbSelector FBD：輸入、輸出、功能與參數設定](../../FbSelector_BlockDiagram.svg)
+
 # FbSelector Host Unit Test
-
-## FB 介面方塊圖
-
-```mermaid
-flowchart LR
-    C["參數設定：mode、input_count、selected_index"] --> FB["FbSelector：索引／最小／最大選取"]
-    I["輸入：values[4]、enable"] --> FB
-    FB --> O["輸出：value、selected_index、valid、status；Run 回傳值"]
-```
 
 | 類別 | 欄位 | 用途／規則 |
 |---|---|---|

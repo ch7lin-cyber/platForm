@@ -1,11 +1,4 @@
-```mermaid
-flowchart TD
-    M["Input：主控MV、主控SV、有效性、elapsed_ms"] --> F["FbCascadeCoordinator：SV 換算核心"]
-    C["Config：模式、MV範圍、SV界限、Offset、濾波"] --> F
-    E["enable、reset"] --> F
-    F --> O["Output：副控SV候選值、界限、夾制旗標、valid"]
-    O --> P["L05 → L04 副控PID：待接入"]
-```
+![FbCascadeCoordinator FBD：輸入、輸出、功能與參數設定](FbCascadeCoordinator_BlockDiagram.svg)
 
 # FbCascadeCoordinator
 
@@ -59,3 +52,7 @@ L05需先明確指定主控哪個MV：加熱冷卻雙輸出不可自行取第一
 副控PV過溫保護、Sensor失效、控制許可由既有SYSTEM／Safety處理，本FB不把SV限幅當PV保護。主控積分追蹤、實際副控飽和回授、AT主副移交及一鍵校準亦尚未實作；at_low／at_high只是SV位置，不能據此假裝已完成anti-windup。
 
 [Host測試細則](HOST_TEST.md)。
+
+## SVG FBD 維護說明
+
+2026-10-26：方塊圖已依 [公開 Header](../FbCascadeCoordinator.h) 核對。左側為輸入、右側為輸出，外框內為功能分組與參數設定；Init／Reset 的資源與初值另列，不代表新增執行引腳。標示 API result 的列是函式回傳值，非 Output 結構成員。內部箭頭表示功能關係，精確優先序與錯誤行為以程式及本文契約為準。圖面使用英文介面名稱，說明沿用本頁繁體中文文件。

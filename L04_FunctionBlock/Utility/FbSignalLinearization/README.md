@@ -1,9 +1,6 @@
-```mermaid
-flowchart LR
-    I["Input：value、valid、enable"] --> F["輸入／輸出折線 FB"]
-    P["Config：模式、點表、Offset、限制"] --> F
-    F --> O["Output：value、valid、status、range、limited、bypassed"]
-```
+![FbInputLinearization FBD：輸入、輸出、功能與參數設定](FbInputLinearization_BlockDiagram.svg)
+
+![FbOutputLinearization FBD：輸入、輸出、功能與參數設定](FbOutputLinearization_BlockDiagram.svg)
 
 # 輸入／輸出折線模式包裝
 
@@ -50,3 +47,7 @@ flowchart LR
 整組 Pending／Apply 應先驗證模式、點表、單位及來源一致性，再切換不可變設定；本包裝每次執行驗證數學設定，不負責儲存或原子交易。
 
 測試：[Host 細則](HOST_TEST.md)。
+
+## SVG FBD 維護說明
+
+2026-10-26：方塊圖已依 [公開 Header](../FbSignalLinearization.h) 核對。左側為輸入、右側為輸出，外框內為功能分組與參數設定；Init／Reset 的資源與初值另列，不代表新增執行引腳。標示 API result 的列是函式回傳值，非 Output 結構成員。內部箭頭表示功能關係，精確優先序與錯誤行為以程式及本文契約為準。圖面使用英文介面名稱，說明沿用本頁繁體中文文件。

@@ -1,0 +1,132 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1840" height="1385" viewBox="0 0 1840 1385" role="img" aria-labelledby="title desc">
+<title id="title">FbProfileSequencer function block diagram</title>
+<desc id="desc">Inputs on the left, outputs on the right, functional groups and parameter settings inside the L04 boundary. Pins mirror the public header. Functional relationships do not specify instruction order.</desc>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#34536b"/></marker>
+<style>text {font-family:DejaVu Sans,sans-serif;fill:#173247;font-size:18px}.title{font-size:29px;font-weight:bold}.heading{font-size:21px;font-weight:bold}.small{font-size:15px}.pin{font-family:DejaVu Sans Mono,monospace;font-size:18px}.param{font-family:DejaVu Sans Mono,monospace;font-size:14px}.frame{fill:#f5f9fc;stroke:#173247;stroke-width:2.5}.group{fill:white;stroke:#7b93a5;stroke-width:1.5;stroke-dasharray:7 5}.box{fill:#e6f0f7;stroke:#34536b;stroke-width:1.5}.wire{fill:none;stroke:#34536b;stroke-width:2;marker-end:url(#arrow)}.setting{fill:none;stroke:#677f91;stroke-width:1.5;stroke-dasharray:5 4;marker-end:url(#arrow)}.port{fill:white;stroke:#173247;stroke-width:2}</style></defs>
+<rect width="1840" height="1385" fill="white"/>
+<text id="t0" x="40" y="48" class="title">FbProfileSequencer | L04 FUNCTION BLOCK</text>
+<text id="t1" x="40" y="81">Ramp / Soak setpoint program</text>
+<text id="t2" x="40" y="131" class="heading">INPUT</text>
+<text id="t3" x="40" y="156" class="small">FbProfileInput</text>
+<text id="t4" x="1450" y="131" class="heading">OUTPUT</text>
+<text id="t5" x="1450" y="156" class="small">FbProfileOutput</text>
+<rect x="430" y="110" width="980" height="1150" rx="5" class="frame"/>
+<text id="t6" x="455" y="148" class="heading">FbProfileSequencer_Execute</text>
+<text id="t7" x="40" y="205" class="pin">initial_sv</text>
+<text id="t8" x="40" y="226" class="small">int32_t</text>
+<path d="M350 210 L460 210" class="wire"/>
+<rect x="426" y="206" width="8" height="8" class="port"/>
+<text id="t9" x="40" y="254" class="pin">pv</text>
+<text id="t10" x="40" y="275" class="small">int32_t</text>
+<path d="M350 259 L460 259" class="wire"/>
+<rect x="426" y="255" width="8" height="8" class="port"/>
+<text id="t11" x="40" y="303" class="pin">pv_valid</text>
+<text id="t12" x="40" y="324" class="small">bool</text>
+<path d="M350 308 L460 308" class="wire"/>
+<rect x="426" y="304" width="8" height="8" class="port"/>
+<text id="t13" x="40" y="352" class="pin">enable</text>
+<text id="t14" x="40" y="373" class="small">bool</text>
+<path d="M350 357 L460 357" class="wire"/>
+<rect x="426" y="353" width="8" height="8" class="port"/>
+<text id="t15" x="40" y="401" class="pin">elapsed_ms</text>
+<text id="t16" x="40" y="422" class="small">uint32_t</text>
+<path d="M350 406 L460 406" class="wire"/>
+<rect x="426" y="402" width="8" height="8" class="port"/>
+<text id="t17" x="40" y="450" class="pin">command</text>
+<text id="t18" x="40" y="471" class="small">FbProfileCommand</text>
+<path d="M350 455 L460 455" class="wire"/>
+<rect x="426" y="451" width="8" height="8" class="port"/>
+<text id="t19" x="1450" y="205" class="pin">sv</text>
+<text id="t20" x="1450" y="226" class="small">int32_t</text>
+<path d="M1380 210 L1440 210" class="wire"/>
+<rect x="1406" y="206" width="8" height="8" class="port"/>
+<text id="t21" x="1450" y="254" class="pin">target</text>
+<text id="t22" x="1450" y="275" class="small">int32_t</text>
+<path d="M1380 259 L1440 259" class="wire"/>
+<rect x="1406" y="255" width="8" height="8" class="port"/>
+<text id="t23" x="1450" y="303" class="pin">pattern</text>
+<text id="t24" x="1450" y="324" class="small">size_t</text>
+<path d="M1380 308 L1440 308" class="wire"/>
+<rect x="1406" y="304" width="8" height="8" class="port"/>
+<text id="t25" x="1450" y="352" class="pin">step</text>
+<text id="t26" x="1450" y="373" class="small">size_t</text>
+<path d="M1380 357 L1440 357" class="wire"/>
+<rect x="1406" y="353" width="8" height="8" class="port"/>
+<text id="t27" x="1450" y="401" class="pin">repetition</text>
+<text id="t28" x="1450" y="422" class="small">uint16_t</text>
+<path d="M1380 406 L1440 406" class="wire"/>
+<rect x="1406" y="402" width="8" height="8" class="port"/>
+<text id="t29" x="1450" y="450" class="pin">segment_elapsed_ms</text>
+<text id="t30" x="1450" y="471" class="small">uint32_t</text>
+<path d="M1380 455 L1440 455" class="wire"/>
+<rect x="1406" y="451" width="8" height="8" class="port"/>
+<text id="t31" x="1450" y="499" class="pin">segment_duration_ms</text>
+<text id="t32" x="1450" y="520" class="small">uint32_t</text>
+<path d="M1380 504 L1440 504" class="wire"/>
+<rect x="1406" y="500" width="8" height="8" class="port"/>
+<text id="t33" x="1450" y="548" class="pin">waiting_ms</text>
+<text id="t34" x="1450" y="569" class="small">uint32_t</text>
+<path d="M1380 553 L1440 553" class="wire"/>
+<rect x="1406" y="549" width="8" height="8" class="port"/>
+<text id="t35" x="1450" y="597" class="pin">valid</text>
+<text id="t36" x="1450" y="618" class="small">bool</text>
+<path d="M1380 602 L1440 602" class="wire"/>
+<rect x="1406" y="598" width="8" height="8" class="port"/>
+<text id="t37" x="1450" y="646" class="pin">completed</text>
+<text id="t38" x="1450" y="667" class="small">bool</text>
+<path d="M1380 651 L1440 651" class="wire"/>
+<rect x="1406" y="647" width="8" height="8" class="port"/>
+<text id="t39" x="1450" y="695" class="pin">stop_requested</text>
+<text id="t40" x="1450" y="716" class="small">bool</text>
+<path d="M1380 700 L1440 700" class="wire"/>
+<rect x="1406" y="696" width="8" height="8" class="port"/>
+<text id="t41" x="1450" y="744" class="pin">timeout_requested</text>
+<text id="t42" x="1450" y="765" class="small">bool</text>
+<path d="M1380 749 L1440 749" class="wire"/>
+<rect x="1406" y="745" width="8" height="8" class="port"/>
+<text id="t43" x="1450" y="793" class="pin">phase</text>
+<text id="t44" x="1450" y="814" class="small">FbProfilePhase</text>
+<path d="M1380 798 L1440 798" class="wire"/>
+<rect x="1406" y="794" width="8" height="8" class="port"/>
+<text id="t45" x="1450" y="842" class="pin">status</text>
+<text id="t46" x="1450" y="863" class="small">FbProfileStatus</text>
+<path d="M1380 847 L1440 847" class="wire"/>
+<rect x="1406" y="843" width="8" height="8" class="port"/>
+<rect x="460" y="180" width="920" height="686" rx="5" class="group"/>
+<text id="t47" x="485" y="214" class="heading">FUNCTION / SIGNAL PROCESSING</text>
+<rect x="580" y="237" width="680" height="52" rx="5" class="box"/>
+<text id="t48" x="602" y="269">Command edges + recipe validation</text>
+<path d="M920 289 L920 398" class="wire"/>
+<rect x="580" y="398" width="680" height="52" rx="5" class="box"/>
+<text id="t49" x="602" y="430">Segment interpolation + arrival wait</text>
+<path d="M920 450 L920 558" class="wire"/>
+<rect x="580" y="558" width="680" height="52" rx="5" class="box"/>
+<text id="t50" x="602" y="590">Repeat / pattern link / END / STOP</text>
+<path d="M920 610 L920 719" class="wire"/>
+<rect x="580" y="719" width="680" height="52" rx="5" class="box"/>
+<text id="t51" x="602" y="751">SV candidate + stop / timeout requests</text>
+<text id="t52" x="485" y="824" class="heading">STATE / LIFECYCLE</text>
+<text id="t53" x="485" y="851" class="small">Independent program phase / step / elapsed history</text>
+<rect x="460" y="906" width="920" height="294" rx="5" class="group"/>
+<text id="t54" x="485" y="939" class="heading">PARAMETER SETTINGS / INITIALIZATION</text>
+<text id="t55" x="485" y="972" class="param">patterns : const FbProfilePattern *</text>
+<text id="t56" x="485" y="999" class="param">patterns.steps : const FbProfileStep *</text>
+<text id="t57" x="485" y="1026" class="param">patterns.steps.target : int32_t</text>
+<text id="t58" x="485" y="1053" class="param">patterns.steps.duration_ms : uint32_t</text>
+<text id="t59" x="485" y="1080" class="param">patterns.count : size_t</text>
+<text id="t60" x="485" y="1107" class="param">patterns.repeat_count : uint16_t</text>
+<text id="t61" x="485" y="1134" class="param">patterns.link : FbProfileLink</text>
+<text id="t62" x="485" y="1161" class="param">patterns.next_pattern : size_t</text>
+<text id="t63" x="930" y="972" class="param">count : size_t</text>
+<text id="t64" x="930" y="999" class="param">start_pattern : size_t</text>
+<text id="t65" x="930" y="1026" class="param">start_step : size_t</text>
+<text id="t66" x="930" y="1053" class="param">revision : uint32_t</text>
+<text id="t67" x="930" y="1080" class="param">starting_rate : uint32_t</text>
+<text id="t68" x="930" y="1107" class="param">wait_enabled : bool</text>
+<text id="t69" x="930" y="1134" class="param">wait_band : uint32_t</text>
+<text id="t70" x="930" y="1161" class="param">wait_timeout_ms : uint32_t</text>
+<path d="M920 906 L920 866" class="setting"/>
+<text id="t71" x="40" y="1295">SV / PV: 0.001 C | time: ms | starting_rate: milli-C/min</text>
+<text id="t72" x="40" y="1325" class="small">Solid lines: signal / result relationships. Dashed line: configuration. See README for units, ranges and exact timing.</text>
+<text id="t73" x="40" y="1354" class="small">L04 computation only; source routing, scheduling, final output authority and project integration remain outside this diagram.</text>
+</svg>

@@ -1,10 +1,4 @@
-```mermaid
-flowchart TD
-    I["Input：PV 陣列、valid、elapsed_ms、enable、reset"] --> F["FbMultiChannelAlarm：單實例"]
-    C["Config：選取表、revision、溫差上限、延遲、hold"] --> F
-    F --> O["Output：MIN、MAX、spread、valid、active、action_request"]
-    O --> S["外層 SYSTEM 動作分派：尚未接入"]
-```
+![FbMultiChannelAlarm FBD：輸入、輸出、功能與參數設定](FbMultiChannelAlarm_BlockDiagram.svg)
 
 # FbMultiChannelAlarm
 
@@ -64,3 +58,7 @@ L05 將模組 mask 轉為來源陣列，保證同單位、同尺度、資料年�
 Action 編號、目標迴路、唯一動作擁有者及命令佇列由既有 SYSTEM／L05 管理。request 不內建重試／ACK／持久化去重，SYSTEM 需即時接收並記錄執行結果，不能每週期用 active 反覆執行 Toggle 或 PID Group+1。Reset 本 FB 不等於重置單通道警報；兩者使用獨立命令。
 
 既有 SYSTEM／Safety／輸出服務保留最終許可；本 FB 不寫硬體、不操作 RUN／STOP。[Host 驗證細則](HOST_TEST.md)。
+
+## SVG FBD 維護說明
+
+2026-10-26：方塊圖已依 [公開 Header](../FbMultiChannelAlarm.h) 核對。左側為輸入、右側為輸出，外框內為功能分組與參數設定；Init／Reset 的資源與初值另列，不代表新增執行引腳。標示 API result 的列是函式回傳值，非 Output 結構成員。內部箭頭表示功能關係，精確優先序與錯誤行為以程式及本文契約為準。圖面使用英文介面名稱，說明沿用本頁繁體中文文件。

@@ -1,12 +1,6 @@
-# FbSetpointRamp Host Unit Test
+![FbSetpointRamp FBD：輸入、輸出、功能與參數設定](../../FbSetpointRamp_BlockDiagram.svg)
 
-```mermaid
-flowchart LR
-    C["Config: rise_rate, fall_rate (U/s)"] --> FB["FbSetpointRamp"]
-    I["Input: target (U), dt_seconds (s), enable"] --> FB
-    S["State: value, precise_value, initialized; Init/Reset(initial_value)"] <--> FB
-    FB --> O["Output: value, reached, valid, status; return status"]
-```
+# FbSetpointRamp Host Unit Test
 
 ## 介面與規則
 

@@ -1,10 +1,4 @@
-```mermaid
-flowchart TD
-    I["Input：PV／valid、SV／valid、sequence、elapsed_ms"] --> F["FbBatchMetrics：單批次實例"]
-    C["Config：升降方向、到溫帶、連續時間"] --> F
-    B["enable、START／STOP／RESET"] --> F
-    F --> O["Output：極值、平均／變異數、過衝、到溫、偏差積分"]
-```
+![FbBatchMetrics FBD：輸入、輸出、功能與參數設定](FbBatchMetrics_BlockDiagram.svg)
 
 # FbBatchMetrics
 
@@ -58,3 +52,7 @@ START遇sv_valid=false拒絕並保留既有結果，持續高命令不自動重�
 不提供資料保存／斷電接續、窗口統計或步驟自動分批。L05可把程序開始／結束對接命令，但必須明確定義統計對象與時間邊界，不直接將Ramp／Soak多變SV當固定目標批次。
 
 [Host驗證細則](HOST_TEST.md)。
+
+## SVG FBD 維護說明
+
+2026-10-26：方塊圖已依 [公開 Header](../FbBatchMetrics.h) 核對。左側為輸入、右側為輸出，外框內為功能分組與參數設定；Init／Reset 的資源與初值另列，不代表新增執行引腳。標示 API result 的列是函式回傳值，非 Output 結構成員。內部箭頭表示功能關係，精確優先序與錯誤行為以程式及本文契約為準。圖面使用英文介面名稱，說明沿用本頁繁體中文文件。

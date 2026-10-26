@@ -1,12 +1,6 @@
-# FbLinearization 主機單元測試報告
+![FbLinearization FBD：輸入、輸出、功能與參數設定](../../FbLinearization_BlockDiagram.svg)
 
-```mermaid
-flowchart LR
-    C["Config：唯讀 table、size_t count、CLAMP / ERROR"] --> FB["FbLinearization_Execute<br/>全表驗證 → 節點命中／分段線性內插"]
-    T["呼叫端持有 Point[]：有限 x/y；x 嚴格遞增"] --> C
-    I["Input：value、enable"] --> FB
-    FB --> O["Output：value、range、valid、status<br/>函式回傳 status；無 State／Init／Reset"]
-```
+# FbLinearization 主機單元測試報告
 
 ## 介面與規則
 

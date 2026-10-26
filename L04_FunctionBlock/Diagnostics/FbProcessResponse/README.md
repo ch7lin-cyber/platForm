@@ -1,10 +1,4 @@
-```mermaid
-flowchart TD
-    C["Config：步階MV、預期終值、響應／穩定條件"] --> F["FbProcessResponse：單次觀測"]
-    I["Input：PV／MV、品質、序號、dt、步階前基準"] --> F
-    E["enable、START／STOP／RESET"] --> F
-    F --> O["Output：響應時間、過衝、穩定增益、result_valid"]
-```
+![FbProcessResponse FBD：輸入、輸出、功能與參數設定](FbProcessResponse_BlockDiagram.svg)
 
 # FbProcessResponse
 
@@ -70,3 +64,7 @@ Output有各門檻seen旗標及時間，0ms也可是真實觀測，不能只用�
 valid=false或MV偏離容許帶會中止整次觀測，不跨缺失區間延伸響應時間。完成後結果凍結，不再代表後續過衝或長期穩定；要持續監控需另用Alarm／BatchMetrics。輸出不包含任何停止硬體命令，SYSTEM／Safety維持既有權責。
 
 [Host測試細則](HOST_TEST.md)。
+
+## SVG FBD 維護說明
+
+2026-10-26：方塊圖已依 [公開 Header](../FbProcessResponse.h) 核對。左側為輸入、右側為輸出，外框內為功能分組與參數設定；Init／Reset 的資源與初值另列，不代表新增執行引腳。標示 API result 的列是函式回傳值，非 Output 結構成員。內部箭頭表示功能關係，精確優先序與錯誤行為以程式及本文契約為準。圖面使用英文介面名稱，說明沿用本頁繁體中文文件。

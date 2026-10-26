@@ -1,12 +1,6 @@
-# FbInBandTimer Host 單元測試
+![FbInBandTimer FBD：輸入、輸出、功能與參數設定](../../FbInBandTimer_BlockDiagram.svg)
 
-```mermaid
-flowchart LR
-    C["Config: tolerance, dwell_seconds, out_of_band_policy"] --> FB["FbInBandTimer"]
-    I["Input: pv, sp, dt_seconds, enable, input_valid"] --> FB
-    S["State: double elapsed_seconds, compensation, initialized; Init/Reset"] <--> FB
-    FB --> O["Output: elapsed_seconds, in_band, done, valid, status; return status"]
-```
+# FbInBandTimer Host 單元測試
 
 ## 介面與規則
 

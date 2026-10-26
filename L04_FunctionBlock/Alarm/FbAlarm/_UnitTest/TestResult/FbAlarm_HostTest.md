@@ -1,14 +1,6 @@
+![FbAlarm FBD：輸入、輸出、功能與參數設定](../../FbAlarm_BlockDiagram.svg)
+
 # FbAlarm Host Unit Test
-
-## FB 介面方塊圖
-
-```mermaid
-flowchart LR
-    C["模式、reset_mode、H／L、standby_band、delay_ms、options"] --> FB["FbAlarm：待機、比較、延遲、手動鎖存、反向"]
-    I["PV、SV、elapsed_ms、ENABLE、valid、RESET、clear_peak"] --> FB
-    S["FbAlarm_t 獨立狀態"] <--> FB
-    FB --> O["alarm_active、condition／qualified、delay、alarm_latched、峰值與 status"]
-```
 
 ## 摘要
 

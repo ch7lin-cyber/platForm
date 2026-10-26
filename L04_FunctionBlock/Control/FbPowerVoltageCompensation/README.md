@@ -1,11 +1,4 @@
-```mermaid
-flowchart TD
-    I["Input：MV／valid、電壓／valid、資料年齡"] --> F["FbPowerVoltageCompensation：單致動器"]
-    C["Config：旁路／平方、額定電壓、倍率與MV上限"] --> F
-    E["enable"] --> F
-    F --> O["Output：MV候選、補償倍率、夾制旗標、valid"]
-    O --> S["既有SYSTEM／Safety／輸出服務，待接入"]
-```
+![FbPowerVoltageCompensation FBD：輸入、輸出、功能與參數設定](FbPowerVoltageCompensation_BlockDiagram.svg)
 
 # FbPowerVoltageCompensation
 
@@ -53,3 +46,7 @@ double處理uint32電壓比值與平方，即使全範圍比值仍有限，倍�
 L05須定義FF加總、電壓補償、輸出折線／限幅的次序，及熱冷雙輸出各自適用的供電來源。兩路MV不能未經定義就共用單一補償。當候選被限制，PID追蹤／anti-windup尚需正式後端回授流程，旗標存在不代表已完成。
 
 量測失效時最終使用0、停機或其他既有安全策略，由SYSTEM／Safety／輸出服務決定，本FB無權重定義。Register／NVM及MCU建置、浮點成本與實際量測驗證仍待完成。[Host細則](HOST_TEST.md)。
+
+## SVG FBD 維護說明
+
+2026-10-26：方塊圖已依 [公開 Header](../FbPowerVoltageCompensation.h) 核對。左側為輸入、右側為輸出，外框內為功能分組與參數設定；Init／Reset 的資源與初值另列，不代表新增執行引腳。標示 API result 的列是函式回傳值，非 Output 結構成員。內部箭頭表示功能關係，精確優先序與錯誤行為以程式及本文契約為準。圖面使用英文介面名稱，說明沿用本頁繁體中文文件。

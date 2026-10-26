@@ -6,6 +6,8 @@ must never include L01 or MCU vendor headers.
 
 ## Categories
 
+各已實作 FB 的 SVG 方塊圖、輸入／輸出引腳與參數文件，請參閱 [FBD 索引](FBD_INDEX.md)。各模組 README 的最開頭直接嵌入同一份 SVG；輸入／輸出折線以兩個公開入口分別繪圖。
+
 - `Control`: PID, on/off, fuzzy, feedforward, gain scheduling, Smith predictor,
   process estimator, and auto-tuning blocks.
 - `Alarm`: limit, deviation, standby/hold, latch, and alarm aggregation blocks.

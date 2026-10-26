@@ -1,12 +1,6 @@
-# FbOutputLimiter Host 單元測試
+![FbOutputLimiter FBD：輸入、輸出、功能與參數設定](../../FbOutputLimiter_BlockDiagram.svg)
 
-```mermaid
-flowchart LR
-    C["參數 Config: lower_limit / upper_limit U; rise_rate / fall_rate U/s"] --> FB["FbOutputLimiter：硬限幅優先於獨立升降速率限制"]
-    I["輸入 Input: requested U; dt_seconds s; enable"] --> FB
-    S["狀態 State: float value / double precise_value U; initialized; Init / Reset(initial_value)"] <--> FB
-    FB --> O["輸出 Output: value, valid, amplitude_limited, rate_limited, status"]
-```
+# FbOutputLimiter Host 單元測試
 
 ## 介面細則
 

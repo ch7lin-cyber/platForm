@@ -1,13 +1,6 @@
+![FbDivide FBD：輸入、輸出、功能與參數設定](../../FbDivide_BlockDiagram.svg)
+
 # FbDivide Host Unit Test
-
-## FB 介面方塊圖
-
-```mermaid
-flowchart LR
-    C["參數設定：denominator_epsilon"] --> FB["FbDivide：單次除法；無跨週期狀態"]
-    I["輸入：numerator、denominator、enable"] --> FB
-    FB --> O["輸出：quotient、valid、status；Run 回傳值"]
-```
 
 | 類別 | 欄位 | 用途／規則 |
 |---|---|---|

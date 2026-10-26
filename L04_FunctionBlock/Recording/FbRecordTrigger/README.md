@@ -1,10 +1,4 @@
-```mermaid
-flowchart TD
-    C["Config：週期、事件邊緣、延遲、冷卻、單次"] --> F["FbRecordTrigger：單實例"]
-    I["Input：event／valid、elapsed_ms、enable／run／reset"] --> F
-    F --> O["Output：request、reasons、missed_periods、event_fault"]
-    O --> R["外層記錄服務：擷取／佇列／保存，尚未接入"]
-```
+![FbRecordTrigger FBD：輸入、輸出、功能與參數設定](FbRecordTrigger_BlockDiagram.svg)
 
 # FbRecordTrigger
 
@@ -60,3 +54,7 @@ DefaultConfig為週期1000ms、事件關閉、RISING、延遲／冷卻0、事件
 外層記錄服務負責擷取時間戳與資料、佇列容量、成功／失敗回報、保存與重試。本FB不保證「請求發出即保存成功」，沒有耐久去重ID；missed_periods亦不能取代儲存失敗計數。
 
 SYSTEM事件仍在SYSTEM，L05將來源配置到實例，不把Register或模組編號放入L04。產品若需批次開始／結束、前觸發波形或跨通道同步記錄，須另外定義資料緩衝與時序契約。[Host細則](HOST_TEST.md)。
+
+## SVG FBD 維護說明
+
+2026-10-26：方塊圖已依 [公開 Header](../FbRecordTrigger.h) 核對。左側為輸入、右側為輸出，外框內為功能分組與參數設定；Init／Reset 的資源與初值另列，不代表新增執行引腳。標示 API result 的列是函式回傳值，非 Output 結構成員。內部箭頭表示功能關係，精確優先序與錯誤行為以程式及本文契約為準。圖面使用英文介面名稱，說明沿用本頁繁體中文文件。

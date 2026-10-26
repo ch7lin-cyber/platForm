@@ -1,10 +1,4 @@
-```mermaid
-flowchart TD
-    C["Config：Pattern／Step、起點、循環、連接、等待"] --> F["FbProfileSequencer：單實例"]
-    I["Input：初始SV、PV／valid、elapsed_ms、enable、command"] --> F
-    F --> O["Output：動態SV、步驟、時間、phase、valid、停止／逾時請求"]
-    O --> L["L05：SV 路由與 SYSTEM 命令受理，待接入"]
-```
+![FbProfileSequencer FBD：輸入、輸出、功能與參數設定](FbProfileSequencer_BlockDiagram.svg)
 
 # FbProfileSequencer
 
@@ -77,3 +71,7 @@ HOLD／RESUME／ADVANCE的命令週期不追補dt，避免不明確回算命令�
 配方屬於哪個產品通道、Pending／Apply、步驟索引Register轉count、動態SV接PID／Cascade、SYSTEM命令受理、NVM持久化與斷電接續版本格式、MCU驗證仍待接入。不可把記憶體中的狀態struct直接當可跨版本保存的FRAM格式，也不可把程序恢復視為Safety允許恢復加熱。
 
 [Host測試細則](HOST_TEST.md)。
+
+## SVG FBD 維護說明
+
+2026-10-26：方塊圖已依 [公開 Header](../FbProfileSequencer.h) 核對。左側為輸入、右側為輸出，外框內為功能分組與參數設定；Init／Reset 的資源與初值另列，不代表新增執行引腳。標示 API result 的列是函式回傳值，非 Output 結構成員。內部箭頭表示功能關係，精確優先序與錯誤行為以程式及本文契約為準。圖面使用英文介面名稱，說明沿用本頁繁體中文文件。

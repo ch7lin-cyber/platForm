@@ -1,11 +1,4 @@
-```mermaid
-flowchart TD
-    C["Config：四組參數、三個 SV 門檻、選組方式"] --> F["FbPidGroupSelector：單通道"]
-    I["Input：SV、valid、enable、lock_group、locked_group"] --> F
-    F --> O["Output：候選組別、完整參數、valid、locked、status"]
-    O --> A["L05 套用協調：待接入"]
-    A --> P["L04 FbPid → CKLIB"]
-```
+![FbPidGroupSelector FBD：輸入、輸出、功能與參數設定](FbPidGroupSelector_BlockDiagram.svg)
 
 # FbPidGroupSelector
 
@@ -55,3 +48,7 @@ AT協調器應在開始時記住組別與參數快照，執行期間傳 lock_gro
 PID Group+1／+2／-1事件的Auto行為與邊界尚未定義，不在此FB偷偷採循環／飽和。各通道可持有各自Config，多個呼叫沒有共用可變狀態，不需要Init／Reset。
 
 [Host 測試摘要與細則](HOST_TEST.md)。
+
+## SVG FBD 維護說明
+
+2026-10-26：方塊圖已依 [公開 Header](../FbPidGroupSelector.h) 核對。左側為輸入、右側為輸出，外框內為功能分組與參數設定；Init／Reset 的資源與初值另列，不代表新增執行引腳。標示 API result 的列是函式回傳值，非 Output 結構成員。內部箭頭表示功能關係，精確優先序與錯誤行為以程式及本文契約為準。圖面使用英文介面名稱，說明沿用本頁繁體中文文件。

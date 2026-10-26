@@ -1,13 +1,6 @@
+![FbWeightedSum FBD：輸入、輸出、功能與參數設定](../../FbWeightedSum_BlockDiagram.svg)
+
 # FbWeightedSum Host Unit Test
-
-## FB 介面方塊圖
-
-```mermaid
-flowchart LR
-    C["參數設定：input_count (1..4)"] --> FB["FbWeightedSum：Σ(value × weight)"]
-    I["輸入：values[4]、weights[4]、enable"] --> FB
-    FB --> O["輸出：sum、valid、status；Run 回傳值"]
-```
 
 | 類別 | 欄位 | 用途／規則 |
 |---|---|---|
