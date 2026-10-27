@@ -4,14 +4,11 @@
 
 2026-10-25 更新：25個具有.c／.h的運算模組中，24個已有專案核心與Host測試，1個FbPid為CKLIB封裝／mock驗證；原七個佔位均已補核心。FbSignalLinearization含輸入／輸出兩入口，統計為一個共用模組；另有僅文件規劃的FbC7gLogic。完整產品串接／設備相容性不是L04核心完成的同義詞。**正式PID callback、Register／NVM、實體輸出與MCU實測仍待接入。** 本輪以Git提交保存核心與驗證文件，產品整合狀態仍依下列未完成項目判定。
 
-- [x] 建立分類目錄及 `.c／.h` 空架構。
-- [x] 每個佔位檔標示「尚未完成」。
-- [x] 建立功能與驗證進度清單。
-- [ ] 定義各方塊的正式介面。
-- [ ] 完成功能實作與單元驗證。
+## 狀態用語（2026-10-27）
 
-目前狀態以表格及各方塊完成條件為準；空架構建立不等於功能完成。FbLogic、FbAlarm 已有實作與單元測試，並支援 ENABLE 停用時輸出 0 及 DISABLED 狀態；FbDivide、FbWeightedSum、FbSelector、FbMovingAverage 均已實作並加入單元測試。FbSetpointRamp、FbOutputLimiter、FbInBandTimer、FbLinearization 已完成實作與 Host 單元測試。FbDeadTime、FbLeadLag 已完成明確契約與 Host 單元測試（不代表產品專用演算法）。其餘標示尚未完成的方塊仍是佔位。
-尚未完成的佔位方塊不加入 CMake／MCU 專案編譯，也不串接前後層；已完成且具單元測試的 FB 納入 CMake Host 驗證。
+實作與測試分開判定；「Host」是執行環境，不是與單元測試並列的另一套完成項目。統一寫為「L04 實作完成；Host 單元測試通過」，PID 則為「L04 封裝完成；Host mock 單元測試通過」。詳見 [狀態定義與逐項總表](VERIFICATION_STATUS.md)。
+
+目前 25 個已實作模組的正式介面已建立；FbC7gLogic 仍只有規劃文件。下列完成條件限於 L04 公開契約，產品串接、實體 CKLIB、Register／NVM／輸出與 MCU 實測分開追蹤，不沿用早期「其餘皆為佔位」的描述。本次僅整理文件，未重新執行歷史測試。
 
 ## 方塊清單
 
@@ -36,39 +33,44 @@ PID 實作前先檢查既有模組，避免重複開發。
 
 | 批次 | 方塊 | 功能 | 狀態 |
 |---|---|---|---|
-| 1 | [FbSetpointRamp](Control/FbSetpointRamp.h) | 設定值升降斜率 | 已完成（Host 驗證） |
-| 1 | [FbProfileSequencer](Control/FbProfileSequencer.h) | 分段程序控制 | L04核心已實作／Host驗證；持久化及產品串接待接 |
-| 1 | [FbInBandTimer](Utility/FbInBandTimer.h) | 保證浸泡／區間內計時 | 已完成（Host 驗證） |
-| 1 | [FbPid](Control/FbPid.h) | L04 CKLIB 封裝：AUTO_TUNE／ON_OFF／PID／PID_FB | 封裝及 mock 驗證已做；實體庫與正式整合待完成 |
-| 1 | [FbOutputLimiter](Control/FbOutputLimiter.h) | 輸出限幅及變化率限制 | 已完成（Host 驗證） |
-| 1 | [FbWeightedSum](Utility/FbWeightedSum.h) | 加權加總 | 已完成（實作與單元測試） |
-| 1 | [FbDivide](Utility/FbDivide.h) | 除法及除零檢查 | 已完成（實作與單元測試） |
-| 1 | [FbSelector](Utility/FbSelector.h) | 訊號選擇及最大／最小值 | 已完成（實作與單元測試） |
-| 2 | [FbMovingAverage](Utility/FbMovingAverage.h) | 移動平均 | 已完成（host 驗證） |
-| 2 | [FbLinearization](Utility/FbLinearization.h) | 分段線性轉換 | 已完成（Host 驗證） |
-| 2 | [FbLeadLag](Utility/FbLeadLag.h) | 超前／落後處理 | 已完成（Host 驗證） |
-| 2 | [FbDeadTime](Utility/FbDeadTime.h) | 純延遲 | 已完成（Host 驗證） |
-| 2 | [FbPowerVoltageCompensation](Control/FbPowerVoltageCompensation.h) | 電源電壓補償 | L04平方補償已實作／Host驗證；產品輸出鏈待接 |
-| 2 | [FbHeaterResistance](Diagnostics/FbHeaterResistance.h) | 加熱器電阻估算 | L04比值診斷已實作／Host驗證；RMS來源與產品處置待接 |
-| 1 | [FbBatchMetrics](Diagnostics/FbBatchMetrics.h) | 批次製程統計 | L04核心已實作／Host驗證；產品整合未完成 |
-| 2 | [FbProcessResponse](Diagnostics/FbProcessResponse.h) | 已知步階響應觀測 | L04核心已實作／Host驗證；產品實驗串接待接 |
-| 2 | [FbRecordTrigger](Recording/FbRecordTrigger.h) | 資料記錄觸發判定 | L04核心已實作／Host驗證；產品記錄服務未接 |
-| 3 | [FbCascadeCoordinator](Control/FbCascadeCoordinator.h) | 串級SV換算 | L04換算核心已實作／Host驗證；雙PID協調待接 |
-| 1 | [FbAlarm](Alarm/FbAlarm.h) | 單一警報、延遲、待機、手動鎖存與峰值 | 已實作（Host 驗證）；與 DTDM04 有明訂差異 |
-| 1 | [FbLogic](Utility/FbLogic.h) | 四輸入邏輯、反向與 ON／OFF 延遲 | 已實作（Host 驗證）；OFF 優先規則為專案契約 |
-| 獨立 | [FbC7gLogic](Utility/FbC7gLogic/README.md) | C7G 邏輯 | 僅文件規劃，尚未實作；不列入 DTDM04 缺項 |
+| 1 | [FbSetpointRamp](Control/FbSetpointRamp.h) | 設定值升降斜率 | L04 實作完成；Host 單元測試通過 |
+| 1 | [FbProfileSequencer](Control/FbProfileSequencer.h) | 分段程序控制 | L04 實作完成；Host 單元測試通過；持久化及產品串接待接 |
+| 1 | [FbInBandTimer](Utility/FbInBandTimer.h) | 保證浸泡／區間內計時 | L04 實作完成；Host 單元測試通過 |
+| 1 | [FbPid](Control/FbPid.h) | L04 CKLIB 封裝：AUTO_TUNE／ON_OFF／PID／PID_FB | L04 封裝完成；Host mock 單元測試通過；實體庫與正式整合待完成 |
+| 1 | [FbOutputLimiter](Control/FbOutputLimiter.h) | 輸出限幅及變化率限制 | L04 實作完成；Host 單元測試通過 |
+| 1 | [FbWeightedSum](Utility/FbWeightedSum.h) | 加權加總 | L04 實作完成；Host 單元測試通過 |
+| 1 | [FbDivide](Utility/FbDivide.h) | 除法及除零檢查 | L04 實作完成；Host 單元測試通過 |
+| 1 | [FbSelector](Utility/FbSelector.h) | 訊號選擇及最大／最小值 | L04 實作完成；Host 單元測試通過 |
+| 2 | [FbMovingAverage](Utility/FbMovingAverage.h) | 移動平均 | L04 實作完成；Host 單元測試通過 |
+| 2 | [FbLinearization](Utility/FbLinearization.h) | 分段線性轉換 | L04 實作完成；Host 單元測試通過 |
+| 2 | [FbLeadLag](Utility/FbLeadLag.h) | 超前／落後處理 | L04 實作完成；Host 單元測試通過 |
+| 2 | [FbDeadTime](Utility/FbDeadTime.h) | 純延遲 | L04 實作完成；Host 單元測試通過 |
+| 2 | [FbPowerVoltageCompensation](Control/FbPowerVoltageCompensation.h) | 電源電壓補償 | L04 實作完成；Host 單元測試通過；產品輸出鏈待接 |
+| 2 | [FbHeaterResistance](Diagnostics/FbHeaterResistance.h) | 加熱器電阻估算 | L04 實作完成；Host 單元測試通過；RMS來源與產品處置待接 |
+| 1 | [FbBatchMetrics](Diagnostics/FbBatchMetrics.h) | 批次製程統計 | L04 實作完成；Host 單元測試通過；產品整合未完成 |
+| 2 | [FbProcessResponse](Diagnostics/FbProcessResponse.h) | 已知步階響應觀測 | L04 實作完成；Host 單元測試通過；產品實驗串接待接 |
+| 2 | [FbRecordTrigger](Recording/FbRecordTrigger.h) | 資料記錄觸發判定 | L04 實作完成；Host 單元測試通過；產品記錄服務未接 |
+| 3 | [FbCascadeCoordinator](Control/FbCascadeCoordinator.h) | 串級SV換算 | L04 實作完成；Host 單元測試通過；雙PID協調待接 |
+| 1 | [FbAlarm](Alarm/FbAlarm.h) | 單一警報、延遲、待機、手動鎖存與峰值 | L04 實作完成；Host 單元測試通過；與 DTDM04 有明訂差異 |
+| 1 | [FbLogic](Utility/FbLogic.h) | 四輸入邏輯、反向與 ON／OFF 延遲 | L04 實作完成；Host 單元測試通過；OFF 優先規則為專案契約 |
+| 增補 | [FbSignalLinearization](Utility/FbSignalLinearization/README.md) | 專案公開契約見 README | L04 實作完成；Host 單元測試通過；產品串接與 MCU 另列 |
+| 增補 | [FbInputSwitchOver](Utility/FbInputSwitchOver/README.md) | 專案公開契約見 README | L04 實作完成；Host 單元測試通過；產品串接與 MCU 另列 |
+| 增補 | [FbMultiChannelAlarm](Alarm/FbMultiChannelAlarm/README.md) | 專案公開契約見 README | L04 實作完成；Host 單元測試通過；產品串接與 MCU 另列 |
+| 增補 | [FbPidGroupSelector](Control/FbPidGroupSelector/README.md) | 專案公開契約見 README | L04 實作完成；Host 單元測試通過；產品串接與 MCU 另列 |
+| 增補 | [FbFeedforward](Control/FbFeedforward/README.md) | 專案公開契約見 README | L04 實作完成；Host 單元測試通過；產品串接與 MCU 另列 |
+| 獨立 | [FbC7gLogic](Utility/FbC7gLogic/README.md) | C7G 邏輯 | 尚未實作；尚無單元測試紀錄 |
 
 ## 各方塊完成條件
 
-只有正式介面、實作、單元驗證及文件全部完成後，才能勾選「已完成」。
+只有正式介面、實作、Host 單元測試通過紀錄及文件齊備，才標示「L04 實作完成；Host 單元測試通過」；此標記不包含產品串接與 MCU 實測。PID 封裝採 mock 標記，不能列為實體 CKLIB 驗證完成。
 
 ### FbSetpointRamp
 
 - [x] 正式介面與單位／範圍定義完成。
 - [x] 功能及異常輸入處理完成。
-- [x] 單元驗證通過並留下測試報告。
+- [x] Host 單元測試通過並留下測試報告。
 - [x] 文件、記憶體需求及重設行為確認。
-- [x] 已完成。
+- [x] L04 實作完成；Host 單元測試通過。
 
 ### FbProfileSequencer
 
@@ -76,7 +78,7 @@ PID 實作前先檢查既有模組，避免重複開發。
 
 - [x] 正式介面與單位／範圍定義完成。
 - [x] L04核心功能及異常輸入處理完成。
-- [x] 單元驗證通過並留下測試報告。
+- [x] Host 單元測試通過並留下測試報告。
 - [x] 文件、借用記憶體與重設行為確認。
 - [x] L04專案契約完成；不宣稱完整DTDM04相容。
 - [ ] L05／Register／NVM斷電接續與MCU整合完成。
@@ -85,9 +87,9 @@ PID 實作前先檢查既有模組，避免重複開發。
 
 - [x] 正式介面與單位／範圍定義完成。
 - [x] 功能及異常輸入處理完成。
-- [x] 單元驗證通過並留下測試報告。
+- [x] Host 單元測試通過並留下測試報告。
 - [x] 文件、記憶體需求及重設行為確認。
-- [x] 已完成。
+- [x] L04 實作完成；Host 單元測試通過。
 
 - Host 測試報告：[FbInBandTimer_HostTest.md](Utility/FbInBandTimer/_UnitTest/TestResult/FbInBandTimer_HostTest.md)。
 
@@ -104,49 +106,49 @@ PID 實作前先檢查既有模組，避免重複開發。
 
 - [x] 正式介面與單位／範圍定義完成。
 - [x] 功能及異常輸入處理完成。
-- [x] 單元驗證通過並留下測試報告。
+- [x] Host 單元測試通過並留下測試報告。
 - [x] 文件、記憶體需求及重設行為確認。
-- [x] 已完成。
+- [x] L04 實作完成；Host 單元測試通過。
 
 ### FbWeightedSum
 
 - [x] 正式介面與單位／範圍定義完成。
 - [x] 功能及異常輸入處理完成。
-- [x] 單元驗證通過並留下測試報告。
+- [x] Host 單元測試通過並留下測試報告。
 - [x] 文件、記憶體需求及重設行為確認。
-- [x] 已完成。
+- [x] L04 實作完成；Host 單元測試通過。
 
 ### FbDivide
 
 - [x] 正式介面與單位／範圍定義完成。
 - [x] 功能及異常輸入處理完成。
-- [x] 單元驗證通過並留下測試報告。
+- [x] Host 單元測試通過並留下測試報告。
 - [x] 文件、記憶體需求及重設行為確認。
-- [x] 已完成。
+- [x] L04 實作完成；Host 單元測試通過。
 
 ### FbSelector
 
 - [x] 正式介面與單位／範圍定義完成。
 - [x] 功能及異常輸入處理完成。
-- [x] 單元驗證通過並留下測試報告。
+- [x] Host 單元測試通過並留下測試報告。
 - [x] 文件、記憶體需求及重設行為確認。
-- [x] 已完成。
+- [x] L04 實作完成；Host 單元測試通過。
 
 ### FbMovingAverage
 
 - [x] 正式介面與單位／範圍定義完成。
 - [x] 功能及異常輸入處理完成。
-- [x] 單元驗證通過並留下測試報告。
+- [x] Host 單元測試通過並留下測試報告。
 - [x] 文件、記憶體需求及重設行為確認。
-- [x] 已完成。
+- [x] L04 實作完成；Host 單元測試通過。
 
 ### FbLinearization
 
 - [x] 正式介面與單位／範圍定義完成。
 - [x] 功能及異常輸入處理完成。
-- [x] 單元驗證通過並留下測試報告。
+- [x] Host 單元測試通過並留下測試報告。
 - [x] 文件、記憶體需求及重設行為確認。
-- [x] 已完成。
+- [x] L04 實作完成；Host 單元測試通過。
 
 - Host 測試報告：[FbLinearization_HostTest.md](Utility/FbLinearization/_UnitTest/TestResult/FbLinearization_HostTest.md)。
 
@@ -154,9 +156,9 @@ PID 實作前先檢查既有模組，避免重複開發。
 
 - [x] 正式介面與單位／範圍定義完成。
 - [x] 功能及異常輸入處理完成。
-- [x] 單元驗證通過並留下測試報告。
+- [x] Host 單元測試通過並留下測試報告。
 - [x] 文件、記憶體需求及重設行為確認。
-- [x] 已完成。
+- [x] L04 實作完成；Host 單元測試通過。
 
 - Host 測試報告：[FbLeadLag_HostTest.md](Utility/FbLeadLag/_UnitTest/TestResult/FbLeadLag_HostTest.md)。
 
@@ -164,9 +166,9 @@ PID 實作前先檢查既有模組，避免重複開發。
 
 - [x] 正式介面與單位／範圍定義完成。
 - [x] 功能及異常輸入處理完成。
-- [x] 單元驗證通過並留下測試報告。
+- [x] Host 單元測試通過並留下測試報告。
 - [x] 文件、記憶體需求及重設行為確認。
-- [x] 已完成。
+- [x] L04 實作完成；Host 單元測試通過。
 
 - Host 測試報告：[FbDeadTime_HostTest.md](Utility/FbDeadTime/_UnitTest/TestResult/FbDeadTime_HostTest.md)。
 
@@ -174,7 +176,7 @@ PID 實作前先檢查既有模組，避免重複開發。
 
 - [x] 正式介面與單位／範圍定義完成。
 - [x] 平方補償、旁路及異常輸入處理完成。
-- [x] 單元驗證通過並留下測試報告。
+- [x] Host 單元測試通過並留下測試報告。
 - [x] 無狀態契約及文件完成；見 [規格與方塊圖](Control/FbPowerVoltageCompensation/README.md)。
 - [x] L04專案補償契約完成。
 - [ ] L05／輸出鏈／anti-windup、Register／NVM及MCU完成。
@@ -183,7 +185,7 @@ PID 實作前先檢查既有模組，避免重複開發。
 
 - [x] 正式介面與單位／範圍定義完成。
 - [x] 比值估算與品質／時間檢查完成。
-- [x] 單元驗證通過並留下測試報告。
+- [x] Host 單元測試通過並留下測試報告。
 - [x] 無狀態契約及文件完成；見 [規格與方塊圖](Diagnostics/FbHeaterResistance/README.md)。
 - [x] L04專案診斷契約完成。
 - [ ] L05／RMS來源／產品處置與MCU整合完成。
@@ -192,7 +194,7 @@ PID 實作前先檢查既有模組，避免重複開發。
 
 - [x] 正式介面與單位／範圍定義完成。
 - [x] 批次統計核心及異常輸入處理完成。
-- [x] 單元驗證通過並留下測試報告。
+- [x] Host 單元測試通過並留下測試報告。
 - [x] 文件、記憶體需求及重設行為確認；見 [規格與方塊圖](Diagnostics/FbBatchMetrics/README.md)。
 - [x] L04專案契約完成。
 - [ ] L05／資料保存／UI及MCU整合完成。
@@ -201,7 +203,7 @@ PID 實作前先檢查既有模組，避免重複開發。
 
 - [x] 正式介面與單位／範圍定義完成。
 - [x] 已知基準觀測及異常輸入處理完成。
-- [x] 單元驗證通過並留下測試報告。
+- [x] Host 單元測試通過並留下測試報告。
 - [x] 文件、記憶體需求及重設行為確認；見 [規格與方塊圖](Diagnostics/FbProcessResponse/README.md)。
 - [x] L04專案觀測契約完成，不宣稱模型自動辨識或PID整定。
 - [ ] L05／實驗品質與結果保存／UI、MCU整合完成。
@@ -210,7 +212,7 @@ PID 實作前先檢查既有模組，避免重複開發。
 
 - [x] 正式介面與單位／範圍定義完成。
 - [x] 週期／事件觸發及異常輸入處理完成。
-- [x] 單元驗證通過並留下測試報告。
+- [x] Host 單元測試通過並留下測試報告。
 - [x] 文件、記憶體需求及重設行為確認；見 [規格與方塊圖](Recording/FbRecordTrigger/README.md)。
 - [x] L04專案觸發契約完成。
 - [ ] L05／實際記錄服務與保存回報、Register／NVM／MCU完成。
@@ -219,7 +221,7 @@ PID 實作前先檢查既有模組，避免重複開發。
 
 - [x] 正式介面與單位／範圍定義完成。
 - [x] MV→SV換算核心及異常輸入處理完成。
-- [x] 單元驗證通過並留下測試報告。
+- [x] Host 單元測試通過並留下測試報告。
 - [x] 文件、記憶體需求及重設行為確認；見 [規格與方塊圖](Control/FbCascadeCoordinator/README.md)。
 - [x] L04專案換算契約完成，非完整DTDM04相容結論。
 - [ ] 雙PID／L05、AT／校準、anti-windup與保護協調、Register／NVM／MCU完成。
@@ -233,4 +235,4 @@ PID 實作前先檢查既有模組，避免重複開發。
 - 保留必要的有效性與錯誤狀態；詳細 DEBUG 記錄可編譯關閉。
 - 程序定義由外部提供唯讀資料；段數上限不直接照搬產品規格。
 - 電阻估算檢查電流過小與取樣時間對齊；健康分析需有效激勵及基準。
-- 串級方塊目前僅佔位，不建立 PID 間的實際串接。
+- 串級 SV 換算核心已實作並有 Host 單元測試通過紀錄；雙 PID 的正式協調與產品串接尚未完成。

@@ -4,6 +4,15 @@
 
 ## 摘要
 
+**完成狀態（2026-10-27 用語統一）：L04 實作完成；Host 單元測試通過。**
+
+| 追蹤項目 | 狀態 |
+|---|---|
+| 產品串接 | 部分完成：L05 Alarm／Logic adapter 與 Host 整合測試已有紀錄；Register／NVM／實體輸出未完成 |
+| MCU 實測 | 尚未實測 |
+
+狀態用語見 [完成狀態與驗證定義](../../VERIFICATION_STATUS.md)；[測試報告](_UnitTest/TestResult/FbAlarm_HostTest.md)。本次為文件整理，不代表重新執行測試。
+
 2026-10-22：已完成八種比較模式、0.001°C 刻度、可調待機帶、成立延遲、AUTO／MANUAL 解除模式、獨立警報重置與峰值清除、反向及有效性檢查。[Host 測試報告](_UnitTest/TestResult/FbAlarm_HostTest.md)記錄 13 組測試通過，含 ASan／UBSan。
 
 比較模式及成立延遲參考 DTDM04 操作手冊 v1.5（2026-06-16）第 4.2.1～4.2.2 節，頁 4-9～4-10。AUTO／MANUAL、Reset 接受條件與峰值清除為本專案契約，不能宣稱與設備完全相同。尚未完成 MCU 實測、Alarm Register、NVM 及實體輸出整合。產品 branch2_ver1 已建立 L05 Alarm／Logic adapter 與 Host 整合驗證，詳見產品 _Product/Docs/L05_ALARM_LOGIC.md。C7G EVENT 不在本 FB 範圍。

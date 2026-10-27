@@ -1,5 +1,8 @@
 # L04 Function Block
 
+2026-10-27：完成狀態統一區分「L04 實作／封裝、Host 單元測試／mock 測試、產品串接、MCU 實測」。[狀態定義與各 FB 總表](VERIFICATION_STATUS.md)；不再將 Host 驗證視為獨立於單元測試的第三項完成工作。
+
+
 This layer contains MCU-independent IEC 61131-3-style Function Blocks and their
 shared lifecycle types. It may depend on L03 services and data contracts, but it
 must never include L01 or MCU vendor headers.

@@ -4,6 +4,15 @@
 
 ## 摘要
 
+**完成狀態（2026-10-27 用語統一）：L04 封裝完成；Host mock 單元測試通過。**
+
+| 追蹤項目 | 狀態 |
+|---|---|
+| 產品串接 | 部分完成：L05 adapter 與 mock 串接已有測試紀錄；正式 PID provider／callback、實體庫及輸出鏈未完成 |
+| MCU 實測 | 尚未實測 |
+
+狀態用語見 [完成狀態與驗證定義](../../VERIFICATION_STATUS.md)；[L05 PID adapter 測試與限制](https://github.com/ch7lin-cyber/myNXPs16_Prj/blob/branch2_ver1/_Product/Docs/L05_PID_CONTROLLER_ADAPTER.md)。本次為文件整理，不代表重新執行測試。
+
 2026-10-25：公開FbPidInput_t與L05 provider的PV／SV統一採int32、0.001°C。目前CKLIB仍使用0.1°C，暫時在FbPid.c的ToCklibTemperature單一邊界轉換，L05不得先除100。MV保持0.1%，時間與SetParameter設定值不因這次PV／SV引腳變更而自動改刻度。
 
 **下一版待Colin將CKLIB的溫度介面統一為0.001°C；實際版本／能力確認後才移除相容轉換。** 此為待辦，不是目前後端已支援或可達0.001°C控制解析度的宣告。

@@ -6,6 +6,15 @@
 
 ## 摘要
 
+**完成狀態（2026-10-27 用語統一）：L04 實作完成；Host 單元測試通過。**
+
+| 追蹤項目 | 狀態 |
+|---|---|
+| 產品串接 | 部分完成：CH0 PV 處理與 Alarm 可選處理後 PV 路徑已有 Host 整合測試紀錄；Register／完整控制鏈未完成 |
+| MCU 實測 | 尚未實測 |
+
+狀態用語見 [完成狀態與驗證定義](../../VERIFICATION_STATUS.md)；[測試報告](HOST_TEST.md)。本次為文件整理，不代表重新執行測試。
+
 已完成 L04 無狀態單訊號包裝，重用 FbLinearization 的內插與驗證。入口為 FbInputLinearization_Execute／FbOutputLinearization_Execute，宣告於 ../FbSignalLinearization.h。無硬體／Register／CKLIB 相依、無動態配置、不綁通道數；L05 路由、Register／NVM、MCU 與實體輸出尚未整合。此為專案契約，不宣稱完全複製 DTDM04。
 
 ## 引腳與模式

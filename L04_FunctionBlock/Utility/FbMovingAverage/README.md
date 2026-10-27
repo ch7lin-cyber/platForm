@@ -4,6 +4,15 @@
 
 ## 摘要
 
+**完成狀態（2026-10-27 用語統一）：L04 實作完成；Host 單元測試通過。**
+
+| 追蹤項目 | 狀態 |
+|---|---|
+| 產品串接 | 部分完成：CH0 Snapshot→L05→L04 唯讀鏈已有 Host 整合測試紀錄；未接實體輸出 |
+| MCU 實測 | 尚未實測 |
+
+狀態用語見 [完成狀態與驗證定義](../../VERIFICATION_STATUS.md)；[測試報告](_UnitTest/TestResult/FbMovingAverage_HostTest.md)。本次為文件整理，不代表重新執行測試。
+
 已實作的 L04 功能方塊；本頁依公開 Header 補齊 SVG FBD 與介面導覽。圖示本身不代表產品串接或 MCU 實測完成。
 
 Moving average of accepted samples。
