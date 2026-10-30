@@ -4,6 +4,11 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+/* Explicit build-wide opt-in. Fixed MV wiring test, NOT a PID algorithm. */
+#ifndef FB_PID_TEST_BACKEND
+#define FB_PID_TEST_BACKEND 0
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -115,7 +120,16 @@ typedef struct
     bool active;
     bool reset_input_previous;
     bool auto_tune_completed;
+#if FB_PID_TEST_BACKEND
+    int32_t test_mv; /* Fixed MV only; ABI requires one build-wide macro value. */
+#endif
 } FbPid_t;
+
+#if FB_PID_TEST_BACKEND
+/* Test backend uses no CKLIB/heap and only accepts PID + HEAT configuration.
+ * Applies next Execute; does not implement tuning or numerical PID parameters. */
+FbPidStatus_t FbPid_SetTestMv(FbPid_t *instance, int32_t mv);
+#endif
 
 FbPidStatus_t FbPid_Init(FbPid_t *instance, const FbPidConfig_t *config);
 void FbPid_Deinit(FbPid_t *instance);

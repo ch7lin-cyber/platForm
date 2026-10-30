@@ -4,6 +4,8 @@
 
 ## 摘要
 
+2026-10-30：新增明確編譯選擇 `FB_PID_TEST_BACKEND=1` 的固定 MV 後端，預設為 0，正式 CKLIB 路徑保留。此後端不引用 CKLIB、不使用 heap，只支援 PID＋HEAT，透過 `FbPid_SetTestMv()` 設定 0～1000（0.1%）；初值 0。ENABLE／valid／RESET 仍控制輸出有效性，一般 PID 參數與 AT 不予模擬。所有引用本 Header 的檔案必須使用一致巨集並重新編譯。產品 CH0 測試鏈及 Host 結果見主專案 `_Product/Docs/L05_CH0_PID_TEST.md`；本輪沒有 MCU 實測，不改變實體 CKLIB 尚未驗證的狀態。
+
 **完成狀態（2026-10-27 用語統一）：L04 封裝完成；Host mock 單元測試通過。**
 
 | 追蹤項目 | 狀態 |

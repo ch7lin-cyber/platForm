@@ -4,6 +4,9 @@
 #include <stddef.h>
 #include <string.h>
 
+#if FB_PID_TEST_BACKEND
+#include "FbPidFixedMvBackend.inc"
+#else
 #include "cklib/inc/ck_auto_tune.h"
 #include "cklib/inc/ck_controller.h"
 #include "cklib/inc/dt_auto_tune.h"
@@ -384,3 +387,4 @@ FbPidStatus_t FbPid_Execute(FbPid_t *instance,
     *output = instance->output;
     return output->status;
 }
+#endif /* FB_PID_TEST_BACKEND */
