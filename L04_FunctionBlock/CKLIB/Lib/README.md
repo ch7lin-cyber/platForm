@@ -1,7 +1,9 @@
-# CKLIB binary placeholder
+# CKLIB archive compatibility
 
-`libcklib.a` is intentionally an empty, zero-byte placeholder. The physical CKLIB archive cannot be uploaded to this repository, so this file only preserves the expected library path.
+## Compatibility warning
 
-The placeholder cannot satisfy firmware linking. For a target build, place the matching CKLIB archive in this directory on the build machine and configure the target linker to use it. Do not replace the placeholder in Git with the physical binary unless its distribution is explicitly approved.
+The current `libcklib.a` is a valid archive, but its object files are **ELF64 AArch64**. It is **incompatible with the LPC55S16 Cortex-M33 target** and must not be used to link LPC55S16 firmware.
+
+Replace it with a CKLIB archive built for the intended 32-bit ARM Cortex-M33 target before performing a target firmware build. Check the archive members and object architecture with the target toolchain, then confirm by linking the firmware.
 
 Host unit tests use CKLIB test doubles and do not link this archive.
